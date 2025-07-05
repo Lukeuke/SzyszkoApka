@@ -43,6 +43,8 @@ android {
 
 dependencies {
     implementation(libs.hilt.android)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
     implementation(libs.retrofit)
     implementation(libs.android.plugin.annotation.v9)
