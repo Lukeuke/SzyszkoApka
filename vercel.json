@@ -1,9 +1,15 @@
 {
-    "trailingSlash": false,
-    "rewrites:": [
-        {
-            "source": "/api(.*)",
-            "destination": "/api/serverless.go"
-        }
-    ]
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/serverless/serverless.go",
+      "use": "@vercel/go"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/serverless/serverless.go"
+    }
+  ]
 }
