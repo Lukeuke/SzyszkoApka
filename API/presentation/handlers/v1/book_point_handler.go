@@ -6,6 +6,7 @@ import (
 	repository "szyszko-api/infrastructure/repositories"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type BookPointHandler struct {
@@ -33,6 +34,21 @@ func (h *BookPointHandler) getAllBookPoints(c *gin.Context) {
 }
 
 func (h *BookPointHandler) getBookPointByID(c *gin.Context) {
-	id := c.Param("id")
-	c.JSON(http.StatusOK, gin.H{"message": "Get book point by id", "id": id})
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
+
+	if err != nil {
+		log.Printf("Błąd parsowania UUID: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	point, err := h.uow.BookPointRepo.GetByID(c.Request.Context(), id)
+	if err != nil {
+		log.Printf("GetByID error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, point)
 }
