@@ -10,7 +10,7 @@ import (
 func NewRouter(uow *repository.UnitOfWork) *gin.Engine {
 	r := gin.Default()
 
-	v1Group := r.Group("/v1")
+	v1Group := r.Group("/api/v1")
 	{
 		v1.RegisterBookPoints(v1Group, uow)
 	}
