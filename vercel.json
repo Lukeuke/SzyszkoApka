@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/serverless.go",
+      "src": "api/serverless/serverless.go",
       "use": "@vercel/go"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "api/serverless.go"
+      "dest": "api/serverless/serverless.go"
     }
   ]
 }
