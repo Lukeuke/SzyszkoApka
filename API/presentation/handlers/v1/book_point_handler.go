@@ -3,7 +3,10 @@ package v1
 import (
 	"log"
 	"net/http"
+	"szyszko-api/domain"
 	repository "szyszko-api/infrastructure/repositories"
+
+	dto "szyszko-api/presentation/dto/common"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -30,7 +33,12 @@ func (h *BookPointHandler) getAllBookPoints(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, points)
+	result := dto.DataResult[domain.BookPoint]{
+		Data:  points,
+		Total: len(points), // TODO: return DataResult from repo with actual total count
+	}
+
+	c.JSON(http.StatusOK, result)
 }
 
 func (h *BookPointHandler) getBookPointByID(c *gin.Context) {
