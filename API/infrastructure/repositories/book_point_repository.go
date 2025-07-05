@@ -22,12 +22,7 @@ type supabaseBookPointRepository struct {
 	client *supabase.Client
 }
 
-func NewSupabaseBookPointRepository(url, apiKey string) BookPointRepository {
-	client, err := supabase.NewClient(url, apiKey, &supabase.ClientOptions{})
-	if err != nil {
-		log.Fatalf("failed to initialize supabase client: %v", err)
-	}
-
+func NewSupabaseBookPointRepository(client *supabase.Client) BookPointRepository {
 	return &supabaseBookPointRepository{
 		client: client,
 	}
