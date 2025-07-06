@@ -10,6 +10,10 @@ android {
     namespace = "com.szyszkodar.szyszkoapka"
     compileSdk = 36
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.szyszkodar.szyszkoapka"
         minSdk = 24
@@ -21,7 +25,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "BASE_URL", "\"https://szyszko-apka.vercel.app/api/v1/\"")
+            buildConfigField("String", "APP_ID", "\"com.szyszkodar.szyszkoapka\"")
+        }
         release {
+            buildConfigField("String", "BASE_URL", "\"https://szyszko-apka.vercel.app/api/v1/\"")
+            buildConfigField("String", "APP_ID", "com.szyszkodar.szyszkoapka")
+
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -43,6 +54,8 @@ android {
 
 dependencies {
     implementation(libs.hilt.android)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
     implementation(libs.retrofit)
     implementation(libs.android.plugin.annotation.v9)
