@@ -4,7 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.szyszkodar.szyszkoapka.data.mappers.BookpointsMapper
+import com.szyszkodar.szyszkoapka.data.remote.Api
 import com.szyszkodar.szyszkoapka.data.repository.BookpointsRepository
+import com.szyszkodar.szyszkoapka.domain.repository.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -13,10 +16,5 @@ import javax.inject.Inject
 class MapScreenViewModel @Inject  constructor(
     private val bookpointsRepository: BookpointsRepository
 ): ViewModel() {
-    init {
-        viewModelScope.launch {
-            val x = bookpointsRepository.fetchData()
-            Log.d("aa", x.data.toString())
-        }
-    }
+
 }

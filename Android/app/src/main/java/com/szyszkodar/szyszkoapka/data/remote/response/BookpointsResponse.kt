@@ -2,10 +2,11 @@ package com.szyszkodar.szyszkoapka.data.remote.response
 
 import com.google.gson.annotations.SerializedName
 import com.szyszkodar.szyszkoapka.domain.remote.response.Response
+import com.szyszkodar.szyszkoapka.domain.remote.response.ResponseList
 import kotlinx.serialization.Serializable
 import java.time.OffsetDateTime
 
-data class Bookpoint(
+data class BookpointResponse(
     val id: String,
     val lat: Double,
     val lon: Double,
@@ -13,11 +14,11 @@ data class Bookpoint(
     val createdAt: String,
     @SerializedName("updated_at")
     val updatedAt: String
-)
+): Response
 
-data class BookpointsResponse(
+data class BookpointsResponseList(
     @SerializedName("data")
-    val data: List<Bookpoint>,
+    val data: List<BookpointResponse>,
     @SerializedName("total")
     val total: Int
-): Response
+): ResponseList

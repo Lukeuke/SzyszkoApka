@@ -12,6 +12,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 import com.szyszkodar.szyszkoapka.BuildConfig
+import com.szyszkodar.szyszkoapka.data.remote.response.BookpointsResponseList
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -30,7 +31,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideBookpointsRepository(api: Api): Repository {
+    fun provideBookpointsRepository(api: Api): Repository<BookpointsResponseList> {
         return BookpointsRepository(api)
     }
 }
