@@ -3,8 +3,6 @@ package com.szyszkodar.szyszkoapka.data.remote.response
 import com.google.gson.annotations.SerializedName
 import com.szyszkodar.szyszkoapka.domain.remote.response.Response
 import com.szyszkodar.szyszkoapka.domain.remote.response.ResponseList
-import kotlinx.serialization.Serializable
-import java.time.OffsetDateTime
 
 data class BookpointResponse(
     val id: String,

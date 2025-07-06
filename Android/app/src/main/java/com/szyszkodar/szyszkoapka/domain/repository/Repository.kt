@@ -5,9 +5,9 @@ import com.szyszkodar.szyszkoapka.data.remote.MakeApiCall
 import com.szyszkodar.szyszkoapka.domain.errorHandling.NetworkError
 import com.szyszkodar.szyszkoapka.domain.errorHandling.Result
 import com.szyszkodar.szyszkoapka.domain.remote.ApiRequest
-import com.szyszkodar.szyszkoapka.domain.remote.response.Response
 import com.szyszkodar.szyszkoapka.domain.remote.response.ResponseList
 import retrofit2.HttpException
+import java.net.UnknownHostException
 
 abstract class Repository<T: ResponseList>(
     private val api: Api,
@@ -26,6 +26,8 @@ abstract class Repository<T: ResponseList>(
                 in 500..599 -> Result.Error(NetworkError.SERVER_ERROR)
                 else -> Result.Error(NetworkError.UNKNOWN)
             }
+        } catch(e: UnknownHostException) {
+            Result.Error(NetworkError.NO_CONNECTION)
         } catch(e: Throwable) {
             Result.Error(NetworkError.UNKNOWN)
         }
