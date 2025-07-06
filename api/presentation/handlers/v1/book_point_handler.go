@@ -36,12 +36,18 @@ func RegisterBookPoints(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 }
 
 func (h *BookPointHandler) getAllBookPoints(c *gin.Context) {
-	// cacheKey := "all_book_points"
+	cacheKey := fmt.Sprintf("book_points_filters_%s_sort_%s_page_%s_size_%s",
+		c.DefaultQuery("filters", ""),
+		c.DefaultQuery("sort", ""),
+		c.DefaultQuery("page", "1"),
+		c.DefaultQuery("page_size", "0"))
 
-	// if data, exists := h.cache.Get(cacheKey); exists {
-	// 	c.JSON(http.StatusOK, data)
-	// 	return
-	// }
+	fmt.Printf("%s", cacheKey)
+
+	if data, exists := h.cache.Get(cacheKey); exists {
+		c.JSON(http.StatusOK, data)
+		return
+	}
 
 	query, err := helpers.TryBindDataQuery(c)
 
@@ -59,7 +65,7 @@ func (h *BookPointHandler) getAllBookPoints(c *gin.Context) {
 		return
 	}
 
-	// h.cache.Set(cacheKey, result)
+	h.cache.Set(cacheKey, result)
 
 	c.JSON(http.StatusOK, result)
 }

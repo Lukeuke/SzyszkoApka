@@ -9,9 +9,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// TODO:
-// - Add CORS
-
 func main() {
 	_ = godotenv.Load()
 
