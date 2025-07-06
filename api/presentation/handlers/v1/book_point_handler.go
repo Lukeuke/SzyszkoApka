@@ -1,14 +1,14 @@
 package v1
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"szyszko-api/domain"
 	repository "szyszko-api/infrastructure/repositories"
 	"time"
 
+	helpers "szyszko-api/application/helpers"
 	cache "szyszko-api/application/services"
-	dto "szyszko-api/presentation/dto/common"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -29,33 +29,37 @@ func NewBookPointHandler(uow *repository.UnitOfWork) *BookPointHandler {
 func RegisterBookPoints(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 	handler := NewBookPointHandler(uow)
 
-	bookPoints := group.Group("/book_points")
+	bookPoints := group.Group("/book-points")
 
 	bookPoints.GET("/", handler.getAllBookPoints)
 	bookPoints.GET("/:id", handler.getBookPointByID)
 }
 
 func (h *BookPointHandler) getAllBookPoints(c *gin.Context) {
-	cacheKey := "all_book_points"
+	// cacheKey := "all_book_points"
 
-	if data, exists := h.cache.Get(cacheKey); exists {
-		c.JSON(http.StatusOK, data)
+	// if data, exists := h.cache.Get(cacheKey); exists {
+	// 	c.JSON(http.StatusOK, data)
+	// 	return
+	// }
+
+	query, err := helpers.TryBindDataQuery(c)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	points, err := h.uow.BookPointRepo.GetAll(c.Request.Context())
+	fmt.Printf("%v", query)
+
+	result, err := h.uow.BookPointRepo.GetAll(c.Request.Context(), query)
 	if err != nil {
 		log.Printf("GetAll error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	result := dto.DataResult[domain.BookPoint]{
-		Data:  points,
-		Total: len(points), // TODO: return DataResult from repo with actual total count
-	}
-
-	h.cache.Set(cacheKey, result)
+	// h.cache.Set(cacheKey, result)
 
 	c.JSON(http.StatusOK, result)
 }
