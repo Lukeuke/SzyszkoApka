@@ -7,15 +7,17 @@ import (
 	"log"
 
 	"szyszko-api/domain"
+	dto "szyszko-api/presentation/dto/common"
 
 	"github.com/google/uuid"
+	"github.com/supabase-community/postgrest-go"
 	supabase "github.com/supabase-community/supabase-go"
 )
 
 type BookPointRepository interface {
 	Insert(ctx context.Context, bp *domain.BookPoint) error
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.BookPoint, error)
-	GetAll(ctx context.Context) ([]domain.BookPoint, error)
+	GetAll(ctx context.Context, dataQuery *dto.DataQuery) (dto.DataResult[domain.BookPoint], error)
 }
 
 type supabaseBookPointRepository struct {
@@ -38,7 +40,7 @@ func (r *supabaseBookPointRepository) Insert(ctx context.Context, bp *domain.Boo
 		return err
 	}
 
-	fmt.Printf("Inserted %d records, response: %s\n", count, string(data))
+	log.Printf("Inserted %d records, response: %s\n", count, string(data))
 	return nil
 }
 
@@ -64,20 +66,40 @@ func (r *supabaseBookPointRepository) GetByID(ctx context.Context, id uuid.UUID)
 	return &results[0], nil
 }
 
-func (r *supabaseBookPointRepository) GetAll(ctx context.Context) ([]domain.BookPoint, error) {
-	data, _, err := r.client.From("book_points").
-		Select("*", "exact", false).
-		Execute()
+func (r *supabaseBookPointRepository) GetAll(ctx context.Context, dataQuery *dto.DataQuery) (dto.DataResult[domain.BookPoint], error) {
+
+	query := r.client.From("book_points").Select("*", "exact", false)
+
+	for _, filter := range dataQuery.Filters {
+		query = query.Filter(filter.Field, filter.Operator, filter.Value)
+	}
+
+	if dataQuery.Sort != "" {
+		field, ascending := dto.ParseSortParam(dataQuery.Sort)
+		query = query.Order(field, &postgrest.OrderOpts{Ascending: ascending})
+	}
+
+	start := (dataQuery.Page - 1) * dataQuery.PageSize
+	end := dataQuery.Page*dataQuery.PageSize - 1
+	query = query.Range(start, end, "")
+
+	data, count, err := query.Execute()
+
+	result := dto.DataResult[domain.BookPoint]{
+		Total: count,
+		Data:  []domain.BookPoint{},
+	}
 
 	if err != nil {
-		return nil, err
+		return result, err
 	}
 
-	var results []domain.BookPoint
-	if err := json.Unmarshal(data, &results); err != nil {
-		return nil, fmt.Errorf("unmarshal GetAll response: %w", err)
+	var bookPoints []domain.BookPoint
+	if err := json.Unmarshal(data, &bookPoints); err != nil {
+		return result, fmt.Errorf("unmarshal GetAll response: %w", err)
 	}
 
-	log.Printf("GetAll returned %d records", len(results))
-	return results, nil
+	result.Data = bookPoints
+
+	return result, nil
 }
