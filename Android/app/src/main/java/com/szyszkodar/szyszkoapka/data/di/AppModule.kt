@@ -11,16 +11,18 @@ import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
+import com.szyszkodar.szyszkoapka.BuildConfig
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+    val baseUrl = BuildConfig.BASE_URL
 
     @Provides
     @Singleton
     fun provideApi(): Api {
         return Retrofit.Builder()
-            .baseUrl("https://szyszko-apka.vercel.app/api/v1/")
+            .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
             .build()
             .create(Api::class.java)
