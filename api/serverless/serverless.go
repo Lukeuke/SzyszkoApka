@@ -10,9 +10,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// TODO:
-// - Add CORS
-
 var router http.Handler
 
 func init() {
