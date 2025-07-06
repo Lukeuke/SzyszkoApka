@@ -1,28 +1,23 @@
 package v1
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	repository "szyszko-api/infrastructure/repositories"
-	"time"
 
 	helpers "szyszko-api/application/helpers"
-	cache "szyszko-api/application/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 type BookPointHandler struct {
-	uow   *repository.UnitOfWork
-	cache *cache.Cache
+	uow *repository.UnitOfWork
 }
 
 func NewBookPointHandler(uow *repository.UnitOfWork) *BookPointHandler {
 	return &BookPointHandler{
-		uow:   uow,
-		cache: cache.NewCache(5 * time.Minute),
+		uow: uow,
 	}
 }
 
@@ -36,27 +31,12 @@ func RegisterBookPoints(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 }
 
 func (h *BookPointHandler) getAllBookPoints(c *gin.Context) {
-	cacheKey := fmt.Sprintf("book_points_filters_%s_sort_%s_page_%s_size_%s",
-		c.DefaultQuery("filters", ""),
-		c.DefaultQuery("sort", ""),
-		c.DefaultQuery("page", "1"),
-		c.DefaultQuery("page_size", "0"))
-
-	fmt.Printf("%s", cacheKey)
-
-	if data, exists := h.cache.Get(cacheKey); exists {
-		c.JSON(http.StatusOK, data)
-		return
-	}
-
 	query, err := helpers.TryBindDataQuery(c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	fmt.Printf("%v", query)
 
 	result, err := h.uow.BookPointRepo.GetAll(c.Request.Context(), query)
 	if err != nil {
@@ -65,8 +45,7 @@ func (h *BookPointHandler) getAllBookPoints(c *gin.Context) {
 		return
 	}
 
-	h.cache.Set(cacheKey, result)
-
+	c.Header("Cache-Control", "public, max-age=300, stale-while-revalidate=3600")
 	c.JSON(http.StatusOK, result)
 }
 
@@ -80,13 +59,6 @@ func (h *BookPointHandler) getBookPointByID(c *gin.Context) {
 		return
 	}
 
-	cacheKey := "book_point_" + id.String()
-
-	if data, exists := h.cache.Get(cacheKey); exists {
-		c.JSON(http.StatusOK, data)
-		return
-	}
-
 	point, err := h.uow.BookPointRepo.GetByID(c.Request.Context(), id)
 	if err != nil {
 		log.Printf("GetByID error: %v", err)
@@ -94,7 +66,6 @@ func (h *BookPointHandler) getBookPointByID(c *gin.Context) {
 		return
 	}
 
-	h.cache.Set(cacheKey, point)
-
+	c.Header("Cache-Control", "public, max-age=300, stale-while-revalidate=3600")
 	c.JSON(http.StatusOK, point)
 }
