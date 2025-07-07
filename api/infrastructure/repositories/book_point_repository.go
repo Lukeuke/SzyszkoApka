@@ -83,12 +83,21 @@ func (r *supabaseBookPointRepository) GetAll(ctx context.Context, dataQuery *dto
 	end := dataQuery.Page*dataQuery.PageSize - 1
 	query = query.Range(start, end, "")
 
-	data, count, err := query.Execute()
+	data, _, err := query.Execute()
 
 	result := dto.DataResult[domain.BookPoint]{
-		Total: count,
+		Total: 0,
 		Data:  []domain.BookPoint{},
 	}
+
+	if err != nil {
+		return result, fmt.Errorf("query execution failed: %w", err)
+	}
+
+	_, total, err := r.client.From("book_points").
+		Select("id", "exact", true).
+		Range(0, 0, "").
+		Execute()
 
 	if err != nil {
 		return result, err
@@ -100,6 +109,7 @@ func (r *supabaseBookPointRepository) GetAll(ctx context.Context, dataQuery *dto
 	}
 
 	result.Data = bookPoints
+	result.Total = total
 
 	return result, nil
 }
