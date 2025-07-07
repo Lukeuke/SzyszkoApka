@@ -1,5 +1,6 @@
 package com.szyszkodar.szyszkoapka.data.remote
 
+import com.szyszkodar.szyszkoapka.domain.remote.Api
 import com.szyszkodar.szyszkoapka.domain.remote.ApiRequest
 import com.szyszkodar.szyszkoapka.domain.remote.response.ResponseList
 

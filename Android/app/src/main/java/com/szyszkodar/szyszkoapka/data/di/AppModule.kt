@@ -2,7 +2,7 @@ package com.szyszkodar.szyszkoapka.data.di
 
 import com.google.gson.GsonBuilder
 import com.szyszkodar.szyszkoapka.BuildConfig
-import com.szyszkodar.szyszkoapka.data.remote.Api
+import com.szyszkodar.szyszkoapka.domain.remote.Api
 import com.szyszkodar.szyszkoapka.data.remote.response.BookpointsResponseList
 import com.szyszkodar.szyszkoapka.data.repository.BookpointsRepository
 import com.szyszkodar.szyszkoapka.domain.repository.Repository

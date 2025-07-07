@@ -1,4 +1,4 @@
-package com.szyszkodar.szyszkoapka.data.remote
+package com.szyszkodar.szyszkoapka.domain.remote
 
 import com.szyszkodar.szyszkoapka.BuildConfig
 import com.szyszkodar.szyszkoapka.data.remote.response.BookpointsResponseList
