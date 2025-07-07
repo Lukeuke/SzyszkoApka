@@ -10,7 +10,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6b1ecaf3-4112-4009-9302-3eeebdcc88b5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/remote/Api.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/remote/Api.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/di/AppModule.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/di/AppModule.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/mappers/BookpointsMapper.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/mappers/BookpointsMapper.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/remote/MakeApiCall.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/remote/MakeApiCall.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/repository/BookpointsRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/repository/BookpointsRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/Error.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/Error.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/NetworkError.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/NetworkError.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/Result.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/Result.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/mappers/ResponseToUI.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/mappers/ResponseToUI.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/Api.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/Api.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/ApiRequest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/ApiRequest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/repository/Repository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/repository/Repository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/mapScreen/MapScreenViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/mapScreen/MapScreenViewModel.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,18 +55,18 @@
     <option name="PUSH_AUTO_UPDATE" value="true" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Siorpin"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Siorpin&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Lukeuke/SzyszkoApka.git",
-    "accountId": "5dab524a-c7d7-4b94-a30e-416c8b9d3c58"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Lukeuke/SzyszkoApka.git&quot;,
+    &quot;accountId&quot;: &quot;5dab524a-c7d7-4b94-a30e-416c8b9d3c58&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 7
 }</component>
@@ -83,6 +96,7 @@
       <recent name="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data" />
     </key>
     <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
+      <recent name="com.szyszkodar.szyszkoapka.domain.remote" />
       <recent name="com.szyszkodar.szyszkoapka.domain.errorHandling" />
     </key>
   </component>

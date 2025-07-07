@@ -9,6 +9,7 @@ import com.szyszkodar.szyszkoapka.domain.remote.response.ResponseList
 import retrofit2.HttpException
 import java.net.UnknownHostException
 
+// Repository abstract class - use it to implement repositories for specific requests
 abstract class Repository<T: ResponseList>(
     private val api: Api,
     private val request: ApiRequest<T>

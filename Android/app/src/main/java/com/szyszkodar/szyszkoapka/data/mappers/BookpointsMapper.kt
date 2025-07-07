@@ -7,6 +7,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
+// Mapper for BookpointsResponse -> BookpointsUI operation
 class BookpointsMapper: ResponseToUI<BookpointResponse, BookpointsUI> {
     override fun convert(response: BookpointResponse): BookpointsUI {
         return BookpointsUI(
@@ -18,6 +19,7 @@ class BookpointsMapper: ResponseToUI<BookpointResponse, BookpointsUI> {
         )
     }
 
+    // Local function created to convert String to LocalDateTime
     private fun String.convertToTime(): LocalDateTime {
         val dateTime = Instant.parse(this)
             .atZone(ZoneId.systemDefault())

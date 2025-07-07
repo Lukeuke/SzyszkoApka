@@ -6,6 +6,7 @@ import com.szyszkodar.szyszkoapka.domain.remote.ApiRequest
 import com.szyszkodar.szyszkoapka.domain.repository.Repository
 import javax.inject.Inject
 
+// Bookpoints repository - use it to make call for
 class BookpointsRepository @Inject constructor(
     api: Api
 ): Repository<BookpointsResponseList>(
