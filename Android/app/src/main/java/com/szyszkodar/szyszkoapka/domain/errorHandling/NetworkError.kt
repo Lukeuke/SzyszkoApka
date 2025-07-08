@@ -1,11 +1,11 @@
 package com.szyszkodar.szyszkoapka.domain.errorHandling
 
 // Possible network errors
-enum class NetworkError: Error {
-    REQUEST_TIMEOUT,
-    TOO_MANY_REQUESTS,
-    NO_CONNECTION,
-    SERVER_ERROR,
-    UNKNOWN_HOST,
-    UNKNOWN
+enum class NetworkError(override val message: String): Error {
+    REQUEST_TIMEOUT("Przekroczono limit czasu połączenia!"),
+    TOO_MANY_REQUESTS("Zbyt dużo zapytań!"),
+    NO_CONNECTION("Brak połączenia internetowego!"),
+    SERVER_ERROR("Wystąpił błąd po stronie serwera. Właśnie trwają prace nad jego rozwiązaniem."),
+    UNKNOWN_HOST("Wystąpił błąd hosta. Spróbuj ponownie później."),
+    UNKNOWN("Wystąpił niespodziewany błąd... Spróbuj ponownie później")
 }

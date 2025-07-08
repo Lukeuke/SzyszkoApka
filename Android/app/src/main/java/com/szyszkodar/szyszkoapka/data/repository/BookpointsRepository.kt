@@ -11,5 +11,5 @@ class BookpointsRepository @Inject constructor(
     api: Api
 ): Repository<BookpointsResponseList>(
     api = api,
-    request = ApiRequest.GetBookpoints
+    request = ApiRequest.GetBookpoints,
 )

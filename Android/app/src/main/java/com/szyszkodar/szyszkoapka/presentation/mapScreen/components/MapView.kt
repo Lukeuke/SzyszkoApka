@@ -1,4 +1,4 @@
-package com.szyszkodar.szyszkoapka.presentation
+package com.szyszkodar.szyszkoapka.presentation.mapScreen.components
 
 import android.content.Context
 import android.graphics.BitmapFactory
@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import com.szyszkodar.szyszkoapka.R
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.maplibre.android.camera.CameraPosition
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapView
@@ -21,7 +22,7 @@ import org.maplibre.geojson.FeatureCollection
 import org.maplibre.geojson.Point
 
 @Composable
-fun MapLibreView(
+fun MapLibreView (
     context: Context,
     modifier: Modifier = Modifier
 ) {
@@ -33,7 +34,7 @@ fun MapLibreView(
                 // 1. Dodaj obraz jako ikonę markera
                 style.addImage(
                     "marker-icon",
-                    BitmapFactory.decodeResource(context.resources, R.drawable.doge)
+                    BitmapFactory.decodeResource(context.resources, R.drawable.marker)
                 )
 
                 // 2. Zbuduj GeoJSON punkt
@@ -76,6 +77,9 @@ fun MapLibreView(
                 if (features.isNotEmpty()) {
                     val context = mapView.context
                     Toast.makeText(context, "Kliknięto marker!", Toast.LENGTH_SHORT).show()
+                    map.cameraPosition = CameraPosition.Builder()
+                        .target(LatLng(point.latitude, point.longitude))
+                        .build()
                     true
                 } else {
                     false
