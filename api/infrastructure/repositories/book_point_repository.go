@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"szyszko-api/domain"
+	"szyszko-api/domain/utils"
 	dto "szyszko-api/presentation/dto/common"
 
 	"github.com/google/uuid"
@@ -67,15 +68,34 @@ func (r *supabaseBookPointRepository) GetByID(ctx context.Context, id uuid.UUID)
 }
 
 func (r *supabaseBookPointRepository) GetAll(ctx context.Context, dataQuery *dto.DataQuery) (dto.DataResult[domain.BookPoint], error) {
+	result := dto.DataResult[domain.BookPoint]{
+		Total: 0,
+		Data:  []domain.BookPoint{},
+	}
+
+	validOperators := map[string]bool{
+		"eq": true, "neq": true, "gt": true, "gte": true,
+		"lt": true, "lte": true, "like": true, "ilike": true,
+		"in": true, "is": true,
+	}
 
 	query := r.client.From("book_points").Select("*", "exact", false)
 
 	for _, filter := range dataQuery.Filters {
+		if !validOperators[filter.Operator] {
+			return result, fmt.Errorf("invalid filter operator: %s", filter.Operator)
+		}
+
 		query = query.Filter(filter.Field, filter.Operator, filter.Value)
 	}
 
 	if dataQuery.Sort != "" {
 		field, ascending := dto.ParseSortParam(dataQuery.Sort)
+
+		if !utils.IsValidJSONField[domain.BookPoint](field) {
+			return result, fmt.Errorf("invalid sort field: %s", field)
+		}
+
 		query = query.Order(field, &postgrest.OrderOpts{Ascending: ascending})
 	}
 
@@ -84,11 +104,6 @@ func (r *supabaseBookPointRepository) GetAll(ctx context.Context, dataQuery *dto
 	query = query.Range(start, end, "")
 
 	data, _, err := query.Execute()
-
-	result := dto.DataResult[domain.BookPoint]{
-		Total: 0,
-		Data:  []domain.BookPoint{},
-	}
 
 	if err != nil {
 		return result, fmt.Errorf("query execution failed: %w", err)
