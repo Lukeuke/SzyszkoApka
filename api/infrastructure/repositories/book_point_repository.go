@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
 	"szyszko-api/domain"
 	"szyszko-api/domain/utils"
@@ -16,7 +17,7 @@ import (
 )
 
 type BookPointRepository interface {
-	Insert(ctx context.Context, bp *domain.BookPoint) error
+	Insert(ctx context.Context, bp *domain.BookPoint) (uuid.UUID, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.BookPoint, error)
 	GetAll(ctx context.Context, dataQuery *dto.DataQuery) (dto.DataResult[domain.BookPoint], error)
 }
@@ -31,18 +32,18 @@ func NewSupabaseBookPointRepository(client *supabase.Client) BookPointRepository
 	}
 }
 
-func (r *supabaseBookPointRepository) Insert(ctx context.Context, bp *domain.BookPoint) error {
+func (r *supabaseBookPointRepository) Insert(ctx context.Context, bp *domain.BookPoint) (uuid.UUID, error) {
 	bp.ID = uuid.New()
-	bp.CreatedAt = bp.CreatedAt.UTC()
-	bp.UpdatedAt = bp.UpdatedAt.UTC()
+	bp.CreatedAt = time.Now().UTC()
+	bp.UpdatedAt = time.Now().UTC()
 
 	data, count, err := r.client.From("book_points").Insert(bp, false, "", "representation", "").Execute()
 	if err != nil {
-		return err
+		return uuid.Nil, err
 	}
 
 	log.Printf("Inserted %d records, response: %s\n", count, string(data))
-	return nil
+	return bp.ID, nil
 }
 
 func (r *supabaseBookPointRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.BookPoint, error) {
