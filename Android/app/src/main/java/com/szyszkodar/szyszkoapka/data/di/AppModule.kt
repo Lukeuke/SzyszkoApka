@@ -2,7 +2,7 @@ package com.szyszkodar.szyszkoapka.data.di
 
 import com.google.gson.GsonBuilder
 import com.szyszkodar.szyszkoapka.BuildConfig
-import com.szyszkodar.szyszkoapka.data.remote.Api
+import com.szyszkodar.szyszkoapka.domain.remote.Api
 import com.szyszkodar.szyszkoapka.data.remote.response.BookpointsResponseList
 import com.szyszkodar.szyszkoapka.data.repository.BookpointsRepository
 import com.szyszkodar.szyszkoapka.domain.repository.Repository
@@ -14,11 +14,14 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
+// Main app dependency injection module
+// Uses Dagger Hilt
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
     val baseUrl = BuildConfig.BASE_URL
 
+    // Provide Api object
     @Provides
     @Singleton
     fun provideApi(): Api {
@@ -29,6 +32,7 @@ object AppModule {
             .create(Api::class.java)
     }
 
+    // Provide BookpointsRepository object
     @Provides
     @Singleton
     fun provideBookpointsRepository(api: Api): Repository<BookpointsResponseList> {
