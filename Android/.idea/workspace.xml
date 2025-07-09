@@ -10,31 +10,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6b1ecaf3-4112-4009-9302-3eeebdcc88b5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/errorHandling/ErrorMessageProvider.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/remote/filter/BookpointsFilter.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/remote/query/GetBookpointsQuery.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/filter/Filter.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/filterParams/FieldParam.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/filterParams/FilterParam.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/filterParams/OperatorParam.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/filterParams/SortFilter.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/query/Query.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/mapScreen/MapScreenState.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/marker.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/di/AppModule.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/di/AppModule.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/mappers/BookpointsMapper.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/mappers/BookpointsMapper.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/remote/MakeApiCall.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/remote/MakeApiCall.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/repository/BookpointsRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/repository/BookpointsRepository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/uiClasses/BookpointsUI.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/uiClasses/BookpointUI.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/Error.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/Error.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/NetworkError.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/NetworkError.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/Api.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/Api.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/repository/Repository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/repository/Repository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/MapView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/mapScreen/components/MapView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/uiClasses/BookpointUI.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/uiClasses/BookpointUI.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/mapScreen/MapScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/mapScreen/MapScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/mapScreen/MapScreenState.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/mapScreen/MapScreenState.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/mapScreen/MapScreenViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/mapScreen/MapScreenViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable-mdpi/doge.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/mapScreen/components/MapView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/mapScreen/components/MapView.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,7 +26,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=LocalEmulator, isTemplate=false, identifier=path=/home/siorpin/.android/avd/Medium_Phone.avd)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=PhysicalDevice, isTemplate=false, identifier=serial=R5CT80NDCWE)]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />

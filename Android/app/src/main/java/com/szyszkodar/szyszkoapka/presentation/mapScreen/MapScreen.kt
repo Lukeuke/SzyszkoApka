@@ -17,7 +17,7 @@ fun MapScreen(
     val state = viewmodel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     Column {
-        MapLibreView(context)
-        viewmodel.fetchBookpoints()
+        MapLibreView(context, viewmodel)
+        Log.d("MAPXDD", state.value.toString())
     }
 }

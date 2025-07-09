@@ -12,8 +12,8 @@ class BookpointsMapper: ResponseToUI<BookpointResponse, BookpointUI> {
     override fun convert(response: BookpointResponse): BookpointUI {
         return BookpointUI(
             id = response.id,
-            latitude = response.lat.toLong(),
-            longitude = response.lat.toLong(),
+            latitude = response.lat,
+            longitude = response.lat,
             createdAt = response.createdAt.convertToTime(),
             updatedAt = response.updatedAt.convertToTime()
         )

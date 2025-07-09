@@ -5,8 +5,8 @@ import java.time.LocalDateTime
 
 data class BookpointUI(
     val id: String,
-    val latitude: Long,
-    val longitude: Long,
+    val latitude: Double,
+    val longitude: Double,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime
 ): UIClass
