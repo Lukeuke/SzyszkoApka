@@ -2,7 +2,6 @@ package com.szyszkodar.szyszkoapka.presentation.mapScreen
 
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,7 +18,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.maplibre.android.camera.CameraPosition
+import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.style.layers.PropertyFactory.iconAllowOverlap
 import org.maplibre.android.style.layers.PropertyFactory.iconIgnorePlacement
@@ -69,14 +70,17 @@ class MapScreenViewModel @Inject  constructor(
 
     fun updateMap(mapView: MapView) {
         mapView.getMapAsync { map ->
+            // Create list of markers
             val features = state.value.bookpoints.map {
                 Feature.fromGeometry(Point.fromLngLat(it.longitude, it.latitude))
             }
             val geoJson = FeatureCollection.fromFeatures(features)
 
+            // Edit map style
             map.getStyle { style ->
                 val source = style.getSourceAs<GeoJsonSource>("marker-source")
 
+                // If there is any new marker - add it
                 if (source != null) {
                     source.setGeoJson(geoJson)
                 }
@@ -87,15 +91,18 @@ class MapScreenViewModel @Inject  constructor(
 
     fun createMap(mapView: MapView): MapView {
         mapView.getMapAsync { map ->
+            // Setting style of the map
             map.setStyle("https://tiles.openfreemap.org/styles/liberty") { style ->
                 style.addImage(
                     "marker-icon",
                     BitmapFactory.decodeResource(context.resources, R.drawable.marker)
                 )
 
+                // Markers
                 val geoJsonSource = GeoJsonSource("marker-source", FeatureCollection.fromFeatures(emptyList()))
                 style.addSource(geoJsonSource)
 
+                // Markers layer
                 val symbolLayer = SymbolLayer("marker-layer", "marker-source")
                     .withProperties(
                         iconImage("marker-icon"),
@@ -105,30 +112,65 @@ class MapScreenViewModel @Inject  constructor(
                     )
                 style.addLayer(symbolLayer)
 
+                // Starting camera position TODO: get user location
                 map.cameraPosition = CameraPosition.Builder()
                     .target(LatLng(52.2297, 21.0122))
                     .zoom(12.0)
                     .build()
             }
 
-            map.addOnMapClickListener { point ->
+            // Create listener to marker clicks
+            markerClickListener(map)
+        }
 
-                val screenPoint = map.projection.toScreenLocation(point)
+        return mapView
+    }
 
-                val features = map.queryRenderedFeatures(screenPoint, "marker-layer")
+    private fun markerClickListener(map: MapLibreMap) {
+        map.addOnMapClickListener { point ->
+            // Get tap location
+            val screenPoint = map.projection.toScreenLocation(point)
 
-                if (features.isNotEmpty()) {
-                    val context = mapView.context
+            // Give a list of clicked markers
+            val features = map.queryRenderedFeatures(screenPoint, "marker-layer")
+
+            // Check if any marker was clicked
+            if (features.isNotEmpty()) {
+                // Give the first marker on the list
+                val clickedFeature = features.first()
+                val geometry = clickedFeature.geometry()
+
+                if (geometry is Point) {
+                    val markerLatLng = LatLng(geometry.latitude(), geometry.longitude())
+
+                    // Make toase TODO: move it to ScreenView
                     Toast.makeText(context, "Kliknięto marker!", Toast.LENGTH_SHORT).show()
-                    map.cameraPosition = CameraPosition.Builder()
-                        .target(LatLng(point.latitude, point.longitude))
-                        .build()
-                    true
-                } else {
-                    false
+
+                    // Setup new camera position
+                    changeCameraPosition(map, markerLatLng)
                 }
+
+                // Marker was clicked
+                true
+            } else {
+                // Marker was not clicked
+                false
             }
         }
-        return mapView
+    }
+
+    private fun changeCameraPosition(mapLibreMap: MapLibreMap ,targetLatLng: LatLng, targetZoom: Double = 12.0) {
+        mapLibreMap.let { map ->
+            // Create builder for target camera position
+            val cameraPositionBuilder = CameraPosition.Builder()
+                .target(targetLatLng)
+                .zoom(targetZoom)
+
+            // Build it
+            val cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPositionBuilder.build())
+
+            // Animate
+            map.animateCamera(cameraUpdate, 1500)
+        }
     }
 }

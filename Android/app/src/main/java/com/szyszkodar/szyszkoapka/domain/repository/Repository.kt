@@ -1,9 +1,9 @@
 package com.szyszkodar.szyszkoapka.domain.repository
 
-import com.szyszkodar.szyszkoapka.domain.remote.Api
 import com.szyszkodar.szyszkoapka.data.remote.MakeApiCall
 import com.szyszkodar.szyszkoapka.domain.errorHandling.NetworkError
 import com.szyszkodar.szyszkoapka.domain.errorHandling.Result
+import com.szyszkodar.szyszkoapka.domain.remote.Api
 import com.szyszkodar.szyszkoapka.domain.remote.ApiRequest
 import com.szyszkodar.szyszkoapka.domain.remote.query.Query
 import com.szyszkodar.szyszkoapka.domain.remote.response.ResponseList
