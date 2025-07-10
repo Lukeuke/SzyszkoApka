@@ -33,6 +33,8 @@ func RegisterBookPoints(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 	bookPoints.GET("/", handler.getAllBookPoints)
 	bookPoints.GET("/:id", handler.getBookPointByID)
 	bookPoints.POST("/", handler.insertNewBookPoint)
+	bookPoints.DELETE("/:id", handler.deleteBookPoint)        // TODO: Role: Admin
+	bookPoints.POST("/approve/:id", handler.approveBookPoint) // TODO: Role: Admin
 }
 
 func (h *BookPointHandler) getAllBookPoints(c *gin.Context) {
@@ -98,4 +100,44 @@ func (h *BookPointHandler) insertNewBookPoint(c *gin.Context) {
 
 	c.Header("Location", fmt.Sprintf("/book-points/%s", id.String()))
 	c.Status(201)
+}
+
+func (h *BookPointHandler) approveBookPoint(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
+
+	if err != nil {
+		log.Printf("Błąd parsowania UUID: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = h.uow.BookPointRepo.Approve(c.Request.Context(), id)
+	if err != nil {
+		log.Printf("approveBookPoint error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(204)
+}
+
+func (h *BookPointHandler) deleteBookPoint(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
+
+	if err != nil {
+		log.Printf("Błąd parsowania UUID: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = h.uow.BookPointRepo.Remove(c.Request.Context(), id)
+	if err != nil {
+		log.Printf("deleteBookPoint error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(204)
 }
