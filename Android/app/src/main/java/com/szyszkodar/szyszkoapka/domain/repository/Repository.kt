@@ -1,10 +1,11 @@
 package com.szyszkodar.szyszkoapka.domain.repository
 
-import com.szyszkodar.szyszkoapka.domain.remote.Api
 import com.szyszkodar.szyszkoapka.data.remote.MakeApiCall
 import com.szyszkodar.szyszkoapka.domain.errorHandling.NetworkError
 import com.szyszkodar.szyszkoapka.domain.errorHandling.Result
+import com.szyszkodar.szyszkoapka.domain.remote.Api
 import com.szyszkodar.szyszkoapka.domain.remote.ApiRequest
+import com.szyszkodar.szyszkoapka.domain.remote.query.Query
 import com.szyszkodar.szyszkoapka.domain.remote.response.ResponseList
 import retrofit2.HttpException
 import java.net.UnknownHostException
@@ -14,11 +15,11 @@ abstract class Repository<T: ResponseList>(
     private val api: Api,
     private val request: ApiRequest<T>
 ) {
-    suspend fun fetchData(): Result<T, NetworkError> {
+    suspend fun fetchData(query: Query): Result<T, NetworkError> {
         val makeApiCall = MakeApiCall(api)
 
         return try {
-            val result: T = makeApiCall.makeCall(request)
+            val result: T = makeApiCall.makeCall(request, query)
             Result.Success(result)
         } catch(e: HttpException) {
             when(e.code()) {

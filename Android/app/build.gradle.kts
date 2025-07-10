@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.utils.API
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -25,15 +28,18 @@ android {
     }
 
     buildTypes {
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+
         debug {
             buildConfigField("String", "BASE_URL", "\"https://szyszko-apka.vercel.app/api/v1/\"")
-            buildConfigField("String", "APP_ID", "\"com.szyszkodar.szyszkoapka\"")
+            buildConfigField("String", "API_KEY", "\"${properties["API_KEY"]}\"")
         }
         release {
             buildConfigField("String", "BASE_URL", "\"https://szyszko-apka.vercel.app/api/v1/\"")
-            buildConfigField("String", "APP_ID", "com.szyszkodar.szyszkoapka")
+            buildConfigField("String", "API_KEY", "\"${properties["API_KEY"]}\"")
 
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

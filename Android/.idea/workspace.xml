@@ -9,20 +9,8 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b1ecaf3-4112-4009-9302-3eeebdcc88b5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" />
+    <list default="true" id="6b1ecaf3-4112-4009-9302-3eeebdcc88b5" name="Changes" comment="moved api key to local properties">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/di/AppModule.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/di/AppModule.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/mappers/BookpointsMapper.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/mappers/BookpointsMapper.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/remote/MakeApiCall.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/remote/MakeApiCall.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/repository/BookpointsRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data/repository/BookpointsRepository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/Error.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/Error.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/NetworkError.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/NetworkError.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/Result.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/errorHandling/Result.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/mappers/ResponseToUI.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/mappers/ResponseToUI.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/Api.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/Api.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/ApiRequest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/remote/ApiRequest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/repository/Repository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/domain/repository/Repository.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/mapScreen/MapScreenViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/mapScreen/MapScreenViewModel.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -33,7 +21,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=LocalEmulator, isTemplate=false, identifier=path=/home/siorpin/.android/avd/Medium_Phone.avd)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=PhysicalDevice, isTemplate=false, identifier=serial=R5CT80NDCWE)]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -43,11 +31,11 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Kotlin File" />
-        <option value="Kotlin Class" />
+        <option value="Kotlin Object" />
         <option value="Kotlin Data Class" />
         <option value="Kotlin Interface" />
+        <option value="Kotlin Class" />
         <option value="Kotlin Enum" />
-        <option value="Kotlin Object" />
       </list>
     </option>
   </component>
@@ -74,25 +62,27 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;ResourceManagerPrefKey.ModuleName&quot;: &quot;SzyszkoApka.app.main&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.language.Kotlin&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Android App.app.executor": "Run",
+    "Gradle.Download Sources.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "ResourceManagerPrefKey.ModuleName": "SzyszkoApka.app.main",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "dev",
+    "kotlin-language-version-configured": "true",
+    "settings.editor.selected.configurable": "preferences.language.Kotlin"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/presentation/mapScreen/components" />
       <recent name="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkoapka/data" />
     </key>
     <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
@@ -182,13 +172,41 @@
       <option name="presentableId" value="Default" />
       <updated>1751639242241</updated>
     </task>
+    <task id="LOCAL-00001" summary="Made map reactive and easy to modify it's state">
+      <option name="closed" value="true" />
+      <created>1752075305290</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1752075305290</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Created on marker click camera move with animation, optimized imports">
+      <option name="closed" value="true" />
+      <created>1752097157203</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1752097157203</updated>
+    </task>
+    <task id="LOCAL-00003" summary="moved api key to local properties">
+      <option name="closed" value="true" />
+      <created>1752141809835</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1752141809835</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="initial commit" />
     <MESSAGE value="Created abstractions for DTOs, UI classes and mappers, handled first request" />
     <MESSAGE value="added error hanling classes, more abstraction for repositries and abstraction for requests" />
-    <option name="LAST_COMMIT_MESSAGE" value="added error hanling classes, more abstraction for repositries and abstraction for requests" />
+    <MESSAGE value="Made map reactive and easy to modify it's state" />
+    <MESSAGE value="Created on marker click camera move with animation, optimized imports" />
+    <MESSAGE value="moved api key to local properties" />
+    <option name="LAST_COMMIT_MESSAGE" value="moved api key to local properties" />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
