@@ -10,7 +10,7 @@ data class BookpointsFilter(
     val value: String
 ): Filter {
     companion object {
-        fun <T> from(field: FieldParam, operator: OperatorParam, value: T): BookpointsFilter {
+        fun <T> generic(field: FieldParam, operator: OperatorParam, value: T): BookpointsFilter {
             return BookpointsFilter(field, operator, value.toString())
         }
     }

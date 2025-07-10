@@ -17,5 +17,11 @@ enum class SortFilter: Filter {
     @SerializedName("created_at_asc") CREATED_AT_ASC,
 
     @SerializedName("updated_at_desc") UPDATED_AT_DESC,
-    @SerializedName("updated_at_asc") UPDATED_AT_ASC
+    @SerializedName("updated_at_asc") UPDATED_AT_ASC,
+
+    @SerializedName("description_desc") DESCRIPTION_DESC,
+    @SerializedName("description_asc") DESCRIPTION_ASC,
+
+    @SerializedName("approved_desc") APPROVED_DESC,
+    @SerializedName("approved_asc") APPROVED_ASC
 }
