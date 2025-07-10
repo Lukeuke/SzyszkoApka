@@ -5,10 +5,12 @@ import android.graphics.BitmapFactory
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import com.szyszkodar.szyszkoapka.R
 import com.szyszkodar.szyszkoapka.data.mappers.BookpointsMapper
 import com.szyszkodar.szyszkoapka.data.remote.query.GetBookpointsQuery
 import com.szyszkodar.szyszkoapka.data.repository.BookpointsRepository
+import com.szyszkodar.szyszkoapka.data.uiClasses.BookpointUI
 import com.szyszkodar.szyszkoapka.domain.errorHandling.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -72,7 +74,10 @@ class MapScreenViewModel @Inject  constructor(
         mapView.getMapAsync { map ->
             // Create list of markers
             val features = state.value.bookpoints.map {
-                Feature.fromGeometry(Point.fromLngLat(it.longitude, it.latitude))
+                val feature = Feature.fromGeometry(Point.fromLngLat(it.longitude, it.latitude))
+                feature.addStringProperty("data", Gson().toJson(it))
+
+                feature
             }
             val geoJson = FeatureCollection.fromFeatures(features)
 
@@ -81,9 +86,7 @@ class MapScreenViewModel @Inject  constructor(
                 val source = style.getSourceAs<GeoJsonSource>("marker-source")
 
                 // If there is any new marker - add it
-                if (source != null) {
-                    source.setGeoJson(geoJson)
-                }
+                source?.setGeoJson(geoJson)
             }
         }
     }
@@ -140,11 +143,15 @@ class MapScreenViewModel @Inject  constructor(
                 val clickedFeature = features.first()
                 val geometry = clickedFeature.geometry()
 
+                // Get bookpoint data
+                val data = clickedFeature.getStringProperty("data")
+                val bookpoint = Gson().fromJson(data, BookpointUI::class.java)
+
                 if (geometry is Point) {
                     val markerLatLng = LatLng(geometry.latitude(), geometry.longitude())
 
                     // Make toase TODO: move it to ScreenView
-                    Toast.makeText(context, "Kliknięto marker!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Kliknięto ${bookpoint.id}", Toast.LENGTH_SHORT).show()
 
                     // Setup new camera position
                     changeCameraPosition(map, markerLatLng)
