@@ -8,7 +8,7 @@ import retrofit2.http.QueryMap
 
 // Interface used by Retrofit to create api requests
 interface Api {
-    @Headers("X-App-ID: ${BuildConfig.APP_ID}")
+    @Headers("X-App-ID: ${BuildConfig.API_KEY}")
     @GET("book-points")
     suspend fun getBooks(
         @QueryMap query: Map<String, String>
