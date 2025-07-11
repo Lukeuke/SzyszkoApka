@@ -1,4 +1,5 @@
 [versions]
+datastorePreferences = "1.1.7"
 desugar_jdk_libs = "2.1.5"
 ksp = "2.0.21-1.0.28"
 agp = "8.11.0"
@@ -14,6 +15,7 @@ espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.9.1"
 activityCompose = "1.10.1"
 composeBom = "2024.09.00"
+playServicesLocation = "21.3.0"
 retrofit = "2.11.0"
 converterGson = "2.11.0"
 
@@ -21,6 +23,7 @@ converterGson = "2.11.0"
 android-plugin-annotation-v9 = { module = "org.maplibre.gl:android-plugin-annotation-v9", version.ref = "androidPluginAnnotationV9" }
 android-sdk = { module = "org.maplibre.gl:android-sdk", version.ref = "androidSdk" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigation"}
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "daggerCompiler" }
@@ -38,6 +41,7 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 
