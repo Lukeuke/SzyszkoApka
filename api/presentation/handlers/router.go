@@ -33,6 +33,7 @@ func NewRouter(uow *repository.UnitOfWork) *gin.Engine {
 	v1Group := r.Group("/api/v1")
 	{
 		v1.RegisterBookPoints(v1Group, uow)
+		v1.RegisterIdentity(v1Group, uow)
 	}
 
 	return r

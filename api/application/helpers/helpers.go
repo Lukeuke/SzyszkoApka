@@ -7,7 +7,10 @@ import (
 	"os"
 	dto "szyszko-api/presentation/dto/common"
 
+	"errors"
+
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func MustGetenv(key string) string {
@@ -35,4 +38,22 @@ func TryBindDataQuery(c *gin.Context) (*dto.DataQuery, error) {
 	}
 
 	return &query, nil
+}
+
+const cost = bcrypt.DefaultCost
+
+func HashPassword(password string) (string, error) {
+	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(password), cost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedBytes), nil
+}
+
+func CheckPassword(password string, hashed string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(hashed), []byte(password))
+	if err != nil {
+		return errors.New("wrong password")
+	}
+	return nil
 }
