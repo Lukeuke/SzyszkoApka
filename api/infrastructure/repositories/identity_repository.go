@@ -15,6 +15,7 @@ type IdentityRepository interface {
 	GetAll(ctx context.Context, dataQuery *dto.DataQuery) (dto.DataResult[domain.Identity], error)
 	GetByUsername(ctx context.Context, username string) (*domain.Identity, error)
 	UpdatePassword(ctx context.Context, username string, newHash string) error
+	IsEnabled(username string) (bool, error)
 }
 
 type supabaseIdentityRepository struct {
@@ -70,4 +71,29 @@ func (r *supabaseIdentityRepository) UpdatePassword(ctx context.Context, usernam
 	}
 
 	return nil
+}
+
+func (r *supabaseIdentityRepository) IsEnabled(username string) (bool, error) {
+	data, _, err := r.client.From("identity").
+		Select("enabled", "exact", false).
+		Eq("username", username).
+		Execute()
+
+	if err != nil {
+		return false, err
+	}
+
+	var results []struct {
+		Enabled bool `json:"enabled"`
+	}
+
+	if err := json.Unmarshal(data, &results); err != nil {
+		return false, fmt.Errorf("unmarshal IsEnabled response: %w", err)
+	}
+
+	if len(results) == 0 {
+		return false, nil
+	}
+
+	return results[0].Enabled, nil
 }

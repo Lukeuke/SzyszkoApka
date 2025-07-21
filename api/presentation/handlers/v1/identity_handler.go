@@ -25,7 +25,7 @@ func RegisterIdentity(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 	identity := group.Group("/identity")
 
 	identity.POST("/", handler.login)
-	identity.POST("/password-change", middlewares.AuthMiddleware(), handler.changePassword) // Authorized
+	identity.POST("/password-change", middlewares.AuthMiddleware(uow), handler.changePassword) // Authorized
 }
 
 func (h *IdentityHandler) login(c *gin.Context) {
