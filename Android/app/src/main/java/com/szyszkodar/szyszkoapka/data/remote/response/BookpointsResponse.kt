@@ -8,15 +8,13 @@ data class BookpointResponse(
     val id: String,
     val lat: Double,
     val lon: Double,
-    @SerializedName("created_at")
-    val createdAt: String,
-    @SerializedName("updated_at")
-    val updatedAt: String
+    @SerializedName("created_at") val createdAt: String,
+    @SerializedName("updated_at") val updatedAt: String,
+    val description: String,
+    val approved: Boolean
 ): Response
 
 data class BookpointsResponseList(
-    @SerializedName("data")
     val data: List<BookpointResponse>,
-    @SerializedName("total")
     val total: Int
 ): ResponseList

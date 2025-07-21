@@ -14,6 +14,7 @@ var router http.Handler
 
 func init() {
 	_ = godotenv.Load()
+	helpers.InitJWTConfig()
 
 	url := helpers.MustGetenv("SUPABASE_URL")
 	key := helpers.MustGetenv("SUPABASE_KEY")

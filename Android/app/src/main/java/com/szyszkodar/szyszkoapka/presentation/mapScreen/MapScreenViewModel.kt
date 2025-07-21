@@ -8,10 +8,13 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.szyszkodar.szyszkoapka.R
 import com.szyszkodar.szyszkoapka.data.mappers.BookpointsMapper
+import com.szyszkodar.szyszkoapka.data.remote.filter.BookpointsFilter
 import com.szyszkodar.szyszkoapka.data.remote.query.GetBookpointsQuery
 import com.szyszkodar.szyszkoapka.data.repository.BookpointsRepository
 import com.szyszkodar.szyszkoapka.data.uiClasses.BookpointUI
 import com.szyszkodar.szyszkoapka.domain.errorHandling.Result
+import com.szyszkodar.szyszkoapka.domain.remote.filterParams.FieldParam
+import com.szyszkodar.szyszkoapka.domain.remote.filterParams.OperatorParam
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,11 +54,16 @@ class MapScreenViewModel @Inject  constructor(
         fetchBookpoints()
     }
 
-    fun fetchBookpoints() {
+    private fun fetchBookpoints() {
         val bookpointsMapper = BookpointsMapper()
 
         viewModelScope.launch {
-            val query = GetBookpointsQuery()
+            // Fetch only approved bookpoints
+            val query = GetBookpointsQuery(
+                filters = listOf(
+                    BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, true)
+                )
+            )
 
             when(val response = bookpointsRepository.fetchData(query = query)) {
                 is Result.Success -> {
@@ -152,6 +160,8 @@ class MapScreenViewModel @Inject  constructor(
 
                     // Make toase TODO: move it to ScreenView
                     Toast.makeText(context, "Kliknięto ${bookpoint.id}", Toast.LENGTH_SHORT).show()
+
+                    _state.update { it.copy(bookpointInfoVisible = true, chosenBookpoint = bookpoint) }
 
                     // Setup new camera position
                     changeCameraPosition(map, markerLatLng)

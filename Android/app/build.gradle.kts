@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.utils.API
 import java.util.Properties
 
 plugins {
@@ -60,6 +59,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.play.services.location)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.hilt.android)
     implementation(libs.retrofit.converter.gson)
