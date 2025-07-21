@@ -102,3 +102,32 @@ func (r *supabaseBookPointRepository) Remove(ctx context.Context, id uuid.UUID) 
 
 	return nil
 }
+
+func (r *supabaseBookPointRepository) Approve(ctx context.Context, id uuid.UUID) error {
+	updateData := map[string]interface{}{
+		"approved":   true,
+		"updated_at": time.Now().UTC(),
+	}
+
+	_, _, err := r.client.From("book_points").Update(updateData, "", "").Eq("id", id.String()).Execute()
+
+	if err != nil {
+		return fmt.Errorf("failed to approve book point: %w", err)
+	}
+
+	return nil
+}
+
+func (r *supabaseBookPointRepository) Remove(ctx context.Context, id uuid.UUID) error {
+	_, _, err := r.client.
+		From("book_points").
+		Delete("", "").
+		Eq("id", id.String()).
+		Execute()
+
+	if err != nil {
+		return fmt.Errorf("failed to remove book point: %w", err)
+	}
+
+	return nil
+}
