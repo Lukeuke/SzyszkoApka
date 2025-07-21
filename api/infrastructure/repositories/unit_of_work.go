@@ -6,10 +6,12 @@ import (
 
 type UnitOfWork struct {
 	BookPointRepo BookPointRepository
+	IdentityRepo  IdentityRepository
 }
 
 func NewUnitOfWork(client *supabase.Client) *UnitOfWork {
 	return &UnitOfWork{
 		BookPointRepo: NewSupabaseBookPointRepository(client),
+		IdentityRepo:  NewIdentityRepository(client),
 	}
 }

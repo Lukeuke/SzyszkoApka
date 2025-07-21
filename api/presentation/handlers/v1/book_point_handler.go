@@ -10,6 +10,7 @@ import (
 	helpers "szyszko-api/application/helpers"
 
 	dto "szyszko-api/presentation/dto/book_point"
+	"szyszko-api/presentation/handlers/v1/middlewares"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -33,8 +34,8 @@ func RegisterBookPoints(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 	bookPoints.GET("/", handler.getAllBookPoints)
 	bookPoints.GET("/:id", handler.getBookPointByID)
 	bookPoints.POST("/", handler.insertNewBookPoint)
-	bookPoints.DELETE("/:id", handler.deleteBookPoint)        // TODO: Role: Admin
-	bookPoints.POST("/approve/:id", handler.approveBookPoint) // TODO: Role: Admin
+	bookPoints.DELETE("/:id", middlewares.AuthMiddleware(), handler.deleteBookPoint)        // Authorized only
+	bookPoints.POST("/approve/:id", middlewares.AuthMiddleware(), handler.approveBookPoint) // Authorized only
 }
 
 func (h *BookPointHandler) getAllBookPoints(c *gin.Context) {
