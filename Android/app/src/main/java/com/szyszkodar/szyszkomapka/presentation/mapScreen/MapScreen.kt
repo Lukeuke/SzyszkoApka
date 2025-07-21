@@ -14,7 +14,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoPopUp.BookpointInfoPopUp
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.MapLibreView
-import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapView
 
 @Composable

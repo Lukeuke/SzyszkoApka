@@ -2,12 +2,12 @@ package com.szyszkodar.szyszkomapka.data.di
 
 import android.content.Context
 import com.google.gson.GsonBuilder
+import com.szyszkodar.szyszkomapka.BuildConfig
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
 import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponseList
 import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
 import com.szyszkodar.szyszkomapka.domain.remote.Api
 import com.szyszkodar.szyszkomapka.domain.repository.Repository
-import com.szyszkodar.szyszkomapka.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

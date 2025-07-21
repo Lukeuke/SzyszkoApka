@@ -3,7 +3,6 @@ package com.szyszkodar.szyszkomapka.presentation.mapScreen
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -85,7 +84,7 @@ class MapScreenViewModel @Inject  constructor(
         }
     }
 
-    fun updateMap(mapView: MapView) {
+    fun updateMap(mapView: MapView){
         mapView.getMapAsync { map ->
             // Create list of markers
             val features = state.value.bookpoints.map {
@@ -121,19 +120,19 @@ class MapScreenViewModel @Inject  constructor(
                 style.addSource(geoJsonSource)
 
                 // Markers layer
-                val symbolLayer = SymbolLayer("marker-layer", "marker-source")
+                val markersLayer = SymbolLayer("marker-layer", "marker-source")
                     .withProperties(
                         iconImage("marker-icon"),
                         iconAllowOverlap(true),
                         iconIgnorePlacement(true),
                         iconSize(0.2f)
                     )
-                style.addLayer(symbolLayer)
+                style.addLayer(markersLayer)
 
                 // Starting camera position TODO: get user location
                 map.cameraPosition = CameraPosition.Builder()
                     .target(
-                        state.value.userLocation ?: LatLng(52.2297, 21.0122)
+                        location = state.value.userLocation ?: LatLng(52.2297, 21.0122)
                     )
                     .zoom(12.0)
                     .build()
