@@ -5,13 +5,21 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	dto "szyszko-api/presentation/dto/common"
+	"time"
 
 	"errors"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
+
+type Claims struct {
+	Username string `json:"username"`
+	jwt.RegisteredClaims
+}
 
 func MustGetenv(key string) string {
 	v, ok := os.LookupEnv(key)
@@ -56,4 +64,41 @@ func CheckPassword(password string, hashed string) error {
 		return errors.New("wrong password")
 	}
 	return nil
+}
+
+var (
+	JwtKey            []byte
+	expirationSeconds int64
+)
+
+func GenerateToken(username string) (string, int64, error) {
+	expirationTime := time.Now().Add(time.Duration(expirationSeconds) * time.Second)
+
+	claims := &Claims{
+		Username: username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(JwtKey)
+	if err != nil {
+		return "", 0, err
+	}
+
+	return tokenString, expirationSeconds, nil
+}
+
+func InitJWTConfig() {
+	secondsStr := MustGetenv("TOKEN_EXPIRATION_SECONDS")
+	key := MustGetenv("TOKEN_KEY")
+
+	JwtKey = []byte(key)
+
+	s, err := strconv.ParseInt(secondsStr, 10, 64)
+	if err != nil {
+		log.Fatalf("Nieprawidłowa liczba sekund: %v", err)
+	}
+	expirationSeconds = s
 }

@@ -14,6 +14,7 @@ import (
 type IdentityRepository interface {
 	GetAll(ctx context.Context, dataQuery *dto.DataQuery) (dto.DataResult[domain.Identity], error)
 	GetByUsername(ctx context.Context, username string) (*domain.Identity, error)
+	UpdatePassword(ctx context.Context, username string, newHash string) error
 }
 
 type supabaseIdentityRepository struct {
@@ -51,4 +52,22 @@ func (r *supabaseIdentityRepository) GetByUsername(ctx context.Context, username
 	}
 
 	return &results[0], nil
+}
+
+func (r *supabaseIdentityRepository) UpdatePassword(ctx context.Context, username string, newHash string) error {
+	update := map[string]interface{}{
+		"password_hash": newHash,
+	}
+
+	_, _, err := r.client.
+		From("identity").
+		Update(update, "minimal", "").
+		Eq("username", username).
+		Execute()
+
+	if err != nil {
+		return fmt.Errorf("update password failed: %w", err)
+	}
+
+	return nil
 }
