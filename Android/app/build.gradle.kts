@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.szyszkodar.szyszkoapka"
+    namespace = "com.szyszkodar.szyszkomapka"
     compileSdk = 36
 
     buildFeatures {
@@ -59,6 +59,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.play.services.location)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
