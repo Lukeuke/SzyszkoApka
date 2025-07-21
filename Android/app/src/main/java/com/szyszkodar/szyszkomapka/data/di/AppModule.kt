@@ -1,0 +1,53 @@
+package com.szyszkodar.szyszkomapka.data.di
+
+import android.content.Context
+import com.google.gson.GsonBuilder
+import com.szyszkodar.szyszkomapka.BuildConfig
+import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
+import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponseList
+import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
+import com.szyszkodar.szyszkomapka.domain.remote.Api
+import com.szyszkodar.szyszkomapka.domain.repository.Repository
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Singleton
+
+// Main app dependency injection module
+// Uses Dagger Hilt
+@Module
+@InstallIn(SingletonComponent::class)
+object AppModule {
+    private const val BASE_URL = BuildConfig.BASE_URL
+
+    // Provide Api object
+    @Provides
+    @Singleton
+    fun provideApi(): Api {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
+            .build()
+            .create(Api::class.java)
+    }
+
+    // Provide BookpointsRepository object
+    @Provides
+    @Singleton
+    fun provideBookpointsRepository(api: Api): Repository<BookpointsResponseList> {
+        return BookpointsRepository(api)
+    }
+
+    // Provide localization handler
+    @Provides
+    @Singleton
+    fun provideLocalizationHandler(
+        @ApplicationContext context: Context
+    ): LocalizationHandler {
+        return LocalizationHandler(context = context)
+    }
+}

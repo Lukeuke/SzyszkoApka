@@ -34,8 +34,8 @@ func RegisterBookPoints(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 	bookPoints.GET("/", handler.getAllBookPoints)
 	bookPoints.GET("/:id", handler.getBookPointByID)
 	bookPoints.POST("/", handler.insertNewBookPoint)
-	bookPoints.DELETE("/:id", middlewares.AuthMiddleware(), handler.deleteBookPoint)        // Authorized only
-	bookPoints.POST("/approve/:id", middlewares.AuthMiddleware(), handler.approveBookPoint) // Authorized only
+	bookPoints.DELETE("/:id", middlewares.AuthMiddleware(uow), handler.deleteBookPoint)        // Authorized only
+	bookPoints.POST("/approve/:id", middlewares.AuthMiddleware(uow), handler.approveBookPoint) // Authorized only
 }
 
 func (h *BookPointHandler) getAllBookPoints(c *gin.Context) {
