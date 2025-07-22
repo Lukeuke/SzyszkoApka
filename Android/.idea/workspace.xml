@@ -9,12 +9,13 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b1ecaf3-4112-4009-9302-3eeebdcc88b5" name="Changes" comment="name change from szyszkoappka to szyszkomapka, startup localization setup">
+    <list default="true" id="6b1ecaf3-4112-4009-9302-3eeebdcc88b5" name="Changes" comment="optimized imports">
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkomapka/data/remote/body/IdentityBody.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkomapka/data/remote/body/PasswordChangeBody.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkomapka/data/remote/response/IdentityResponse.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkomapka/domain/remote/body/Body.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkomapka/data/di/AppModule.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkomapka/data/di/AppModule.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkomapka/presentation/mapScreen/MapScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkomapka/presentation/mapScreen/MapScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkomapka/presentation/mapScreen/MapScreenViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkomapka/presentation/mapScreen/MapScreenViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkomapka/presentation/mapScreen/components/MapLibreView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkomapka/presentation/mapScreen/components/MapLibreView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkomapka/domain/remote/Api.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/szyszkodar/szyszkomapka/domain/remote/Api.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,11 +35,11 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Kotlin Object" />
-        <option value="Kotlin Data Class" />
         <option value="Kotlin File" />
         <option value="Kotlin Enum" />
         <option value="Kotlin Interface" />
         <option value="Kotlin Class" />
+        <option value="Kotlin Data Class" />
       </list>
     </option>
   </component>
@@ -234,7 +235,15 @@
       <option name="project" value="LOCAL" />
       <updated>1753125303028</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="optimized imports">
+      <option name="closed" value="true" />
+      <created>1753127323531</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1753127323531</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -248,7 +257,8 @@
     <MESSAGE value="Extended get-bookpoints endpoint" />
     <MESSAGE value="created permissions handler classes and optimized imports" />
     <MESSAGE value="name change from szyszkoappka to szyszkomapka, startup localization setup" />
-    <option name="LAST_COMMIT_MESSAGE" value="name change from szyszkoappka to szyszkomapka, startup localization setup" />
+    <MESSAGE value="optimized imports" />
+    <option name="LAST_COMMIT_MESSAGE" value="optimized imports" />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
