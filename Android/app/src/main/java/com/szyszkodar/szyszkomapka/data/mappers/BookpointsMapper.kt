@@ -1,6 +1,6 @@
 package com.szyszkodar.szyszkomapka.data.mappers
 
-import com.szyszkodar.szyszkomapka.data.remote.response.BookpointResponse
+import com.szyszkodar.szyszkomapka.data.remote.response.BookpointResponseElement
 import com.szyszkodar.szyszkomapka.data.uiClasses.BookpointUI
 import com.szyszkodar.szyszkomapka.domain.mappers.ResponseToUI
 import java.time.Instant
@@ -8,8 +8,8 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 // Mapper for BookpointsResponse -> BookpointsUI operation
-class BookpointsMapper: ResponseToUI<BookpointResponse, BookpointUI> {
-    override fun convert(response: BookpointResponse): BookpointUI {
+class BookpointsMapper: ResponseToUI<BookpointResponseElement, BookpointUI> {
+    override fun convert(response: BookpointResponseElement): BookpointUI {
         return BookpointUI(
             id = response.id,
             latitude = response.lat,

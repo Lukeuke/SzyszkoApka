@@ -71,7 +71,7 @@ class MapScreenViewModel @Inject  constructor(
                 )
             )
 
-            when(val response = bookpointsRepository.fetchData(query = query)) {
+            when(val response = bookpointsRepository.getBookpoints(query)) {
                 is Result.Success -> {
                     _state.update { it.copy(bookpoints = response.data.data.map { el ->
                         bookpointsMapper.convert(el)

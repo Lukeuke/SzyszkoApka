@@ -1,9 +1,18 @@
 package com.szyszkodar.szyszkomapka.domain.remote
 
-import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponseList
-import com.szyszkodar.szyszkomapka.domain.remote.response.ResponseList
+import com.szyszkodar.szyszkomapka.data.remote.body.IdentityBody
 
 // Request abstraction
-sealed class ApiRequest<out T: ResponseList> {
-    data object GetBookpoints: ApiRequest<BookpointsResponseList>()
+sealed interface ApiRequest {
+    data class CheckIdentity(
+        val body: IdentityBody
+    ): ApiRequest
+    data class GetBookpoints(
+        val queryMap: Map<String, String>
+    ): ApiRequest
+    data class DeleteBookpoints(
+        val id: String,
+        val bearerToken: String
+    ): ApiRequest
+
 }

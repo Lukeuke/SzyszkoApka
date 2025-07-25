@@ -1,3 +1,3 @@
 package com.szyszkodar.szyszkomapka.domain.remote.response
 
-interface ResponseList
+interface ResponseElement

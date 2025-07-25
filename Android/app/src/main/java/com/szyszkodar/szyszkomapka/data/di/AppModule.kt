@@ -4,7 +4,6 @@ import android.content.Context
 import com.google.gson.GsonBuilder
 import com.szyszkodar.szyszkomapka.BuildConfig
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
-import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponseList
 import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
 import com.szyszkodar.szyszkomapka.domain.remote.Api
 import com.szyszkodar.szyszkomapka.domain.repository.Repository
@@ -13,6 +12,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -28,8 +28,19 @@ object AppModule {
     @Provides
     @Singleton
     fun provideApi(): Api {
+        val client = OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val newRequest = chain.request().newBuilder()
+                    .addHeader("X-App-ID", "${BuildConfig.API_KEY}")
+                    .build()
+
+                chain.proceed(newRequest)
+            }
+            .build()
+
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
             .build()
             .create(Api::class.java)
@@ -38,7 +49,7 @@ object AppModule {
     // Provide BookpointsRepository object
     @Provides
     @Singleton
-    fun provideBookpointsRepository(api: Api): Repository<BookpointsResponseList> {
+    fun provideBookpointsRepository(api: Api): Repository {
         return BookpointsRepository(api)
     }
 
