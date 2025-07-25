@@ -4,10 +4,10 @@ import com.szyszkodar.szyszkomapka.data.remote.query.GetBookpointsQuery
 import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponse
 import com.szyszkodar.szyszkomapka.data.remote.response.EmptyResponse
 import com.szyszkodar.szyszkomapka.domain.errorHandling.NetworkError
+import com.szyszkodar.szyszkomapka.domain.errorHandling.Result
 import com.szyszkodar.szyszkomapka.domain.remote.Api
 import com.szyszkodar.szyszkomapka.domain.remote.ApiRequest
 import com.szyszkodar.szyszkomapka.domain.repository.Repository
-import com.szyszkodar.szyszkomapka.domain.errorHandling.Result
 import javax.inject.Inject
 
 // Bookpoints repository - use it to make call for

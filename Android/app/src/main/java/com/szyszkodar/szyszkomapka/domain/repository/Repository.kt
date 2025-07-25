@@ -5,7 +5,6 @@ import com.szyszkodar.szyszkomapka.domain.errorHandling.NetworkError
 import com.szyszkodar.szyszkomapka.domain.errorHandling.Result
 import com.szyszkodar.szyszkomapka.domain.remote.Api
 import com.szyszkodar.szyszkomapka.domain.remote.ApiRequest
-import com.szyszkodar.szyszkomapka.domain.remote.query.Query
 import com.szyszkodar.szyszkomapka.domain.remote.response.Response
 import retrofit2.HttpException
 import java.net.UnknownHostException

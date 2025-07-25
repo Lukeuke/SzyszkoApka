@@ -12,11 +12,9 @@ import com.szyszkodar.szyszkomapka.data.mappers.BookpointsMapper
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
 import com.szyszkodar.szyszkomapka.data.remote.filter.BookpointsFilter
 import com.szyszkodar.szyszkomapka.data.remote.query.GetBookpointsQuery
-import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponse
 import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
 import com.szyszkodar.szyszkomapka.data.uiClasses.BookpointUI
 import com.szyszkodar.szyszkomapka.domain.errorHandling.Result
-import com.szyszkodar.szyszkomapka.domain.remote.ApiRequest
 import com.szyszkodar.szyszkomapka.domain.remote.filterParams.FieldParam
 import com.szyszkodar.szyszkomapka.domain.remote.filterParams.OperatorParam
 import dagger.hilt.android.lifecycle.HiltViewModel
