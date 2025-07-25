@@ -6,20 +6,25 @@ import com.szyszkodar.szyszkomapka.domain.errorHandling.Result
 import com.szyszkodar.szyszkomapka.domain.remote.Api
 import com.szyszkodar.szyszkomapka.domain.remote.ApiRequest
 import com.szyszkodar.szyszkomapka.domain.remote.query.Query
-import com.szyszkodar.szyszkomapka.domain.remote.response.ResponseList
+import com.szyszkodar.szyszkomapka.domain.remote.response.Response
 import retrofit2.HttpException
 import java.net.UnknownHostException
 
 // Repository abstract class - use it to implement repositories for specific requests
-abstract class Repository<T: ResponseList>(
-    private val api: Api,
-    private val request: ApiRequest<T>
+abstract class Repository(
+    private val api: Api
 ) {
-    suspend fun fetchData(query: Query): Result<T, NetworkError> {
+    protected suspend fun <T: Response> request(request: ApiRequest): Result<T, NetworkError> {
         val makeApiCall = MakeApiCall(api)
 
+        return returnRequestResult { makeApiCall.makeCall(request) }
+    }
+
+    private suspend fun <T: Response> returnRequestResult(
+        callFunction: suspend () -> T
+    ): Result<T, NetworkError> {
         return try {
-            val result: T = makeApiCall.makeCall(request, query)
+            val result = callFunction()
             Result.Success(result)
         } catch(e: HttpException) {
             when(e.code()) {
