@@ -10,7 +10,7 @@ import com.szyszkodar.szyszkomapka.domain.remote.ApiRequest
 import com.szyszkodar.szyszkomapka.domain.repository.Repository
 import javax.inject.Inject
 
-// Bookpoints repository - use it to make call for
+// Bookpoints repository - use it to make call for bookpoints related requests
 class BookpointsRepository @Inject constructor(
     api: Api
 ): Repository(
@@ -25,5 +25,9 @@ class BookpointsRepository @Inject constructor(
         bearerToken: String
     ): Result<EmptyResponse, NetworkError> {
         return request(ApiRequest.DeleteBookpoints(id, bearerToken))
+    }
+
+    suspend fun approveBookpoint(id: String, bearerToken: String): Result<EmptyResponse, NetworkError> {
+        return request(ApiRequest.ApproveBookpoints(id = id, bearerToken = bearerToken))
     }
 }
