@@ -3,6 +3,8 @@ package com.szyszkodar.szyszkomapka.presentation.mapScreen
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -29,6 +31,8 @@ import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
+import org.maplibre.android.style.layers.CircleLayer
+import org.maplibre.android.style.layers.PropertyFactory.circleColor
 import org.maplibre.android.style.layers.PropertyFactory.iconAllowOverlap
 import org.maplibre.android.style.layers.PropertyFactory.iconIgnorePlacement
 import org.maplibre.android.style.layers.PropertyFactory.iconImage
@@ -39,6 +43,9 @@ import org.maplibre.geojson.Feature
 import org.maplibre.geojson.FeatureCollection
 import org.maplibre.geojson.Point
 import javax.inject.Inject
+import org.maplibre.android.maps.Style
+import org.maplibre.android.style.layers.PropertyFactory.*
+import androidx.core.graphics.toColorInt
 
 @HiltViewModel
 class MapScreenViewModel @Inject  constructor(
@@ -101,6 +108,15 @@ class MapScreenViewModel @Inject  constructor(
 
                 // If there is any new marker - add it
                 source?.setGeoJson(geoJson)
+
+                Log.d("user haha1", _state.value.userLocation.toString())
+                // User localization
+                val userLocalization = _state.value.userLocation
+                if(userLocalization != null) {
+                    val userFeature = Feature.fromGeometry(Point.fromLngLat(userLocalization.longitude, userLocalization.latitude))
+                    val userSource = style.getSourceAs<GeoJsonSource>("user-location-source")
+                    userSource?.setGeoJson(userFeature)
+                }
             }
         }
     }
@@ -119,6 +135,10 @@ class MapScreenViewModel @Inject  constructor(
                 val geoJsonSource = GeoJsonSource("marker-source", FeatureCollection.fromFeatures(emptyList()))
                 style.addSource(geoJsonSource)
 
+                // User location
+                val locationSource = GeoJsonSource("user-location-source")
+                style.addSource(locationSource)
+
                 // Markers layer
                 val markersLayer = SymbolLayer("marker-layer", "marker-source")
                     .withProperties(
@@ -128,6 +148,16 @@ class MapScreenViewModel @Inject  constructor(
                         iconSize(0.2f)
                     )
                 style.addLayer(markersLayer)
+
+                // User location layer
+                val circleLayer = CircleLayer("user-location-layer", "user-location-source").withProperties(
+                    circleColor("#1E90FF".toColorInt()),
+                    circleRadius(6.0f),
+                    circleOpacity(0.8f),
+                    circleStrokeColor(Color.WHITE),
+                    circleStrokeWidth(2.0f)
+                )
+                style.addLayer(circleLayer)
 
                 // Starting camera position TODO: get user location
                 map.cameraPosition = CameraPosition.Builder()
@@ -203,6 +233,7 @@ class MapScreenViewModel @Inject  constructor(
         mapView.getMapAsync { map ->
             viewModelScope.launch {
                 val location = getUserLocation()
+                _state.update { it.copy(userLocation = location) }
                 changeCameraPosition(map, location)
             }
         }

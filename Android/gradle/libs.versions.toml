@@ -6,7 +6,7 @@ ksp = "2.0.21-1.0.28"
 agp = "8.11.0"
 androidPluginAnnotationV9 = "3.0.2"
 androidSdk = "11.11.0"
-daggerCompiler = "2.56.2"
+daggerCompiler = "2.57"
 hiltNavigation = "1.2.0"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
@@ -52,5 +52,5 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-dagger-hilt = { id = "com.google.dagger.hilt.android", version = "2.56.2" }
+dagger-hilt = { id = "com.google.dagger.hilt.android", version = "2.57" }
 
