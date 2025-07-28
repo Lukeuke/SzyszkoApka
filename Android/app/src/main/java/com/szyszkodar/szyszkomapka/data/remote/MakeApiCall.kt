@@ -13,6 +13,8 @@ class MakeApiCall(private val api: Api) {
             is ApiRequest.CheckIdentity -> api.identity(request.body)
             is ApiRequest.DeleteBookpoints -> api.deleteBookpoints(id = request.id, bearerToken = request.bearerToken)
             is ApiRequest.GetBookpoints -> api.getBooks(request.queryMap)
+            is ApiRequest.ApproveBookpoints -> api.approveBookpoint(bearerToken = request.bearerToken, id = request.id)
+            is ApiRequest.PasswordChange -> api.passwordChange(bearerToken = request.bearerToken, passwordChangeBody = request.body)
         } as T
     }
 }
