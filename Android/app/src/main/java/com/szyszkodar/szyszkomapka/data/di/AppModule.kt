@@ -31,7 +31,7 @@ object AppModule {
         val client = OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val newRequest = chain.request().newBuilder()
-                    .addHeader("X-App-ID", "${BuildConfig.API_KEY}")
+                    .addHeader("X-App-ID", BuildConfig.API_KEY)
                     .build()
 
                 chain.proceed(newRequest)

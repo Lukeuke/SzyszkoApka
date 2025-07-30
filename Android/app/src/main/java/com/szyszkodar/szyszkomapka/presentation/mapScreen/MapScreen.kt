@@ -1,5 +1,6 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
@@ -32,7 +33,9 @@ fun MapScreen(
     ) {
         permissionHandler.ShowDialog(
             onGranted = {
-                mapViewRef.value?.let { viewmodel.onLocalizationPermitted(it) }
+                mapViewRef.value?.let {
+                    viewmodel.onLocalizationPermitted(it)
+                }
             }
         )
 

@@ -17,6 +17,7 @@ android {
     }
 
     defaultConfig {
+
         applicationId = "com.szyszkodar.szyszkoapka"
         minSdk = 24
         targetSdk = 36
