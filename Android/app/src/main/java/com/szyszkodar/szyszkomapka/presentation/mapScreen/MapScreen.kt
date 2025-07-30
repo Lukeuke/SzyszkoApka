@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
-import com.szyszkodar.szyszkomapka.presentation.bookpointInfoPopUp.BookpointInfoPopUp
+import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.BookpointBottomSheet
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.MapLibreView
 import org.maplibre.android.maps.MapView
 
@@ -45,7 +45,9 @@ fun MapScreen(
 
         MapLibreView(context, viewmodel, mapViewRef)
         AnimatedVisibility(state.value.bookpointInfoVisible) {
-            BookpointInfoPopUp(state.value.chosenBookpoint)
+            BookpointBottomSheet(state.value.chosenBookpoint, {
+                viewmodel.toggleBookpointVisibility()
+            })
         }
     }
 

@@ -253,4 +253,8 @@ class MapScreenViewModel @Inject  constructor(
 
         return userLocation ?: LatLng(52.2297, 21.0122)
     }
+
+    fun toggleBookpointVisibility() {
+        _state.update { it.copy(bookpointInfoVisible = !it.bookpointInfoVisible) }
+    }
 }
