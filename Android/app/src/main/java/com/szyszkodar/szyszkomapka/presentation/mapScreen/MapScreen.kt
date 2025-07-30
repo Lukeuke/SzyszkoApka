@@ -1,10 +1,10 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -26,6 +26,10 @@ fun MapScreen(
     val state = viewmodel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val permissionHandler = LocalizationHandler(context)
+
+    LaunchedEffect(state.value.userLocation) {
+        mapViewRef.value?.let { viewmodel.updateMap(it) }
+    }
 
     Box(
         contentAlignment = Alignment.Center,

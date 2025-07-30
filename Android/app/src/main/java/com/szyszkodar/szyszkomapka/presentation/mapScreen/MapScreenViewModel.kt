@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.util.Log
 import android.widget.Toast
+import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
@@ -33,6 +33,10 @@ import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.style.layers.CircleLayer
 import org.maplibre.android.style.layers.PropertyFactory.circleColor
+import org.maplibre.android.style.layers.PropertyFactory.circleOpacity
+import org.maplibre.android.style.layers.PropertyFactory.circleRadius
+import org.maplibre.android.style.layers.PropertyFactory.circleStrokeColor
+import org.maplibre.android.style.layers.PropertyFactory.circleStrokeWidth
 import org.maplibre.android.style.layers.PropertyFactory.iconAllowOverlap
 import org.maplibre.android.style.layers.PropertyFactory.iconIgnorePlacement
 import org.maplibre.android.style.layers.PropertyFactory.iconImage
@@ -43,9 +47,6 @@ import org.maplibre.geojson.Feature
 import org.maplibre.geojson.FeatureCollection
 import org.maplibre.geojson.Point
 import javax.inject.Inject
-import org.maplibre.android.maps.Style
-import org.maplibre.android.style.layers.PropertyFactory.*
-import androidx.core.graphics.toColorInt
 
 @HiltViewModel
 class MapScreenViewModel @Inject  constructor(
@@ -64,6 +65,12 @@ class MapScreenViewModel @Inject  constructor(
         viewModelScope.launch {
             getUserLocation()
             fetchBookpoints()
+
+            localizationHandler.observeUserLocation().collect { newLocation ->
+                if (newLocation != null) {
+                    _state.update { it.copy(userLocation = newLocation) }
+                }
+            }
         }
     }
 
@@ -109,7 +116,6 @@ class MapScreenViewModel @Inject  constructor(
                 // If there is any new marker - add it
                 source?.setGeoJson(geoJson)
 
-                Log.d("user haha1", _state.value.userLocation.toString())
                 // User localization
                 val userLocalization = _state.value.userLocation
                 if(userLocalization != null) {
@@ -235,6 +241,7 @@ class MapScreenViewModel @Inject  constructor(
                 val location = getUserLocation()
                 _state.update { it.copy(userLocation = location) }
                 changeCameraPosition(map, location)
+                updateMap(mapView)
             }
         }
     }
