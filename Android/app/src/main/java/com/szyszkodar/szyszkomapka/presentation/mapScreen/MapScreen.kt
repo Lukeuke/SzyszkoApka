@@ -1,10 +1,12 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -13,12 +15,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
-import com.szyszkodar.szyszkomapka.presentation.bookpointInfoPopUp.BookpointInfoPopUp
+import com.szyszkodar.szyszkomapka.presentation.MainState
+import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.BookpointBottomSheet
+import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.TopBar
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.MapLibreView
 import org.maplibre.android.maps.MapView
 
 @Composable
 fun MapScreen(
+    appState: MainState,
+    paddingValues: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     val mapViewRef = remember { mutableStateOf<MapView?>(null) }
@@ -27,8 +33,12 @@ fun MapScreen(
     val context = LocalContext.current
     val permissionHandler = LocalizationHandler(context)
 
+    LaunchedEffect(state.value.userLocation) {
+        mapViewRef.value?.let { viewmodel.updateMap(it) }
+    }
+
     Box(
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.TopCenter,
         modifier = modifier
     ) {
         permissionHandler.ShowDialog(
@@ -41,8 +51,15 @@ fun MapScreen(
 
         MapLibreView(context, viewmodel, mapViewRef)
         AnimatedVisibility(state.value.bookpointInfoVisible) {
-            BookpointInfoPopUp(state.value.chosenBookpoint)
+            BookpointBottomSheet(state.value.chosenBookpoint, {
+                viewmodel.toggleBookpointVisibility()
+            })
         }
+
+        TopBar(
+            modifier = Modifier
+                .padding(paddingValues)
+        )
     }
 
     // Show error message on error
