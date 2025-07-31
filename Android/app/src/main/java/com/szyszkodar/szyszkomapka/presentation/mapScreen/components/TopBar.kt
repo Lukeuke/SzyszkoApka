@@ -3,6 +3,7 @@ package com.szyszkodar.szyszkomapka.presentation.mapScreen.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,9 +25,9 @@ fun TopBar(modifier: Modifier = Modifier) {
     ) {
         OutlinedText(
             text = "SzyszkoMapka",
-            fillColor = Color.White,
+            fillColor = MaterialTheme.colorScheme.background,
             fontFamily = LilitaOne,
-            outlineColor = Color(0xFF584E48),
+            outlineColor = MaterialTheme.colorScheme.onPrimary,
             textAlign = TextAlign.Center,
             fontSize = 34.sp,
             outlineDrawStyle = Stroke(

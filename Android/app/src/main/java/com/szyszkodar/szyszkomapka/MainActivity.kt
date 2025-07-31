@@ -28,6 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.presentation.MainViewModel
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreen
+import com.szyszkodar.szyszkomapka.ui.theme.SzyszkoMapkaTheme
 import dagger.hilt.android.AndroidEntryPoint
 import org.maplibre.android.MapLibre
 
@@ -42,7 +43,7 @@ class MainActivity : ComponentActivity() {
         MapLibre.getInstance(this)
 
         setContent {
-            MaterialTheme {
+            SzyszkoMapkaTheme {
                 val viewModel: MainViewModel = viewModel()
                 val state = viewModel.state.collectAsStateWithLifecycle()
 
@@ -50,7 +51,7 @@ class MainActivity : ComponentActivity() {
                     floatingActionButton = {
                         FloatingActionButton(
                             shape = CircleShape,
-                            containerColor = Color(0xFF907A72),
+                            containerColor = MaterialTheme.colorScheme.secondary,
                             elevation = FloatingActionButtonDefaults.loweredElevation(),
                             onClick = { viewModel.toggleAppMode(AppMode.ADD_BOOKPOINT) }
                         ) { Icon(Icons.Default.Add, null) }
