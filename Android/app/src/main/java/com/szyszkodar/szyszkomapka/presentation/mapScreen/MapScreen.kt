@@ -1,7 +1,14 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOut
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -11,14 +18,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
 import com.szyszkodar.szyszkomapka.presentation.MainState
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.BookpointBottomSheet
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.TopBar
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.MapLibreView
+import com.szyszkodar.szyszkomapka.presentation.mapScreen.modes.AddBookpointMode
+import com.szyszkodar.szyszkomapka.presentation.mapScreen.modes.AdminMode
+import com.szyszkodar.szyszkomapka.presentation.mapScreen.modes.DefaultMode
 import org.maplibre.android.maps.MapView
 
 @Composable
@@ -28,13 +41,13 @@ fun MapScreen(
     modifier: Modifier = Modifier
 ) {
     val mapViewRef = remember { mutableStateOf<MapView?>(null) }
-    val viewmodel = hiltViewModel<MapScreenViewModel>()
-    val state = viewmodel.state.collectAsStateWithLifecycle()
+    val viewModel = hiltViewModel<MapScreenViewModel>()
+    val state = viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val permissionHandler = LocalizationHandler(context)
 
     LaunchedEffect(state.value.userLocation) {
-        mapViewRef.value?.let { viewmodel.updateMap(it) }
+        mapViewRef.value?.let { viewModel.updateMap(it) }
     }
 
     Box(
@@ -44,26 +57,45 @@ fun MapScreen(
         permissionHandler.ShowDialog(
             onGranted = {
                 mapViewRef.value?.let {
-                    viewmodel.onLocalizationPermitted(it)
+                    viewModel.onLocalizationPermitted(it)
                 }
             }
         )
 
-        MapLibreView(context, viewmodel, mapViewRef)
-        AnimatedVisibility(state.value.bookpointInfoVisible) {
-            BookpointBottomSheet(state.value.chosenBookpoint, {
-                viewmodel.toggleBookpointVisibility()
-            })
+        MapLibreView(context, viewModel, mapViewRef)
+
+        AnimatedContent(
+            targetState = appState.appMode,
+            transitionSpec = {
+                slideInHorizontally(){it} togetherWith slideOutHorizontally(){it}
+            }
+        ) { mode ->
+            when(mode) {
+                AppMode.DEFAULT -> DefaultMode(
+                    paddingValues = paddingValues,
+                    viewModel = viewModel
+                )
+                AppMode.ADMIN -> AdminMode(
+                    paddingValues = paddingValues,
+                    viewModel = viewModel
+                )
+                AppMode.ADD_BOOKPOINT -> AddBookpointMode(
+                    paddingValues = paddingValues
+                )
+            }
+
         }
 
-        TopBar(
-            modifier = Modifier
-                .padding(paddingValues)
-        )
     }
+
 
     // Show error message on error
     state.value.errorMessage?.let {
-        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        if(!state.value.errorShown) {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+
+            // Show it once
+            viewModel.setErrorMessageShownToTrue()
+        }
     }
 }
