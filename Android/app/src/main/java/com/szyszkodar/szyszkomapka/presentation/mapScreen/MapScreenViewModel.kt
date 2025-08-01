@@ -257,4 +257,8 @@ class MapScreenViewModel @Inject  constructor(
     fun toggleBookpointVisibility() {
         _state.update { it.copy(bookpointInfoVisible = !it.bookpointInfoVisible) }
     }
+
+    fun setErrorMessageShownToTrue(){
+        _state.update { it.copy(errorShown = true) }
+    }
 }

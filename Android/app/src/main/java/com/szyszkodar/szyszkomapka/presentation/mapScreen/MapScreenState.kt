@@ -7,6 +7,7 @@ import java.time.LocalDateTime
 data class MapScreenState(
     val bookpoints: List<BookpointUI> = emptyList(),
     val errorMessage: String? = null,
+    val errorShown: Boolean = false,
     val bookpointInfoVisible: Boolean = false,
     val userLocation: LatLng? = null,
     val chosenBookpoint: BookpointUI = BookpointUI("", 0.0, 0.0, LocalDateTime.now(), LocalDateTime.now(), "", false)

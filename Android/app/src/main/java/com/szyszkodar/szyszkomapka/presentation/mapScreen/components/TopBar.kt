@@ -16,7 +16,10 @@ import com.szyszkodar.szyszkomapka.presentation.shared.OutlinedText
 import com.szyszkodar.szyszkomapka.ui.theme.LilitaOne
 
 @Composable
-fun TopBar(modifier: Modifier = Modifier) {
+fun TopBar(
+    text: String,
+    modifier: Modifier = Modifier
+) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -24,7 +27,7 @@ fun TopBar(modifier: Modifier = Modifier) {
             .height(80.dp)
     ) {
         OutlinedText(
-            text = "SzyszkoMapka",
+            text = text,
             fillColor = MaterialTheme.colorScheme.background,
             fontFamily = LilitaOne,
             outlineColor = MaterialTheme.colorScheme.onPrimary,
