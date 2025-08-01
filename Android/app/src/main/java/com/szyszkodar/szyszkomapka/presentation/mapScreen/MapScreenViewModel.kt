@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.szyszkodar.szyszkomapka.R
+import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.data.mappers.BookpointsMapper
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
 import com.szyszkodar.szyszkomapka.data.remote.filter.BookpointsFilter
@@ -260,5 +261,9 @@ class MapScreenViewModel @Inject  constructor(
 
     fun setErrorMessageShownToTrue(){
         _state.update { it.copy(errorShown = true) }
+    }
+
+    fun changeAppMode(mode: AppMode) {
+        _state.update { it.copy(appMode = mode) }
     }
 }
