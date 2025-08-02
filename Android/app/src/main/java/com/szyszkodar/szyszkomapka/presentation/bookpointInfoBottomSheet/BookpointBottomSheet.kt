@@ -1,5 +1,6 @@
 package com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,12 +15,15 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.szyszkodar.szyszkomapka.data.intentsHandling.GoogleMapsOpener
 import com.szyszkodar.szyszkomapka.data.uiClasses.BookpointUI
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.components.SheetActionButton
+import org.maplibre.android.geometry.LatLng
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,6 +32,7 @@ fun BookpointBottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val bottomSheetState = rememberModalBottomSheetState()
 
     ModalBottomSheet(
@@ -57,7 +62,12 @@ fun BookpointBottomSheet(
             SheetActionButton(
                 name = "Pokaż trasę",
                 buttonIcon = Icons.Default.LocationOn,
-                onClick = {}
+                onClick = {
+                    val mapsOpener = GoogleMapsOpener(context)
+
+                    val result = mapsOpener.openMapsRoute(LatLng(bookpoint.latitude, bookpoint.longitude))
+                    if (result != null) Toast.makeText(context, result, Toast.LENGTH_SHORT).show()
+                }
             )
         }
     }
