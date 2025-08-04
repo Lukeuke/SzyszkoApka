@@ -228,7 +228,7 @@ class MapScreenViewModel @Inject  constructor(
         }
     }
 
-    private fun changeCameraPosition(mapLibreMap: MapLibreMap ,targetLatLng: LatLng, targetZoom: Double = 12.0) {
+    private fun changeCameraPosition(mapLibreMap: MapLibreMap, targetLatLng: LatLng, targetZoom: Double = 12.0) {
         mapLibreMap.let { map ->
             // Create builder for target camera position
             val cameraPositionBuilder = CameraPosition.Builder()
@@ -240,6 +240,16 @@ class MapScreenViewModel @Inject  constructor(
 
             // Animate
             map.animateCamera(cameraUpdate, 1500)
+        }
+    }
+
+    fun mapViewCameraPositionChange(mapView: MapView, targetLatLng: LatLng, targetZoom: Double = 12.0) {
+        mapView.getMapAsync {
+            changeCameraPosition(
+                mapLibreMap = it,
+                targetLatLng = targetLatLng,
+                targetZoom = targetZoom
+            )
         }
     }
 

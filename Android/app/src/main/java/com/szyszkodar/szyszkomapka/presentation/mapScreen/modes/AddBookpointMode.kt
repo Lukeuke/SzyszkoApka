@@ -1,7 +1,9 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen.modes
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -15,11 +17,14 @@ import com.szyszkodar.szyszkomapka.R
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.AddBookpointBoxForm
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.TopBar
+import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.MapView
 
 @Composable
 fun AddBookpointMode(
     paddingValues: PaddingValues,
     viewModel: MapScreenViewModel,
+    mapView: MapView,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -34,16 +39,20 @@ fun AddBookpointMode(
                 .align(Alignment.Center)
         )
 
-        AddBookpointBoxForm(
-            viewModel = viewModel,
+        Column(
+            verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-        )
-
-        TopBar(
-            text = "Dodaj biblioteczke",
-            modifier = Modifier
-                .padding(paddingValues)
-        )
+                .fillMaxSize()
+        ) {
+            TopBar(
+                text = "Dodaj biblioteczke",
+                modifier = Modifier
+                    .padding(paddingValues)
+            )
+            AddBookpointBoxForm(
+                viewModel = viewModel,
+                mapView = mapView
+            )
+        }
     }
 }

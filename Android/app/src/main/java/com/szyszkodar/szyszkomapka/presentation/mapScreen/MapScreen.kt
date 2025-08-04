@@ -35,7 +35,6 @@ fun MapScreen(
     val state = viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val permissionHandler = LocalizationHandler(context)
-    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(state.value.userLocation) {
         mapViewRef.value?.let { viewModel.updateMap(it) }
@@ -74,10 +73,13 @@ fun MapScreen(
                     paddingValues = paddingValues,
                     viewModel = viewModel
                 )
-                AppMode.ADD_BOOKPOINT -> AddBookpointMode(
-                    paddingValues = paddingValues,
-                    viewModel = viewModel,
-                )
+                AppMode.ADD_BOOKPOINT -> mapViewRef.value?.let {
+                    AddBookpointMode(
+                        paddingValues = paddingValues,
+                        viewModel = viewModel,
+                        mapView = it
+                    )
+                }
             }
 
         }
