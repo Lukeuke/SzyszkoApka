@@ -1,6 +1,8 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen.components
 
 import android.widget.Toast
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -46,6 +49,19 @@ fun AddBookpointBoxForm(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    var bookpointName by remember { mutableStateOf(TextFieldValue("")) }
+    val offsetX = remember { Animatable(0f) }
+
+    suspend fun animateShake() {
+        val delta = 10f
+        val duration = 50
+        for (i in 0..2) {
+            offsetX.animateTo(-delta, animationSpec = tween(durationMillis = duration))
+            offsetX.animateTo(delta, animationSpec = tween(durationMillis = duration))
+        }
+        offsetX.animateTo(0f, animationSpec = tween(durationMillis = duration))
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -97,17 +113,14 @@ fun AddBookpointBoxForm(
             modifier = Modifier
                 .padding(horizontal = 10.dp)
         ) {
-            var bookpointName by remember { mutableStateOf(TextFieldValue("")) }
-
             TextField(
                 value = bookpointName,
                 singleLine = true,
-                placeholder = { Text("Podaj nazwę biblioteczki...") },
-                textStyle = TextStyle(
-
-                ),
+                placeholder = { Text(
+                    text = "Podaj nazwę biblioteczki..."
+                ) },
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFEAE5E5),
+                    focusedContainerColor =  Color(0xFFEAE5E5),
                     unfocusedContainerColor = Color(0xFFEAE5E5),
                     disabledContainerColor = Color(0xFFEAE5E5),
                     focusedIndicatorColor = Color.Transparent,
@@ -121,20 +134,28 @@ fun AddBookpointBoxForm(
                 modifier = Modifier
                     .padding(20.dp)
                     .weight(6f)
+                    .offset(x = offsetX.value.dp)
             )
 
             IconButton(
                 onClick = {
-                    coroutineScope.launch {
-                        viewModel.addBookpoint(
-                            name = bookpointName.text,
-                            onSuccess = {
-                                Toast.makeText(context, "Pomyślnie dodano biblioteczkę", Toast.LENGTH_SHORT).show()
-                            },
-                            onSError = { errorMessage ->
-                                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-                            }
-                        )
+                    if(bookpointName.text.isEmpty()) {
+                        coroutineScope.launch {
+                            animateShake()
+                        }
+                    }
+                    else {
+                        coroutineScope.launch {
+                            viewModel.addBookpoint(
+                                name = bookpointName.text,
+                                onSuccess = {
+                                    Toast.makeText(context, "Pomyślnie dodano biblioteczkę", Toast.LENGTH_SHORT).show()
+                                },
+                                onSError = { errorMessage ->
+                                    Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        }
                     }
                 },
                 modifier = Modifier
