@@ -13,7 +13,7 @@ class BookpointsMapper: ResponseToUI<BookpointResponseElement, BookpointUI> {
         return BookpointUI(
             id = response.id,
             latitude = response.lat,
-            longitude = response.lat,
+            longitude = response.lon,
             createdAt = response.createdAt.convertToTime(),
             updatedAt = response.updatedAt.convertToTime(),
             description = response.description,
