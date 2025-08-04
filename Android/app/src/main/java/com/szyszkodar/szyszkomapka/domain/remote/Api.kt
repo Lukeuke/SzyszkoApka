@@ -1,5 +1,6 @@
 package com.szyszkodar.szyszkomapka.domain.remote
 
+import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.body.IdentityBody
 import com.szyszkodar.szyszkomapka.data.remote.body.PasswordChangeBody
 import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponse
@@ -40,5 +41,10 @@ interface Api {
     suspend fun approveBookpoint(
         @Header("Authorization") bearerToken: String,
         @Path("id") id: String
+    )
+
+    @POST("book-points")
+    suspend fun createBookpoint(
+        @Body createBookpointBody: CreateBookpointBody
     )
 }

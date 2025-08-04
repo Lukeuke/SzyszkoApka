@@ -2,7 +2,6 @@ package com.szyszkodar.szyszkomapka.data.repository
 
 import com.szyszkodar.szyszkomapka.data.remote.body.IdentityBody
 import com.szyszkodar.szyszkomapka.data.remote.body.PasswordChangeBody
-import com.szyszkodar.szyszkomapka.data.remote.response.EmptyResponse
 import com.szyszkodar.szyszkomapka.data.remote.response.IdentityResponse
 import com.szyszkodar.szyszkomapka.domain.errorHandling.NetworkError
 import com.szyszkodar.szyszkomapka.domain.errorHandling.Result
@@ -21,7 +20,7 @@ class IdentityRepository @Inject constructor(
         return request(ApiRequest.CheckIdentity(body))
     }
 
-    suspend fun changePassword(token: String, body: PasswordChangeBody): Result<EmptyResponse, NetworkError> {
+    suspend fun changePassword(token: String, body: PasswordChangeBody): Result<Unit, NetworkError> {
         return request(ApiRequest.PasswordChange(token, body))
     }
 }

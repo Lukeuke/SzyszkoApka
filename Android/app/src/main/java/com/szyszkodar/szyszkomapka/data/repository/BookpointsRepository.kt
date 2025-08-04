@@ -1,8 +1,8 @@
 package com.szyszkodar.szyszkomapka.data.repository
 
+import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.query.GetBookpointsQuery
 import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponse
-import com.szyszkodar.szyszkomapka.data.remote.response.EmptyResponse
 import com.szyszkodar.szyszkomapka.domain.errorHandling.NetworkError
 import com.szyszkodar.szyszkomapka.domain.errorHandling.Result
 import com.szyszkodar.szyszkomapka.domain.remote.Api
@@ -23,11 +23,20 @@ class BookpointsRepository @Inject constructor(
     suspend fun deleteBookpoint(
         id: String,
         bearerToken: String
-    ): Result<EmptyResponse, NetworkError> {
+    ): Result<Unit, NetworkError> {
         return request(ApiRequest.DeleteBookpoints(id, bearerToken))
     }
 
-    suspend fun approveBookpoint(id: String, bearerToken: String): Result<EmptyResponse, NetworkError> {
+    suspend fun createBookpoint(
+        body: CreateBookpointBody
+    ): Result<Unit, NetworkError> {
+        return request(ApiRequest.CreateBookpoint(body))
+    }
+
+    suspend fun approveBookpoint(
+        id: String,
+        bearerToken: String
+    ): Result<Unit, NetworkError> {
         return request(ApiRequest.ApproveBookpoints(id = id, bearerToken = bearerToken))
     }
 }

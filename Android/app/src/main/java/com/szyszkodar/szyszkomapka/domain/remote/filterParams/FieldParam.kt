@@ -8,6 +8,6 @@ enum class FieldParam: FilterParam {
     @SerializedName("lon") LON,
     @SerializedName("created_at") CREATED_AT,
     @SerializedName("updated_at") UPDATED_AT,
-    @SerializedName("descriprion") DESCRIPTION,
+    @SerializedName("description") DESCRIPTION,
     @SerializedName("approved") APPROVED
 }
