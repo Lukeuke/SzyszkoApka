@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -34,6 +35,7 @@ fun MapScreen(
     val state = viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val permissionHandler = LocalizationHandler(context)
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(state.value.userLocation) {
         mapViewRef.value?.let { viewModel.updateMap(it) }
@@ -74,7 +76,7 @@ fun MapScreen(
                 )
                 AppMode.ADD_BOOKPOINT -> AddBookpointMode(
                     paddingValues = paddingValues,
-                    viewModel = viewModel
+                    viewModel = viewModel,
                 )
             }
 

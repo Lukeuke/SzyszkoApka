@@ -1,5 +1,6 @@
 package com.szyszkodar.szyszkomapka.domain.remote
 
+import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.body.IdentityBody
 import com.szyszkodar.szyszkomapka.data.remote.body.PasswordChangeBody
 
@@ -26,5 +27,9 @@ sealed interface ApiRequest {
     data class PasswordChange(
         val bearerToken: String,
         val body: PasswordChangeBody
+    ): ApiRequest
+
+    data class CreateBookpoint(
+        val createBookpointBody: CreateBookpointBody
     ): ApiRequest
 }

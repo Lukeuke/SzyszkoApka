@@ -5,7 +5,6 @@ import com.szyszkodar.szyszkomapka.domain.errorHandling.NetworkError
 import com.szyszkodar.szyszkomapka.domain.errorHandling.Result
 import com.szyszkodar.szyszkomapka.domain.remote.Api
 import com.szyszkodar.szyszkomapka.domain.remote.ApiRequest
-import com.szyszkodar.szyszkomapka.domain.remote.response.Response
 import retrofit2.HttpException
 import java.net.UnknownHostException
 
@@ -13,13 +12,13 @@ import java.net.UnknownHostException
 abstract class Repository(
     private val api: Api
 ) {
-    protected suspend fun <T: Response> request(request: ApiRequest): Result<T, NetworkError> {
+    protected suspend fun <T> request(request: ApiRequest): Result<T, NetworkError> {
         val makeApiCall = MakeApiCall(api)
 
         return returnRequestResult { makeApiCall.makeCall(request) }
     }
 
-    private suspend fun <T: Response> returnRequestResult(
+    private suspend fun <T> returnRequestResult(
         callFunction: suspend () -> T
     ): Result<T, NetworkError> {
         return try {

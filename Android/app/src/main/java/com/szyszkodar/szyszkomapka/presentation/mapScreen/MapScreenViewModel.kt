@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.util.Log
 import android.widget.Toast
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
@@ -13,6 +14,7 @@ import com.szyszkodar.szyszkomapka.R
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.data.mappers.BookpointsMapper
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
+import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.filter.BookpointsFilter
 import com.szyszkodar.szyszkomapka.data.remote.query.GetBookpointsQuery
 import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
@@ -104,6 +106,7 @@ class MapScreenViewModel @Inject  constructor(
             // Create list of markers
             val features = state.value.bookpoints.map {
                 val feature = Feature.fromGeometry(Point.fromLngLat(it.longitude, it.latitude))
+                Log.d("koń", it.toString())
                 feature.addStringProperty("data", Gson().toJson(it))
 
                 feature
@@ -125,6 +128,10 @@ class MapScreenViewModel @Inject  constructor(
                     userSource?.setGeoJson(userFeature)
                 }
             }
+        }
+
+        if (_state.value.appMode == AppMode.ADD_BOOKPOINT) {
+            setCenterCoordinates(mapView)
         }
     }
 
@@ -266,4 +273,32 @@ class MapScreenViewModel @Inject  constructor(
     fun changeAppMode(mode: AppMode) {
         _state.update { it.copy(appMode = mode) }
     }
+
+    private fun setCenterCoordinates(mapView: MapView) {
+        mapView.getMapAsync{ map ->
+            val centerScreenPoint = android.graphics.PointF(
+                map.width / 2f,
+                map.height / 2f
+            )
+
+            val centerLatLng = map.projection.fromScreenLocation(centerScreenPoint)
+            _state.update { it.copy(centerLatLng = centerLatLng) }
+        }
+
+
+    }
+
+    suspend fun addBookpoint(name: String, onSuccess: () -> Unit, onSError: (String) -> Unit){
+        val body = CreateBookpointBody(
+            lat = _state.value.centerLatLng.latitude.toFloat(),
+            lon = _state.value.centerLatLng.longitude.toFloat(),
+            description = name
+        )
+
+        when(val response = bookpointsRepository.createBookpoint(body)) {
+            is Result.Success -> onSuccess()
+            is Result.Error -> onSError(response.error.message)
+        }
+    }
+
 }
