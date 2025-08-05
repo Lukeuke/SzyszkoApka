@@ -13,6 +13,8 @@ import (
 func NewRouter(uow *repository.UnitOfWork) *gin.Engine {
 	r := gin.Default()
 
+	r.Use(helpers.DiscordLogger())
+
 	r.Use(func(c *gin.Context) {
 		xAppId := c.GetHeader("X-App-ID")
 		host := c.Request.Host

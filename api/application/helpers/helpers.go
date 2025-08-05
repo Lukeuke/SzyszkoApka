@@ -1,9 +1,12 @@
 package helpers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	dto "szyszko-api/presentation/dto/common"
@@ -101,4 +104,58 @@ func InitJWTConfig() {
 		log.Fatalf("Nieprawidłowa liczba sekund: %v", err)
 	}
 	expirationSeconds = s
+}
+
+func sendLogToDiscord(message string, mentionRoleID string) {
+	webhookURL := MustGetenv("DISCORD_WEBHOOK_URL")
+
+	content := message
+	if mentionRoleID != "" {
+		content = "<@&" + mentionRoleID + ">\n" + content
+	}
+
+	payload := map[string]string{"content": content}
+	jsonData, _ := json.Marshal(payload)
+
+	go http.Post(webhookURL, "application/json", bytes.NewBuffer(jsonData))
+}
+
+type responseBodyWriter struct {
+	gin.ResponseWriter
+	body *bytes.Buffer
+}
+
+func (w *responseBodyWriter) Write(b []byte) (int, error) {
+	w.body.Write(b)
+	return w.ResponseWriter.Write(b)
+}
+
+func DiscordLogger() gin.HandlerFunc {
+	roleId := MustGetenv("DISCORD_METION_ROLE_ID")
+
+	return func(c *gin.Context) {
+		var reqBody []byte
+		if c.Request.Body != nil {
+			reqBody, _ = io.ReadAll(c.Request.Body)
+			c.Request.Body = io.NopCloser(bytes.NewBuffer(reqBody))
+		}
+
+		respBody := &bytes.Buffer{}
+		writer := &responseBodyWriter{body: respBody, ResponseWriter: c.Writer}
+		c.Writer = writer
+
+		c.Next()
+
+		status := c.Writer.Status()
+		method := c.Request.Method
+		path := c.Request.URL.RequestURI()
+		ip := c.ClientIP()
+
+		if status >= 500 {
+			logMsg := fmt.Sprintf("🚨 **[500 Error]**\n```http\n%s %s\nStatus: %d %s\nIP: %s\n\n[Request body]:\n%s\n\n[Response body]:\n%s\n```",
+				method, path, status, http.StatusText(status), ip, string(reqBody), respBody.String())
+
+			sendLogToDiscord(logMsg, roleId)
+		}
+	}
 }
