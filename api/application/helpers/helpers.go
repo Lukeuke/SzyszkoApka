@@ -117,7 +117,7 @@ func sendLogToDiscord(message string, mentionRoleID string) {
 	payload := map[string]string{"content": content}
 	jsonData, _ := json.Marshal(payload)
 
-	go http.Post(webhookURL, "application/json", bytes.NewBuffer(jsonData))
+	http.Post(webhookURL, "application/json", bytes.NewBuffer(jsonData))
 }
 
 type responseBodyWriter struct {
