@@ -11,6 +11,10 @@ plugins {
 android {
     namespace = "com.szyszkodar.szyszkomapka"
     compileSdk = 36
+    
+    val properties = Properties()
+    properties.load(project.rootProject.file("local.properties").inputStream())
+
 
     buildFeatures {
         buildConfig = true
@@ -28,9 +32,6 @@ android {
     }
 
     buildTypes {
-        val properties = Properties()
-        properties.load(project.rootProject.file("local.properties").inputStream())
-
         debug {
             buildConfigField("String", "BASE_URL", "\"https://szyszko-apka.vercel.app/api/v1/\"")
             buildConfigField("String", "API_KEY", "\"${properties["API_KEY"]}\"")
@@ -44,6 +45,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
