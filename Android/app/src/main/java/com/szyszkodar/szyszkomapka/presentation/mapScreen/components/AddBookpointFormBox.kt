@@ -25,9 +25,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Clear
@@ -59,6 +61,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.FontScaling
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
@@ -110,6 +113,7 @@ fun AddBookpointBoxForm(
                 color = MaterialTheme.colorScheme.background,
                 shape = RoundedCornerShape(16.dp)
             )
+            .verticalScroll(rememberScrollState())
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -159,7 +163,7 @@ fun AddBookpointBoxForm(
                 value = bookpointName,
                 singleLine = true,
                 placeholder = { Text(
-                    text = "Podaj nazwę biblioteczki..."
+                    text = "Nazwa biblioteczki"
                 ) },
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor =  Color(0xFFEAE5E5),
@@ -239,7 +243,7 @@ fun AddBookpointBoxForm(
         AnimatedVisibility(
             isExpanded,
             enter = expandVertically(expandFrom = Alignment.Top),
-            exit = shrinkVertically(shrinkTowards = Alignment.Bottom)
+            exit = shrinkVertically(shrinkTowards = Alignment.Top)
         ) {
             val latTextBoxOffset = remember { Animatable(0f) }
             val lonTextBoxOffset = remember { Animatable(0f) }
