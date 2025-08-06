@@ -30,6 +30,7 @@ fun AddBookpointMode(
     Box(
         modifier = modifier
             .fillMaxSize()
+            .padding(paddingValues)
     ) {
         Image(
             painter = painterResource(R.drawable.add_bookpoint_marker),

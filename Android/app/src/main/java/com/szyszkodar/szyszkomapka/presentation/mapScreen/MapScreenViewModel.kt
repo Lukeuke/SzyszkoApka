@@ -106,7 +106,6 @@ class MapScreenViewModel @Inject  constructor(
             // Create list of markers
             val features = state.value.bookpoints.map {
                 val feature = Feature.fromGeometry(Point.fromLngLat(it.longitude, it.latitude))
-                Log.d("koń", it.toString())
                 feature.addStringProperty("data", Gson().toJson(it))
 
                 feature
@@ -129,10 +128,7 @@ class MapScreenViewModel @Inject  constructor(
                 }
             }
         }
-
-        if (_state.value.appMode == AppMode.ADD_BOOKPOINT) {
-            setCenterCoordinates(mapView)
-        }
+        setCenterCoordinates(mapView)
     }
 
 
@@ -290,6 +286,8 @@ class MapScreenViewModel @Inject  constructor(
                 map.width / 2f,
                 map.height / 2f
             )
+
+            Log.d("koń3", centerScreenPoint.toString())
 
             val centerLatLng = map.projection.fromScreenLocation(centerScreenPoint)
             _state.update { it.copy(centerLatLng = centerLatLng) }
