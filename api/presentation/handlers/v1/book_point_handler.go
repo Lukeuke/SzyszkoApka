@@ -89,6 +89,7 @@ func (h *BookPointHandler) insertNewBookPoint(c *gin.Context) {
 	}
 
 	dao := domain.BookPoint{
+		Title:       cmd.Title,
 		Description: cmd.Description,
 		Lat:         cmd.Lat,
 		Lon:         cmd.Lon,
@@ -132,6 +133,7 @@ func (h *BookPointHandler) editBookPoint(c *gin.Context) {
 	log.Printf("Editing book point %v\n", id)
 
 	point.Approved = cmd.Approved
+	point.Title = cmd.Title
 	point.Description = cmd.Description
 	point.Lat = cmd.Lat
 	point.Lon = cmd.Lon

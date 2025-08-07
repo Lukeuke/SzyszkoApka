@@ -52,6 +52,7 @@ func (r *supabaseBookPointRepository) Edit(ctx context.Context, bp *domain.BookP
 	bp.UpdatedAt = time.Now().UTC()
 
 	updateData := map[string]interface{}{
+		"title":       bp.Title,
 		"description": bp.Description,
 		"lat":         bp.Lat,
 		"lon":         bp.Lon,
