@@ -17,6 +17,7 @@ import (
 
 type BookPointRepository interface {
 	Insert(ctx context.Context, bp *domain.BookPoint) (uuid.UUID, error)
+	Edit(ctx context.Context, bp *domain.BookPoint) (uuid.UUID, error)
 	Remove(ctx context.Context, id uuid.UUID) error
 	Approve(ctx context.Context, id uuid.UUID) error
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.BookPoint, error)
@@ -47,6 +48,30 @@ func (r *supabaseBookPointRepository) Insert(ctx context.Context, bp *domain.Boo
 	return bp.ID, nil
 }
 
+func (r *supabaseBookPointRepository) Edit(ctx context.Context, bp *domain.BookPoint) (uuid.UUID, error) {
+	bp.UpdatedAt = time.Now().UTC()
+
+	updateData := map[string]interface{}{
+		"title":       bp.Title,
+		"description": bp.Description,
+		"lat":         bp.Lat,
+		"lon":         bp.Lon,
+		"approved":    bp.Approved,
+		"updated_at":  time.Now().UTC(),
+	}
+
+	_, _, err := r.client.
+		From("book_points").
+		Update(updateData, "", "").
+		Eq("id", bp.ID.String()).
+		Execute()
+
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to update book point: %w", err)
+	}
+
+	return bp.ID, nil
+}
 func (r *supabaseBookPointRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.BookPoint, error) {
 	data, _, err := r.client.From("book_points").
 		Select("*", "exact", false).

@@ -35,6 +35,7 @@ func RegisterBookPoints(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 	bookPoints.GET("/", handler.getAllBookPoints)
 	bookPoints.GET("/:id", handler.getBookPointByID)
 	bookPoints.POST("/", handler.insertNewBookPoint)
+	bookPoints.PUT("/:id", middlewares.AuthMiddleware(uow), handler.editBookPoint)             // Authorized only
 	bookPoints.DELETE("/:id", middlewares.AuthMiddleware(uow), handler.deleteBookPoint)        // Authorized only
 	bookPoints.POST("/approve/:id", middlewares.AuthMiddleware(uow), handler.approveBookPoint) // Authorized only
 }
@@ -88,6 +89,7 @@ func (h *BookPointHandler) insertNewBookPoint(c *gin.Context) {
 	}
 
 	dao := domain.BookPoint{
+		Title:       cmd.Title,
 		Description: cmd.Description,
 		Lat:         cmd.Lat,
 		Lon:         cmd.Lon,
@@ -102,6 +104,49 @@ func (h *BookPointHandler) insertNewBookPoint(c *gin.Context) {
 
 	c.Header("Location", fmt.Sprintf("/book-points/%s", id.String()))
 	c.Status(201)
+}
+
+func (h *BookPointHandler) editBookPoint(c *gin.Context) {
+	var cmd dto.EditBookPointCommand
+
+	if err := c.ShouldBindJSON(&cmd); err != nil {
+		c.JSON(http.StatusBadRequest, results.ErrorResult[error](err))
+		return
+	}
+
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
+
+	if err != nil {
+		log.Printf("Błąd parsowania UUID: %v\n", err)
+		c.JSON(http.StatusInternalServerError, results.ErrorResult[error](err))
+		return
+	}
+
+	point, err := h.uow.BookPointRepo.GetByID(c.Request.Context(), id)
+	if err != nil {
+		log.Printf("GetByID error: %v", err)
+		c.JSON(http.StatusInternalServerError, results.ErrorResult[error](err))
+		return
+	}
+
+	log.Printf("Editing book point %v\n", id)
+
+	point.Approved = cmd.Approved
+	point.Title = cmd.Title
+	point.Description = cmd.Description
+	point.Lat = cmd.Lat
+	point.Lon = cmd.Lon
+
+	_, err = h.uow.BookPointRepo.Edit(c.Request.Context(), point)
+	if err != nil {
+		log.Printf("Edit error: %v", err)
+		c.JSON(http.StatusInternalServerError, results.ErrorResult[error](err))
+		return
+	}
+
+	c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.JSON(http.StatusOK, point)
 }
 
 func (h *BookPointHandler) approveBookPoint(c *gin.Context) {
