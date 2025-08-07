@@ -6,6 +6,8 @@ import (
 	helpers "szyszko-api/application/helpers"
 	repository "szyszko-api/infrastructure/repositories"
 
+	dto "szyszko-api/presentation/dto/common"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -14,7 +16,7 @@ func AuthMiddleware(uow *repository.UnitOfWork) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing bearer token header"})
+			c.JSON(http.StatusUnauthorized, dto.ErrorResult[string]("Missing bearer token header"))
 			c.Abort()
 			return
 		}
@@ -27,7 +29,7 @@ func AuthMiddleware(uow *repository.UnitOfWork) gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			c.Status(201)
+			c.JSON(http.StatusUnauthorized, dto.ErrorResult[string]("Bearer token is expired"))
 			c.Abort()
 			return
 		}
@@ -42,7 +44,7 @@ func AuthMiddleware(uow *repository.UnitOfWork) gin.HandlerFunc {
 		}
 
 		if !isEnabled {
-			c.JSON(403, gin.H{"error": "User is disabled"})
+			c.JSON(403, dto.ErrorResult[string]("User is disabled"))
 			c.Abort()
 			return
 		}

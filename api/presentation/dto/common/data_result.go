@@ -1,8 +1,8 @@
 package dto
 
 type DataResult[T any] struct {
-	Data  []T    `json:"data,omitempty"`
-	Total int64  `json:"total,omitempty"`
+	Data  []T    `json:"data"`
+	Total int64  `json:"total"`
 	Error string `json:"error,omitempty"`
 }
 
