@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.Px
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -183,6 +185,12 @@ class MapScreenViewModel @Inject  constructor(
         }
 
         return mapView
+    }
+
+    fun setCompassMargins(mapView: MapView, @Px topPadding: Int) {
+        mapView.getMapAsync { map ->
+            map.uiSettings.setCompassMargins(0, topPadding, 0, 0)
+        }
     }
 
     private fun markerClickListener(map: MapLibreMap) {

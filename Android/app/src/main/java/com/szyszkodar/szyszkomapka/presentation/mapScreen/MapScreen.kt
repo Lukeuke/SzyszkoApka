@@ -7,6 +7,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -52,7 +53,7 @@ fun MapScreen(
             }
         )
 
-        MapLibreView(context, viewModel, mapViewRef)
+        MapLibreView(context, viewModel, mapViewRef, paddingValues)
 
         AnimatedContent(
             targetState = state.value.appMode,
