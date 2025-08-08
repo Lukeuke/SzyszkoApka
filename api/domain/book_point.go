@@ -15,4 +15,5 @@ type BookPoint struct {
 	Title       string    `json:"title" db:"title"`
 	Description string    `json:"description" db:"description"`
 	Approved    bool      `json:"approved" db:"approved"`
+	ExternalKey string    `json:"external_key" db:"external_key"`
 }
