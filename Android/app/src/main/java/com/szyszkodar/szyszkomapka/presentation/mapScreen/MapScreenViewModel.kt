@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.Px
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -304,11 +303,12 @@ class MapScreenViewModel @Inject  constructor(
 
     }
 
-    suspend fun addBookpoint(name: String, onSuccess: () -> Unit, onSError: (String) -> Unit){
+    suspend fun addBookpoint(name: String, description: String, onSuccess: () -> Unit, onSError: (String) -> Unit){
         val body = CreateBookpointBody(
             lat = _state.value.centerLatLng.latitude.toFloat(),
             lon = _state.value.centerLatLng.longitude.toFloat(),
-            description = name
+            title = name,
+            description = description
         )
 
         when(val response = bookpointsRepository.createBookpoint(body)) {

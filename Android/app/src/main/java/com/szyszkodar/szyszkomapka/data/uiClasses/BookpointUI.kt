@@ -9,6 +9,7 @@ data class BookpointUI(
     val longitude: Double,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
+    val title: String,
     val description: String,
     val approved: Boolean
 ): UIClass

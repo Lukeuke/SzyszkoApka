@@ -57,6 +57,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -81,12 +82,22 @@ fun AddBookpointBoxForm(
     val context = LocalContext.current
 
     var bookpointName by remember { mutableStateOf(TextFieldValue("")) }
+    var bookpointDescription by remember { mutableStateOf(TextFieldValue("")) }
     var bookpointLat by remember { mutableStateOf(TextFieldValue("")) }
     var bookpointLon by remember { mutableStateOf(TextFieldValue("")) }
+    var sendButtonEnabled by remember { mutableStateOf(true) }
 
     val textBoxOffset = remember { Animatable(0f) }
+    val descriptionBoxOffset = remember { Animatable(0f) }
 
     var isExpanded by remember { mutableStateOf(false) }
+
+
+    val latTextBoxOffset = remember { Animatable(0f) }
+    val lonTextBoxOffset = remember { Animatable(0f) }
+    val errorMessageOffset = remember { Animatable(0f) }
+
+    var errorMessage: String? by remember { mutableStateOf(null) }
 
     suspend fun animateShake(offsetX: Animatable<Float, AnimationVector1D>) {
         val delta = 10f
@@ -96,6 +107,73 @@ fun AddBookpointBoxForm(
             offsetX.animateTo(delta, animationSpec = tween(durationMillis = duration))
         }
         offsetX.animateTo(0f, animationSpec = tween(durationMillis = duration))
+    }
+
+    fun onCheckClick() {
+        if (bookpointLat.text.isEmpty()) {
+            coroutineScope.launch {
+                animateShake(latTextBoxOffset)
+            }
+        } else if (bookpointLon.text.isEmpty()) {
+            coroutineScope.launch {
+                animateShake(lonTextBoxOffset)
+            }
+        } else if (bookpointLon.text.toDouble() > 90 || bookpointLat.text.toDouble() > 90) {
+            errorMessage = "Za duże wartości"
+            coroutineScope.launch {
+                animateShake(errorMessageOffset)
+            }
+        } else if(bookpointLon.text.toDouble() < 0 || bookpointLat.text.toDouble() < 0) {
+            errorMessage = "Za małe wartości"
+            coroutineScope.launch {
+                animateShake(errorMessageOffset)
+            }
+        } else {
+            isExpanded = false
+            viewModel.mapViewCameraPositionChange(
+                mapView = mapView,
+                targetLatLng = LatLng(
+                    latitude = bookpointLat.text.toDouble(),
+                    longitude = bookpointLon.text.toDouble()
+                )
+            )
+            bookpointLat = TextFieldValue("")
+            bookpointLon = TextFieldValue("")
+        }
+    }
+
+    fun ongoClick() {
+        if(sendButtonEnabled) {
+            sendButtonEnabled = false
+            if(bookpointName.text.isEmpty()) {
+                coroutineScope.launch {
+                    animateShake(textBoxOffset)
+                }
+                sendButtonEnabled = true
+            } else if(bookpointDescription.text.isEmpty()) {
+                coroutineScope.launch {
+                    animateShake(descriptionBoxOffset)
+                }
+                sendButtonEnabled = true
+            } else {
+                coroutineScope.launch {
+                    viewModel.addBookpoint(
+                        name = bookpointName.text,
+                        description = bookpointDescription.text,
+                        onSuccess = {
+                            Toast.makeText(context, "Pomyślnie dodano biblioteczkę", Toast.LENGTH_SHORT).show()
+                            bookpointName = TextFieldValue("")
+                            bookpointDescription = TextFieldValue("")
+                        },
+                        onSError = { errorMessage ->
+                            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                    sendButtonEnabled = true
+                }
+            }
+
+        }
     }
 
     Column(
@@ -159,30 +237,63 @@ fun AddBookpointBoxForm(
             modifier = Modifier
                 .padding(horizontal = 10.dp)
         ) {
-            TextField(
-                value = bookpointName,
-                singleLine = true,
-                placeholder = { Text(
-                    text = "Nazwa biblioteczki"
-                ) },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor =  Color(0xFFEAE5E5),
-                    unfocusedContainerColor = Color(0xFFEAE5E5),
-                    disabledContainerColor = Color(0xFFEAE5E5),
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
-                ),
-                onValueChange = {
-                    bookpointName = it
-                },
-                shape = RoundedCornerShape(16.dp),
+            Column(
                 modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .padding(top = 20.dp)
                     .weight(6f)
-                    .offset(x = textBoxOffset.value.dp)
-            )
+            ) {
+                TextField(
+                    value = bookpointName,
+                    singleLine = true,
+                    placeholder = { Text(
+                        text = "Nazwa biblioteczki"
+                    ) },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor =  Color(0xFFEAE5E5),
+                        unfocusedContainerColor = Color(0xFFEAE5E5),
+                        disabledContainerColor = Color(0xFFEAE5E5),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent
+                    ),
+                    onValueChange = {
+                        bookpointName = it
+                    },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
+                    keyboardActions = KeyboardActions(onGo = { ongoClick() }),
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .padding(top = 20.dp)
+                        .offset(x = textBoxOffset.value.dp)
+                )
+                TextField(
+                    value = bookpointDescription,
+                    singleLine = false,
+                    maxLines = 5,
+                    placeholder = { Text(
+                        text = "Opis biblioteczki"
+                    ) },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor =  Color(0xFFEAE5E5),
+                        unfocusedContainerColor = Color(0xFFEAE5E5),
+                        disabledContainerColor = Color(0xFFEAE5E5),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent
+                    ),
+                    onValueChange = {
+                        bookpointDescription = it
+                    },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
+                    keyboardActions = KeyboardActions(onGo = { ongoClick() }),
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .padding(top = 20.dp)
+                        .offset(x = descriptionBoxOffset.value.dp)
+                )
+            }
+
 
             AnimatedVisibility(
                 visible = !isExpanded,
@@ -190,26 +301,7 @@ fun AddBookpointBoxForm(
                 exit = shrinkHorizontally(shrinkTowards = Alignment.End)
             ) {
                 IconButton(
-                    onClick = {
-                        if(bookpointName.text.isEmpty()) {
-                            coroutineScope.launch {
-                                animateShake(textBoxOffset)
-                            }
-                        }
-                        else {
-                            coroutineScope.launch {
-                                viewModel.addBookpoint(
-                                    name = bookpointName.text,
-                                    onSuccess = {
-                                        Toast.makeText(context, "Pomyślnie dodano biblioteczkę", Toast.LENGTH_SHORT).show()
-                                    },
-                                    onSError = { errorMessage ->
-                                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-                                    }
-                                )
-                            }
-                        }
-                    },
+                    onClick = { ongoClick() },
                     modifier = Modifier
                         .weight(1f)
                         .padding(top = 20.dp)
@@ -245,12 +337,6 @@ fun AddBookpointBoxForm(
             enter = expandVertically(expandFrom = Alignment.Top),
             exit = shrinkVertically(shrinkTowards = Alignment.Top)
         ) {
-            val latTextBoxOffset = remember { Animatable(0f) }
-            val lonTextBoxOffset = remember { Animatable(0f) }
-            val errorMessageOffset = remember { Animatable(0f) }
-
-            var errorMessage: String? by remember { mutableStateOf(null) }
-
             Column(
                 horizontalAlignment = Alignment.Start,
                 modifier = Modifier
@@ -284,7 +370,10 @@ fun AddBookpointBoxForm(
                             disabledIndicatorColor = Color.Transparent
                         ),
                         shape = RoundedCornerShape(16.dp),
-                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        ),
                         onValueChange = { newValue ->
                             if (regex.matches(newValue.text)) {
                                 bookpointLat = newValue
@@ -310,7 +399,13 @@ fun AddBookpointBoxForm(
                             disabledIndicatorColor = Color.Transparent
                         ),
                         shape = RoundedCornerShape(16.dp),
-                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Go
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onGo = { onCheckClick() }
+                        ),
                         onValueChange = { newValue ->
                             if (regex.matches(newValue.text)) {
                                 bookpointLon = newValue
@@ -342,38 +437,7 @@ fun AddBookpointBoxForm(
                 Spacer(Modifier.height(20.dp))
 
                 OutlinedButton(
-                    onClick = {
-                        if (bookpointLat.text.isEmpty()) {
-                            coroutineScope.launch {
-                                animateShake(latTextBoxOffset)
-                            }
-                        } else if (bookpointLon.text.isEmpty()) {
-                            coroutineScope.launch {
-                                animateShake(lonTextBoxOffset)
-                            }
-                        } else if (bookpointLon.text.toDouble() > 90 || bookpointLat.text.toDouble() > 90) {
-                            errorMessage = "Za duże wartości"
-                            coroutineScope.launch {
-                                animateShake(errorMessageOffset)
-                            }
-                        } else if(bookpointLon.text.toDouble() < 0 || bookpointLat.text.toDouble() < 0) {
-                            errorMessage = "Za małe wartości"
-                            coroutineScope.launch {
-                                animateShake(errorMessageOffset)
-                            }
-                        } else {
-                            isExpanded = false
-                            viewModel.mapViewCameraPositionChange(
-                                mapView = mapView,
-                                targetLatLng = LatLng(
-                                    latitude = bookpointLat.text.toDouble(),
-                                    longitude = bookpointLon.text.toDouble()
-                                )
-                            )
-                            bookpointLat = TextFieldValue("")
-                            bookpointLon = TextFieldValue("")
-                        }
-                    },
+                    onClick = { onCheckClick() },
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                 ) {
@@ -397,6 +461,7 @@ fun AddBookpointBoxForm(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
+
             }
         }
     }
