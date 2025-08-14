@@ -31,8 +31,8 @@ for placemark in root.findall(".//kml:Placemark", ns):
     entries.append({
         "title": name.text if name is not None else "",
         "description": desc.text if desc is not None else "",
-        "lon": lon,
-        "lat": lat,
+        "lon": float(lon),
+        "lat": float(lat),
         "approved": True,
         "external_key": external_key
     })
