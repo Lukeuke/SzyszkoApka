@@ -1,5 +1,6 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen.modes
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
@@ -69,6 +70,7 @@ fun DefaultMode(
     var buttonEnabled by remember { mutableStateOf(true) }
 
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val density = LocalDensity.current
 
     Box(
@@ -191,7 +193,14 @@ fun DefaultMode(
             enter = slideInHorizontally { it },
             exit = slideOutHorizontally { it }
         ) {
-            LogInForm(onExitClick = { loginFormVisible = false })
+            LogInForm(
+                onExitClick = { loginFormVisible = false },
+                setBearerTokenFunction = {
+                    viewModel.setBearerToken(it)
+                    loginFormVisible = false
+                    Toast.makeText(context, "Pomyślnie zalogowano", Toast.LENGTH_SHORT).show()
+                }
+            )
         }
     }
 }

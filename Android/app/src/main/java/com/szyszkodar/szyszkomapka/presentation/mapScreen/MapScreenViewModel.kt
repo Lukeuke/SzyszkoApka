@@ -317,4 +317,8 @@ class MapScreenViewModel @Inject  constructor(
         }
     }
 
+    fun setBearerToken(token: String) {
+        _state.update { it.copy(bearerToken = token) }
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.szyszkodar.szyszkomapka.presentation.LogInForm
 
+import android.widget.Toast
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -37,8 +39,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -54,14 +62,15 @@ import kotlinx.coroutines.launch
 @Composable
 fun LogInForm(
     onExitClick: () -> Unit,
+    setBearerTokenFunction: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
     val viewModel: LogInFormViewModel = hiltViewModel()
     val state = viewModel.state.collectAsStateWithLifecycle()
 
-    var loginTextFieldOffset = remember { Animatable(0f) }
-    var passwordTextFieldOffset = remember { Animatable(0f) }
+    val loginTextFieldOffset = remember { Animatable(0f) }
+    val passwordTextFieldOffset = remember { Animatable(0f) }
 
     Box(
         modifier = modifier
@@ -76,145 +85,177 @@ fun LogInForm(
                 shape = RoundedCornerShape(16.dp)
             )
     ) {
-        Column(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(20.dp)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
+        if (state.value.isLoading) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
             ) {
-                IconButton(
-                    onClick = onExitClick,
-                    colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = Color(0xFFEAE5E5)
-                    ),
+                CircularProgressIndicator()
+            }
+        } else {
+            Column(
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(20.dp)
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.End,
                     modifier = Modifier
-                        .aspectRatio(1f)
-                        .padding(top = 10.dp, end = 10.dp)
+                        .fillMaxWidth()
+                        .weight(1f)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+                    IconButton(
+                        onClick = onExitClick,
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = Color(0xFFEAE5E5)
+                        ),
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(2.dp)
+                            .aspectRatio(1f)
+                            .padding(top = 10.dp, end = 10.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(2.dp)
+                        )
+                    }
+                }
+                OutlinedText(
+                    text = "Zaloguj sie kontem administratora",
+                    fontSize = 24.sp,
+                    fontFamily = LilitaOne,
+                    fillColor = MaterialTheme.colorScheme.background,
+                    outlineColor = MaterialTheme.colorScheme.primary,
+                    outlineDrawStyle = Stroke(8f),
+                    modifier = Modifier
+                        .weight(2f)
+                )
+                TextField(
+                    value = state.value.username,
+                    onValueChange = {
+                        viewModel.updateUsername(it)
+                    },
+                    singleLine = true,
+                    placeholder = { Text(
+                        text = "Login"
+                    ) },
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor =  Color(0xFFEAE5E5),
+                        unfocusedContainerColor = Color(0xFFEAE5E5),
+                        disabledContainerColor = Color(0xFFEAE5E5),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .weight(1.5f)
+                        .offset(x = loginTextFieldOffset.value.dp)
+                )
+                Spacer(Modifier.weight(0.5f))
+                TextField(
+                    value = state.value.password,
+                    onValueChange = {
+                        viewModel.updatePassword(it)
+                    },
+                    singleLine = true,
+                    visualTransformation = VisualTransformation {
+                        TransformedText(
+                            AnnotatedString("*".repeat(it.text.length)),
+                            offsetMapping = OffsetMapping.Identity
+                        )
+                    },
+                    placeholder = { Text(
+                        text = "Hasło"
+                    ) },
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Go
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onGo = {
+                            // TODO: Log in
+                        }
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor =  Color(0xFFEAE5E5),
+                        unfocusedContainerColor = Color(0xFFEAE5E5),
+                        disabledContainerColor = Color(0xFFEAE5E5),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    // TODO: Suffix with password visibility swap
+                    modifier = Modifier
+                        .weight(1.5f)
+                        .offset(x = loginTextFieldOffset.value.dp)
+                )
+                Text(
+                    text = "Zapomniałem hasła...",
+                    textDecoration = TextDecoration.Underline,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontSize = 10.sp,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier
+                        .padding(vertical = 5.dp)
+                        .align(Alignment.Start)
+                        .pointerInput(Unit) {
+                            // TODO: PasswordChange
+                        }
+                        .weight(1f)
+                )
+                if (state.value.incorrectCredentials) {
+                    Text(
+                        text = "Podano nieprawidłowy login lub hasło",
+                        color = Color(0xFFCD372C),
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier
+                            .padding(vertical = 5.dp)
+                            .align(Alignment.Start)
+                            .pointerInput(Unit) {
+                                // TODO: PasswordChange
+                            }
+                            .weight(1f)
                     )
                 }
-            }
-            OutlinedText(
-                text = "Zaloguj sie kontem administratora",
-                fontSize = 24.sp,
-                fontFamily = LilitaOne,
-                fillColor = MaterialTheme.colorScheme.background,
-                outlineColor = MaterialTheme.colorScheme.primary,
-                outlineDrawStyle = Stroke(8f),
-                modifier = Modifier
-                    .weight(2f)
-            )
-            TextField(
-                value = state.value.username,
-                onValueChange = {
-                    viewModel.updateUsername(it)
-                },
-                singleLine = true,
-                placeholder = { Text(
-                    text = "Login"
-                ) },
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Next
-                ),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor =  Color(0xFFEAE5E5),
-                    unfocusedContainerColor = Color(0xFFEAE5E5),
-                    disabledContainerColor = Color(0xFFEAE5E5),
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
-                ),
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .weight(1.5f)
-                    .offset(x = loginTextFieldOffset.value.dp)
-            )
-            Spacer(Modifier.weight(0.5f))
-            TextField(
-                value = state.value.password,
-                onValueChange = {
-                    viewModel.updatePassword(it)
-                },
-                singleLine = true,
-                placeholder = { Text(
-                    text = "Hasło"
-                ) },
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Go
-                ),
-                keyboardActions = KeyboardActions(
-                    onGo = {
-                        // TODO: Log in
-                    }
-                ),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor =  Color(0xFFEAE5E5),
-                    unfocusedContainerColor = Color(0xFFEAE5E5),
-                    disabledContainerColor = Color(0xFFEAE5E5),
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
-                ),
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .weight(1.5f)
-                    .offset(x = loginTextFieldOffset.value.dp)
-            )
-            Text(
-                text = "Zapomniałem hasła...",
-                textDecoration = TextDecoration.Underline,
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontSize = 10.sp,
-                textAlign = TextAlign.Start,
-                modifier = Modifier
-                    .padding(vertical = 5.dp)
-                    .align(Alignment.Start)
-                    .pointerInput(Unit) {
-                        // TODO: PasswordChange
-                    }
-                    .weight(1f)
-            )
-            IconButton(
-                onClick = {
-                    if(state.value.username.text.isEmpty()) {
-                        scope.launch {
-                            shakeErrorAnimation(loginTextFieldOffset)
+                IconButton(
+                    onClick = {
+                        if(state.value.username.text.isEmpty()) {
+                            scope.launch {
+                                shakeErrorAnimation(loginTextFieldOffset)
+                            }
+                        } else if(state.value.password.text.isEmpty()) {
+                            scope.launch {
+                                shakeErrorAnimation(passwordTextFieldOffset)
+                            }
+                        } else {
+                            viewModel.verifyCredentials(setBearerTokenFunction)
                         }
-                    } else if(state.value.password.text.isEmpty()) {
-                        scope.launch {
-                            shakeErrorAnimation(passwordTextFieldOffset)
-                        }
-                    } else {
-                        viewModel.verifyCredentials()
-                    }
-                },
-                modifier = Modifier
-                    .weight(3f)
-                    .padding(top = 20.dp)
-                    .align(Alignment.End)
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.fillMaxSize()
-                )
+                    },
+                    modifier = Modifier
+                        .weight(3f)
+                        .padding(top = 20.dp)
+                        .align(Alignment.End)
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                Spacer(modifier = Modifier.weight(4f))
             }
-            Spacer(modifier = Modifier.weight(4f))
+
         }
     }
 }

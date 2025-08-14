@@ -27,7 +27,7 @@ abstract class Repository(
             Result.Success(result)
         } catch(e: HttpException) {
             when(e.code()) {
-                400 -> Result.Error(NetworkError.IDENTITY_ERROR)
+                404 -> Result.Error(NetworkError.IDENTITY_ERROR)
                 408 -> Result.Error(NetworkError.REQUEST_TIMEOUT)
                 429 -> Result.Error(NetworkError.TOO_MANY_REQUESTS)
                 in 500..599 -> Result.Error(NetworkError.SERVER_ERROR)

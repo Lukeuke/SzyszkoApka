@@ -13,5 +13,6 @@ data class MapScreenState(
     val centerLatLng: LatLng = LatLng(0.0,0.0),
     val bookpointInfoVisible: Boolean = false,
     val userLocation: LatLng? = null,
+    val bearerToken: String? = null,
     val chosenBookpoint: BookpointUI = BookpointUI("", 0.0, 0.0, LocalDateTime.now(), LocalDateTime.now(), "", "", false)
 )

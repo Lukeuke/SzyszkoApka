@@ -6,5 +6,7 @@ data class LogInFormState(
     val username: TextFieldValue = TextFieldValue(""),
     val password: TextFieldValue = TextFieldValue(""),
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val passwordVisible: Boolean = false,
+    val errorMessage: String? = null,
+    val incorrectCredentials: Boolean = false
 )

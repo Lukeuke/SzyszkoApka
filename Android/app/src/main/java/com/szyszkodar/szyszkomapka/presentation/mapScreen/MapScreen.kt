@@ -97,7 +97,6 @@ fun MapScreen(
 
     }
 
-
     // Show error message on error
     state.value.errorMessage?.let {
         if(!state.value.errorShown) {
