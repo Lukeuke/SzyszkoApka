@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -34,6 +35,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -53,6 +58,7 @@ import kotlinx.coroutines.launch
 fun DefaultMode(
     paddingValues: PaddingValues,
     viewModel: MapScreenViewModel,
+    centerCameraFunction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle()
@@ -81,6 +87,27 @@ fun DefaultMode(
                 animationSpec = tween(400)
             )
 
+            FloatingActionButton(
+                shape = CircleShape,
+                containerColor = MaterialTheme.colorScheme.primary,
+                elevation = FloatingActionButtonDefaults.loweredElevation(),
+                modifier = Modifier
+                    .padding(10.dp)
+                    .onGloballyPositioned { layoutCoordinates ->
+                        mainButtonHeight = with(density) { layoutCoordinates.size.height.toDp() }
+                    }
+                    .size(mainButtonHeight - 10.dp),
+                onClick = {
+                    centerCameraFunction()
+                }
+            ) {
+                Icon(
+                    imageVector = My_location,
+                    tint = MaterialTheme.colorScheme.background,
+                    contentDescription = null,
+                )
+            }
+
             AnimatedVisibility(
                 visible = listExpanded,
                 enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
@@ -88,7 +115,6 @@ fun DefaultMode(
                 modifier = Modifier
                     .offset(y = buttonsListOffset.value)
             ) {
-                val context = LocalContext.current
                 FloatingButtonsColumn(
                     firstButtonName = "Logowanie",
                     firstButtonIcon = Icons.Default.Lock,
@@ -169,3 +195,75 @@ fun DefaultMode(
         }
     }
 }
+
+val My_location: ImageVector
+    get() {
+        if (_My_location != null) return _My_location!!
+
+        _My_location = ImageVector.Builder(
+            name = "My_location",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 960f,
+            viewportHeight = 960f
+        ).apply {
+            path(
+                fill = SolidColor(Color(0xFF000000))
+            ) {
+                moveTo(440f, 918f)
+                verticalLineToRelative(-80f)
+                quadToRelative(-125f, -14f, -214.5f, -103.5f)
+                reflectiveQuadTo(122f, 520f)
+                horizontalLineTo(42f)
+                verticalLineToRelative(-80f)
+                horizontalLineToRelative(80f)
+                quadToRelative(14f, -125f, 103.5f, -214.5f)
+                reflectiveQuadTo(440f, 122f)
+                verticalLineToRelative(-80f)
+                horizontalLineToRelative(80f)
+                verticalLineToRelative(80f)
+                quadToRelative(125f, 14f, 214.5f, 103.5f)
+                reflectiveQuadTo(838f, 440f)
+                horizontalLineToRelative(80f)
+                verticalLineToRelative(80f)
+                horizontalLineToRelative(-80f)
+                quadToRelative(-14f, 125f, -103.5f, 214.5f)
+                reflectiveQuadTo(520f, 838f)
+                verticalLineToRelative(80f)
+                close()
+                moveToRelative(40f, -158f)
+                quadToRelative(116f, 0f, 198f, -82f)
+                reflectiveQuadToRelative(82f, -198f)
+                reflectiveQuadToRelative(-82f, -198f)
+                reflectiveQuadToRelative(-198f, -82f)
+                reflectiveQuadToRelative(-198f, 82f)
+                reflectiveQuadToRelative(-82f, 198f)
+                reflectiveQuadToRelative(82f, 198f)
+                reflectiveQuadToRelative(198f, 82f)
+                moveToRelative(0f, -120f)
+                quadToRelative(-66f, 0f, -113f, -47f)
+                reflectiveQuadToRelative(-47f, -113f)
+                reflectiveQuadToRelative(47f, -113f)
+                reflectiveQuadToRelative(113f, -47f)
+                reflectiveQuadToRelative(113f, 47f)
+                reflectiveQuadToRelative(47f, 113f)
+                reflectiveQuadToRelative(-47f, 113f)
+                reflectiveQuadToRelative(-113f, 47f)
+                moveToRelative(0f, -80f)
+                quadToRelative(33f, 0f, 56.5f, -23.5f)
+                reflectiveQuadTo(560f, 480f)
+                reflectiveQuadToRelative(-23.5f, -56.5f)
+                reflectiveQuadTo(480f, 400f)
+                reflectiveQuadToRelative(-56.5f, 23.5f)
+                reflectiveQuadTo(400f, 480f)
+                reflectiveQuadToRelative(23.5f, 56.5f)
+                reflectiveQuadTo(480f, 560f)
+                moveToRelative(0f, -80f)
+            }
+        }.build()
+
+        return _My_location!!
+    }
+
+private var _My_location: ImageVector? = null
+

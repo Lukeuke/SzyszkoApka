@@ -68,7 +68,17 @@ fun MapScreen(
             when(mode) {
                 AppMode.DEFAULT -> DefaultMode(
                     paddingValues = paddingValues,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    centerCameraFunction = {
+                        mapViewRef.value?.let {
+                            state.value.userLocation?.let { cords ->
+                                viewModel.mapViewCameraPositionChange(
+                                    mapView = it,
+                                    targetLatLng = cords
+                                )
+                            }
+                        }
+                    }
                 )
                 AppMode.ADMIN -> AdminMode(
                     paddingValues = paddingValues,
