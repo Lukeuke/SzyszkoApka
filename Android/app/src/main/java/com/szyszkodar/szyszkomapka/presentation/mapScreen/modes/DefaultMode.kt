@@ -104,7 +104,7 @@ fun DefaultMode(
                 Icon(
                     imageVector = My_location,
                     tint = MaterialTheme.colorScheme.background,
-                    contentDescription = null,
+                    contentDescription = "Wycentruj",
                 )
             }
 
