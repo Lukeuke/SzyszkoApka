@@ -53,7 +53,7 @@ fun BookpointBottomSheet(
                 .padding(horizontal = 20.dp)
         ) {
             Text(
-                text = bookpoint.description,
+                text = bookpoint.title,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,

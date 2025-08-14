@@ -1,6 +1,5 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen.modes
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
@@ -9,12 +8,11 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.with
-import androidx.compose.foundation.background
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -22,7 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -45,6 +43,7 @@ import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.BookpointBottomSheet
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.FloatingButtonsColumn
+import com.szyszkodar.szyszkomapka.presentation.LogInForm.LogInForm
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.TopBar
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -57,6 +56,7 @@ fun DefaultMode(
     modifier: Modifier = Modifier
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle()
+    var loginFormVisible by remember { mutableStateOf(false) }
     val rotation = remember { Animatable(0f) }
     var listExpanded by remember { mutableStateOf(false) }
     val labelRotation = remember { Animatable(90f) }
@@ -91,10 +91,10 @@ fun DefaultMode(
                 val context = LocalContext.current
                 FloatingButtonsColumn(
                     firstButtonName = "Logowanie",
-                    firstButtonIcon = Icons.Default.Face,
+                    firstButtonIcon = Icons.Default.Lock,
                     firstButtonColor = MaterialTheme.colorScheme.primary,
                     onFirstButtonClick = {
-                        Toast.makeText(context, "Chciałoby się tyle funkcji za darmo", Toast.LENGTH_SHORT).show()
+                        loginFormVisible = true
                     },
                     secondButtonName = "Dodaj Biblioteczke",
                     secondButtonIcon = Icons.Default.Add,
@@ -159,5 +159,13 @@ fun DefaultMode(
             text = "SzyszkoMapka",
             modifier = Modifier
         )
+
+        AnimatedVisibility(
+            visible = loginFormVisible,
+            enter = slideInHorizontally { it },
+            exit = slideOutHorizontally { it }
+        ) {
+            LogInForm(onExitClick = { loginFormVisible = false })
+        }
     }
 }

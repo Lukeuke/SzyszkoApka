@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
+import com.szyszkodar.szyszkomapka.presentation.shared.animations.shakeErrorAnimation
 import kotlinx.coroutines.launch
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapLibreMap
@@ -99,34 +100,24 @@ fun AddBookpointBoxForm(
 
     var errorMessage: String? by remember { mutableStateOf(null) }
 
-    suspend fun animateShake(offsetX: Animatable<Float, AnimationVector1D>) {
-        val delta = 10f
-        val duration = 50
-        for (i in 0..2) {
-            offsetX.animateTo(-delta, animationSpec = tween(durationMillis = duration))
-            offsetX.animateTo(delta, animationSpec = tween(durationMillis = duration))
-        }
-        offsetX.animateTo(0f, animationSpec = tween(durationMillis = duration))
-    }
-
     fun onCheckClick() {
         if (bookpointLat.text.isEmpty()) {
             coroutineScope.launch {
-                animateShake(latTextBoxOffset)
+                shakeErrorAnimation(latTextBoxOffset)
             }
         } else if (bookpointLon.text.isEmpty()) {
             coroutineScope.launch {
-                animateShake(lonTextBoxOffset)
+                shakeErrorAnimation(lonTextBoxOffset)
             }
         } else if (bookpointLon.text.toDouble() > 90 || bookpointLat.text.toDouble() > 90) {
             errorMessage = "Za duże wartości"
             coroutineScope.launch {
-                animateShake(errorMessageOffset)
+                shakeErrorAnimation(errorMessageOffset)
             }
         } else if(bookpointLon.text.toDouble() < 0 || bookpointLat.text.toDouble() < 0) {
             errorMessage = "Za małe wartości"
             coroutineScope.launch {
-                animateShake(errorMessageOffset)
+                shakeErrorAnimation(errorMessageOffset)
             }
         } else {
             isExpanded = false
@@ -147,12 +138,12 @@ fun AddBookpointBoxForm(
             sendButtonEnabled = false
             if(bookpointName.text.isEmpty()) {
                 coroutineScope.launch {
-                    animateShake(textBoxOffset)
+                    shakeErrorAnimation(textBoxOffset)
                 }
                 sendButtonEnabled = true
             } else if(bookpointDescription.text.isEmpty()) {
                 coroutineScope.launch {
-                    animateShake(descriptionBoxOffset)
+                    shakeErrorAnimation(descriptionBoxOffset)
                 }
                 sendButtonEnabled = true
             } else {
