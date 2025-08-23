@@ -133,7 +133,7 @@ fun LogInForm(
                     outlineColor = MaterialTheme.colorScheme.primary,
                     outlineDrawStyle = Stroke(8f),
                     modifier = Modifier
-                        .weight(2f)
+                        .weight(3f)
                 )
                 TextField(
                     value = state.value.username,
@@ -197,20 +197,6 @@ fun LogInForm(
                     modifier = Modifier
                         .weight(1.5f)
                         .offset(x = loginTextFieldOffset.value.dp)
-                )
-                Text(
-                    text = "Zapomniałem hasła...",
-                    textDecoration = TextDecoration.Underline,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = 10.sp,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier
-                        .padding(vertical = 5.dp)
-                        .align(Alignment.Start)
-                        .pointerInput(Unit) {
-                            // TODO: PasswordChange
-                        }
-                        .weight(1f)
                 )
                 if (state.value.incorrectCredentials) {
                     Text(
