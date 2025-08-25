@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.Px
+import androidx.compose.material3.MaterialTheme
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -35,6 +36,7 @@ import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
+import org.maplibre.android.maps.Style
 import org.maplibre.android.style.layers.CircleLayer
 import org.maplibre.android.style.layers.PropertyFactory.circleColor
 import org.maplibre.android.style.layers.PropertyFactory.circleOpacity
@@ -42,6 +44,7 @@ import org.maplibre.android.style.layers.PropertyFactory.circleRadius
 import org.maplibre.android.style.layers.PropertyFactory.circleStrokeColor
 import org.maplibre.android.style.layers.PropertyFactory.circleStrokeWidth
 import org.maplibre.android.style.layers.PropertyFactory.iconAllowOverlap
+import org.maplibre.android.style.layers.PropertyFactory.iconColor
 import org.maplibre.android.style.layers.PropertyFactory.iconIgnorePlacement
 import org.maplibre.android.style.layers.PropertyFactory.iconImage
 import org.maplibre.android.style.layers.PropertyFactory.iconSize
@@ -68,7 +71,8 @@ class MapScreenViewModel @Inject  constructor(
     init {
         viewModelScope.launch {
             getUserLocation()
-            fetchBookpoints()
+            val bookpoints = fetchBookpoints(query = GetBookpointsQuery(filters = listOf(BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, true))))
+            bookpoints?.let { _state.update { it.copy(bookpoints = bookpoints) } }
 
             localizationHandler.observeUserLocation().collect { newLocation ->
                 if (newLocation != null) {
@@ -78,31 +82,37 @@ class MapScreenViewModel @Inject  constructor(
         }
     }
 
-    private fun fetchBookpoints() {
+    private suspend fun fetchBookpoints(query: GetBookpointsQuery): List<BookpointUI>? {
         val bookpointsMapper = BookpointsMapper()
 
-        viewModelScope.launch {
-            // Fetch only approved bookpoints
-            val query = GetBookpointsQuery(
-                filters = listOf(
-                    BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, true)
-                )
-            )
-
-            when(val response = bookpointsRepository.getBookpoints(query)) {
-                is Result.Success -> {
-                    _state.update { it.copy(bookpoints = response.data.data.map { el ->
-                        bookpointsMapper.convert(el)
-                    }, errorMessage = null) }
+        return when(val response = bookpointsRepository.getBookpoints(query)) {
+            is Result.Success -> {
+                response.data.data.map { el ->
+                    bookpointsMapper.convert(el)
                 }
-                is Result.Error -> {
-                    _state.update { it.copy(errorMessage = response.error.message) }
-                }
+            }
+            is Result.Error -> {
+                _state.update { it.copy(errorMessage = response.error.message) }
+                null
             }
         }
     }
 
     fun updateMap(mapView: MapView){
+
+        if (_state.value.appMode == AppMode.ADMIN){
+            viewModelScope.launch {
+                val unapprovedBookpoints = fetchBookpoints(query = GetBookpointsQuery(filters = listOf(
+                    BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, false)
+                )))
+
+                unapprovedBookpoints?.let { _state.update { it.copy(unapprovedBookpoints = unapprovedBookpoints) }}
+            }
+
+            Log.d("dziala", _state.value.unapprovedBookpoints.toString())
+
+        }
+
         mapView.getMapAsync { map ->
             // Create list of markers
             val features = state.value.bookpoints.map {
@@ -113,12 +123,28 @@ class MapScreenViewModel @Inject  constructor(
             }
             val geoJson = FeatureCollection.fromFeatures(features)
 
+            // Create list of unapproved markers
+            val unapprovedFeatures = state.value.unapprovedBookpoints.map {
+                val feature = Feature.fromGeometry(Point.fromLngLat(it.longitude, it.latitude))
+                feature.addStringProperty("data", Gson().toJson(it))
+
+                feature
+            }
+            val unapprovedGeoJson = FeatureCollection.fromFeatures(unapprovedFeatures)
+
+
             // Edit map style
             map.getStyle { style ->
                 val source = style.getSourceAs<GeoJsonSource>("marker-source")
+                val unapprovedBookpointsSource = style.getSourceAs<GeoJsonSource>("unapproved-marker-source")
 
                 // If there is any new marker - add it
                 source?.setGeoJson(geoJson)
+
+                // Add unapproved markers
+                if (_state.value.appMode == AppMode.ADMIN) {
+                    unapprovedBookpointsSource?.setGeoJson(unapprovedGeoJson)
+                }
 
                 // User localization
                 val userLocalization = _state.value.userLocation
@@ -136,15 +162,20 @@ class MapScreenViewModel @Inject  constructor(
     fun createMap(mapView: MapView): MapView {
         mapView.getMapAsync { map ->
             // Setting style of the map
-            map.setStyle("https://tiles.openfreemap.org/styles/liberty") { style ->
+            map.setStyle(Style.Builder().fromUri("asset://map-style.json")) { style ->
                 style.addImage(
                     "marker-icon",
-                    BitmapFactory.decodeResource(context.resources, R.drawable.marker)
+                    BitmapFactory.decodeResource(context.resources, R.drawable.marker),
+                    true
                 )
 
                 // Markers
                 val geoJsonSource = GeoJsonSource("marker-source", FeatureCollection.fromFeatures(emptyList()))
                 style.addSource(geoJsonSource)
+
+                // Unaccepted markers
+                val unapprovedMarkersSource = GeoJsonSource("unapproved-marker-source", FeatureCollection.fromFeatures(emptyList()))
+                style.addSource(unapprovedMarkersSource)
 
                 // User location
                 val locationSource = GeoJsonSource("user-location-source")
@@ -156,9 +187,20 @@ class MapScreenViewModel @Inject  constructor(
                         iconImage("marker-icon"),
                         iconAllowOverlap(true),
                         iconIgnorePlacement(true),
-                        iconSize(0.2f)
+                        iconSize(0.3f),
+                        iconColor("#b07b4f".toColorInt())
                     )
                 style.addLayer(markersLayer)
+
+                val unapprovedMarkersLayer = SymbolLayer("unapproved-markers-layer", "unapproved-marker-source")
+                    .withProperties(
+                        iconImage("marker-icon"),
+                        iconAllowOverlap(true),
+                        iconIgnorePlacement(true),
+                        iconSize(0.3f),
+                        iconColor("#fc6423".toColorInt())
+                    )
+                style.addLayer(unapprovedMarkersLayer)
 
                 // User location layer
                 val circleLayer = CircleLayer("user-location-layer", "user-location-source").withProperties(
@@ -212,9 +254,6 @@ class MapScreenViewModel @Inject  constructor(
 
                 if (geometry is Point) {
                     val markerLatLng = LatLng(geometry.latitude(), geometry.longitude())
-
-                    // Make toast TODO: move it to ScreenView
-                    Toast.makeText(context, "Kliknięto ${bookpoint.id}", Toast.LENGTH_SHORT).show()
 
                     _state.update { it.copy(bookpointInfoVisible = true, chosenBookpoint = bookpoint) }
 
@@ -293,8 +332,6 @@ class MapScreenViewModel @Inject  constructor(
                 map.width / 2f,
                 map.height / 2f
             )
-
-            Log.d("koń3", centerScreenPoint.toString())
 
             val centerLatLng = map.projection.fromScreenLocation(centerScreenPoint)
             _state.update { it.copy(centerLatLng = centerLatLng) }
