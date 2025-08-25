@@ -240,7 +240,7 @@ class MapScreenViewModel @Inject  constructor(
             val screenPoint = map.projection.toScreenLocation(point)
 
             // Give a list of clicked markers
-            val features = map.queryRenderedFeatures(screenPoint, "marker-layer")
+            val features = map.queryRenderedFeatures(screenPoint, "marker-layer", "unapproved-markers-layer")
 
             // Check if any marker was clicked
             if (features.isNotEmpty()) {
@@ -255,7 +255,7 @@ class MapScreenViewModel @Inject  constructor(
                 if (geometry is Point) {
                     val markerLatLng = LatLng(geometry.latitude(), geometry.longitude())
 
-                    _state.update { it.copy(bookpointInfoVisible = true, chosenBookpoint = bookpoint) }
+                    toggleBookpointVisibility(bookpoint)
 
                     // Setup new camera position
                     changeCameraPosition(map, markerLatLng)
@@ -314,8 +314,12 @@ class MapScreenViewModel @Inject  constructor(
         return userLocation ?: LatLng(52.2297, 21.0122)
     }
 
-    fun toggleBookpointVisibility() {
-        _state.update { it.copy(bookpointInfoVisible = !it.bookpointInfoVisible) }
+    fun toggleBookpointVisibility(bookpoint: BookpointUI? = null) {
+        if (bookpoint == null) {
+            _state.update { it.copy(chosenBookpoint = null) }
+        } else {
+            _state.update { it.copy(chosenBookpoint = bookpoint) }
+        }
     }
 
     fun setErrorMessageShownToTrue(){

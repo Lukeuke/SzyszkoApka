@@ -82,7 +82,17 @@ fun MapScreen(
                 )
                 AppMode.ADMIN -> AdminMode(
                     paddingValues = paddingValues,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    centerCameraFunction = {
+                        mapViewRef.value?.let {
+                            state.value.userLocation?.let { cords ->
+                                viewModel.mapViewCameraPositionChange(
+                                    mapView = it,
+                                    targetLatLng = cords
+                                )
+                            }
+                        }
+                    }
                 )
                 AppMode.ADD_BOOKPOINT -> mapViewRef.value?.let {
                     AddBookpointMode(

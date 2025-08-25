@@ -36,10 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -178,10 +174,12 @@ fun DefaultMode(
             }
         }
 
-        AnimatedVisibility(state.value.bookpointInfoVisible) {
-            BookpointBottomSheet(state.value.chosenBookpoint, {
-                viewModel.toggleBookpointVisibility()
-            })
+        AnimatedVisibility(state.value.chosenBookpoint != null) {
+            state.value.chosenBookpoint?.let {
+                BookpointBottomSheet(it, {
+                    viewModel.toggleBookpointVisibility()
+                })
+            }
         }
 
         TopBar(
@@ -196,9 +194,10 @@ fun DefaultMode(
         ) {
             LogInForm(
                 onExitClick = { loginFormVisible = false },
-                setBearerTokenFunction = {
+                onLoginSuccessFunction = {
                     viewModel.setBearerToken(it)
                     loginFormVisible = false
+                    viewModel.changeAppMode(AppMode.ADMIN)
                     Toast.makeText(context, "Pomyślnie zalogowano", Toast.LENGTH_SHORT).show()
                 }
             )

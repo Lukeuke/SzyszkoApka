@@ -35,7 +35,7 @@ class LogInFormViewModel @Inject constructor(
         _state.update { it.copy(username = text) }
     }
 
-    fun verifyCredentials(setToken: (String)-> Unit) {
+    fun verifyCredentials(onSuccess: (String)-> Unit) {
         _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val body = IdentityBody(
@@ -46,7 +46,7 @@ class LogInFormViewModel @Inject constructor(
             when(val response = identityRepository.getIdentity(body)) {
                 is Result.Success -> {
                     _state.update { it.copy(incorrectCredentials = false) }
-                    setToken(response.data.token)
+                    onSuccess(response.data.token)
                 }
                 is Result.Error -> {
                     when(response.error) {
