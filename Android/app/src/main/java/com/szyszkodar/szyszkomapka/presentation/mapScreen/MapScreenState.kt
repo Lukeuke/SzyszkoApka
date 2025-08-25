@@ -1,5 +1,6 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen
 
+import android.media.session.MediaSession.Token
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.data.uiClasses.BookpointUI
 import org.maplibre.android.geometry.LatLng
@@ -13,6 +14,7 @@ data class MapScreenState(
     val appMode: AppMode = AppMode.DEFAULT,
     val centerLatLng: LatLng = LatLng(0.0,0.0),
     val userLocation: LatLng? = null,
-    val bearerToken: String? = null,
+    var bearerToken: String? = null,
     val chosenBookpoint: BookpointUI? = null
-)
+) {
+}

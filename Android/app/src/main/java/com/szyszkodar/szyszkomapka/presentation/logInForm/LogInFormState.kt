@@ -1,4 +1,4 @@
-package com.szyszkodar.szyszkomapka.presentation.LogInForm
+package com.szyszkodar.szyszkomapka.presentation.logInForm
 
 import androidx.compose.ui.text.input.TextFieldValue
 

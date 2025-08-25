@@ -1,6 +1,5 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen.modes
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
@@ -9,8 +8,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,7 +19,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -38,12 +34,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
-import com.szyszkodar.szyszkomapka.presentation.LogInForm.LogInForm
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.BookpointBottomSheet
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.FloatingButtonsColumn
@@ -57,6 +51,7 @@ import kotlinx.coroutines.launch
 fun AdminMode(
     paddingValues: PaddingValues,
     viewModel: MapScreenViewModel,
+    refreshMapFunction: () -> Unit,
     centerCameraFunction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -176,9 +171,14 @@ fun AdminMode(
 
         AnimatedVisibility(state.value.chosenBookpoint != null) {
             state.value.chosenBookpoint?.let {
-                BookpointBottomSheet(it, {
-                    viewModel.toggleBookpointVisibility()
-                })
+                BookpointBottomSheet(
+                    bookpoint = it,
+                    bearerToken = state.value.bearerToken,
+                    refreshMapFunction = refreshMapFunction,
+                    onDismissRequest = {
+                        viewModel.toggleBookpointVisibility()
+                    }
+                )
             }
         }
 

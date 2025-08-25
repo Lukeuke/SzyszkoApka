@@ -1,9 +1,8 @@
-package com.szyszkodar.szyszkomapka.presentation.LogInForm
+package com.szyszkodar.szyszkomapka.presentation.logInForm
 
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.szyszkodar.szyszkomapka.data.remote.body.IdentityBody
 import com.szyszkodar.szyszkomapka.data.repository.IdentityRepository
 import com.szyszkodar.szyszkomapka.domain.errorHandling.NetworkError
@@ -46,7 +45,7 @@ class LogInFormViewModel @Inject constructor(
             when(val response = identityRepository.getIdentity(body)) {
                 is Result.Success -> {
                     _state.update { it.copy(incorrectCredentials = false) }
-                    onSuccess(response.data.token)
+                    onSuccess("Bearer ${response.data.token}")
                 }
                 is Result.Error -> {
                     when(response.error) {

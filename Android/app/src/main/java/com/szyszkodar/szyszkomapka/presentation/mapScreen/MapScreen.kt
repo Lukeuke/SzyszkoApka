@@ -83,6 +83,9 @@ fun MapScreen(
                 AppMode.ADMIN -> AdminMode(
                     paddingValues = paddingValues,
                     viewModel = viewModel,
+                    refreshMapFunction = {
+                        mapViewRef.value?.let { viewModel.updateMap(it) }
+                    },
                     centerCameraFunction = {
                         mapViewRef.value?.let {
                             state.value.userLocation?.let { cords ->

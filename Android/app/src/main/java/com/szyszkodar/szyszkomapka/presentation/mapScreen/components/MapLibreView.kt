@@ -50,7 +50,6 @@ fun MapLibreView (
     }
 
     LaunchedEffect(state.value.appMode) {
-        Log.d("koń", "koń")
         mapViewRef.value?.let {
             viewModel.updateMap(it)
         }
