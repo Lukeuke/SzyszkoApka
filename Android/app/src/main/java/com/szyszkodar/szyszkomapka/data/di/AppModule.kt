@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder
 import com.szyszkodar.szyszkomapka.BuildConfig
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
 import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
+import com.szyszkodar.szyszkomapka.data.repository.IdentityRepository
 import com.szyszkodar.szyszkomapka.domain.remote.Api
 import com.szyszkodar.szyszkomapka.domain.repository.Repository
 import dagger.Module
@@ -49,8 +50,14 @@ object AppModule {
     // Provide BookpointsRepository object
     @Provides
     @Singleton
-    fun provideBookpointsRepository(api: Api): Repository {
+    fun provideBookpointsRepository(api: Api): BookpointsRepository {
         return BookpointsRepository(api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideIdentityRepository(api: Api): IdentityRepository {
+        return IdentityRepository(api)
     }
 
     // Provide localization handler

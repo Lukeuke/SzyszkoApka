@@ -22,6 +22,7 @@ type BookPointRepository interface {
 	Approve(ctx context.Context, id uuid.UUID) error
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.BookPoint, error)
 	GetAll(ctx context.Context, dataQuery *dto.DataQuery) (dto.DataResult[domain.BookPoint], error)
+	ExistsByExternalKey(ctx context.Context, externalKey string) (bool, error)
 }
 
 type supabaseBookPointRepository struct {
@@ -126,4 +127,22 @@ func (r *supabaseBookPointRepository) Remove(ctx context.Context, id uuid.UUID) 
 	}
 
 	return nil
+}
+
+func (r *supabaseBookPointRepository) ExistsByExternalKey(ctx context.Context, externalKey string) (bool, error) {
+	data, _, err := r.client.From("book_points").
+		Select("external_key", "exact", false).
+		Eq("external_key", externalKey).
+		Execute()
+
+	if err != nil {
+		return false, err
+	}
+
+	var results []domain.BookPoint
+	if err := json.Unmarshal(data, &results); err != nil {
+		return false, fmt.Errorf("unmarshal ExistsByExternalKey response: %w", err)
+	}
+
+	return len(results) > 0, nil
 }

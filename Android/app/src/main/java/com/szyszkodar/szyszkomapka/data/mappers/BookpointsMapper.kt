@@ -16,6 +16,7 @@ class BookpointsMapper: ResponseToUI<BookpointResponseElement, BookpointUI> {
             longitude = response.lon,
             createdAt = response.createdAt.convertToTime(),
             updatedAt = response.updatedAt.convertToTime(),
+            title = response.title,
             description = response.description,
             approved = response.approved
         )

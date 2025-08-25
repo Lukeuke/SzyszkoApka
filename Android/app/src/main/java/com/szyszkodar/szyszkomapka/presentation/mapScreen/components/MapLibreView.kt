@@ -1,10 +1,13 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen.components
 
 import android.content.Context
+import android.util.Log
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
@@ -15,10 +18,12 @@ fun MapLibreView (
     context: Context,
     viewModel: MapScreenViewModel,
     mapViewRef: MutableState<MapView?>,
+    paddingValues: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle()
-
+    val localDensity = LocalDensity.current
+    val topPadding = with(localDensity) { paddingValues.calculateTopPadding().toPx().toInt() }
 
     AndroidView(
         modifier = modifier,
@@ -26,6 +31,10 @@ fun MapLibreView (
             val mapView = MapView(context)
 
             mapViewRef.value = mapView
+            viewModel.setCompassMargins(
+                mapView = mapView,
+                topPadding = topPadding
+            )
             viewModel.createMap(mapView)
         },
         update = {
@@ -35,6 +44,12 @@ fun MapLibreView (
     )
 
     LaunchedEffect(state.value.bookpoints) {
+        mapViewRef.value?.let {
+            viewModel.updateMap(it)
+        }
+    }
+
+    LaunchedEffect(state.value.appMode) {
         mapViewRef.value?.let {
             viewModel.updateMap(it)
         }

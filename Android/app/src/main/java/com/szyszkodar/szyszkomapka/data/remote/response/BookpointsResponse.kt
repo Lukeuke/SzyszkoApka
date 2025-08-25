@@ -10,6 +10,7 @@ data class BookpointResponseElement(
     val lon: Double,
     @SerializedName("created_at") val createdAt: String,
     @SerializedName("updated_at") val updatedAt: String,
+    val title: String,
     val description: String,
     val approved: Boolean
 ): ResponseElement

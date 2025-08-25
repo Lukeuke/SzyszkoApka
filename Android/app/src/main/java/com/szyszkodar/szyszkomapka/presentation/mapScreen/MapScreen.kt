@@ -7,6 +7,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -52,7 +53,7 @@ fun MapScreen(
             }
         )
 
-        MapLibreView(context, viewModel, mapViewRef)
+        MapLibreView(context, viewModel, mapViewRef, paddingValues)
 
         AnimatedContent(
             targetState = state.value.appMode,
@@ -67,11 +68,34 @@ fun MapScreen(
             when(mode) {
                 AppMode.DEFAULT -> DefaultMode(
                     paddingValues = paddingValues,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    centerCameraFunction = {
+                        mapViewRef.value?.let {
+                            state.value.userLocation?.let { cords ->
+                                viewModel.mapViewCameraPositionChange(
+                                    mapView = it,
+                                    targetLatLng = cords
+                                )
+                            }
+                        }
+                    }
                 )
                 AppMode.ADMIN -> AdminMode(
                     paddingValues = paddingValues,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    refreshMapFunction = {
+                        mapViewRef.value?.let { viewModel.updateMap(it) }
+                    },
+                    centerCameraFunction = {
+                        mapViewRef.value?.let {
+                            state.value.userLocation?.let { cords ->
+                                viewModel.mapViewCameraPositionChange(
+                                    mapView = it,
+                                    targetLatLng = cords
+                                )
+                            }
+                        }
+                    }
                 )
                 AppMode.ADD_BOOKPOINT -> mapViewRef.value?.let {
                     AddBookpointMode(
@@ -85,7 +109,6 @@ fun MapScreen(
         }
 
     }
-
 
     // Show error message on error
     state.value.errorMessage?.let {
