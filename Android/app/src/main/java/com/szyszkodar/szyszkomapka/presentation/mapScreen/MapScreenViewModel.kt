@@ -337,6 +337,8 @@ class MapScreenViewModel @Inject  constructor(
                 map.height / 2f
             )
 
+            Log.d("koń3", centerScreenPoint.toString())
+
             val centerLatLng = map.projection.fromScreenLocation(centerScreenPoint)
             _state.update { it.copy(centerLatLng = centerLatLng) }
         }

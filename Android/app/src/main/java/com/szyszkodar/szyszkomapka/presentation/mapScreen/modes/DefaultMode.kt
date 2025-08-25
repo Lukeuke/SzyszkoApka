@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.szyszkodar.szyszkomapka.BuildConfig
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.BookpointBottomSheet
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
