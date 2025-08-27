@@ -118,8 +118,9 @@ fun BookpointBottomSheet(
                             if (bearerToken == null) {
                                 viewModel.setToastMessage("Sesja wygasła, zaloguj się jeszcze raz")
                             } else {
-                                viewModel.approveBookpoint(bookpoint, bearerToken)
-                                refreshMapFunction()
+                                viewModel.approveBookpoint(bookpoint, bearerToken) {
+                                    refreshMapFunction()
+                                }
                             }
                         }
                     )

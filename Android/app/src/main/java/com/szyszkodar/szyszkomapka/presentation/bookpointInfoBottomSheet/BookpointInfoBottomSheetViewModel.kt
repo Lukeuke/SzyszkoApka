@@ -26,12 +26,13 @@ class BookpointInfoBottomSheetViewModel @Inject constructor(
         initialValue = BookpointInfoBottomSheetState()
     )
 
-    fun approveBookpoint(bookpoint: BookpointUI, token: String) {
+    fun approveBookpoint(bookpoint: BookpointUI, token: String, onSuccess: () -> Unit) {
         toggleLoading(true)
         viewModelScope.launch {
             when(val response = bookpointsRepository.approveBookpoint(bookpoint.id, token)) {
                 is Result.Success -> {
                     setToastMessage("Pomyślnie dodano biblioteczkę")
+                    onSuccess()
                 }
                 is Result.Error -> {
                     setToastMessage(response.error.message)
