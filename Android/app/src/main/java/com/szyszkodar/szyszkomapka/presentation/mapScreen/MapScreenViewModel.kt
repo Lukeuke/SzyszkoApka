@@ -108,9 +108,6 @@ class MapScreenViewModel @Inject  constructor(
 
                 unapprovedBookpoints?.let { _state.update { it.copy(unapprovedBookpoints = unapprovedBookpoints) }}
             }
-
-            Log.d("dziala", _state.value.unapprovedBookpoints.toString())
-
         }
 
         mapView.getMapAsync { map ->
@@ -158,6 +155,17 @@ class MapScreenViewModel @Inject  constructor(
         setCenterCoordinates(mapView)
     }
 
+    fun refreshMap(mapView: MapView) {
+        viewModelScope.launch {
+            val approved = fetchBookpoints(query = GetBookpointsQuery(filters = listOf(BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, true))))
+            val unapproved = fetchBookpoints(query = GetBookpointsQuery(filters = listOf(BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, false))))
+
+            if (approved != null && unapproved != null) {
+                _state.update { it.copy(bookpoints = approved, unapprovedBookpoints = unapproved) }
+                updateMap(mapView)
+            }
+        }
+    }
 
     fun createMap(mapView: MapView): MapView {
         mapView.getMapAsync { map ->

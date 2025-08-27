@@ -84,7 +84,7 @@ fun MapScreen(
                     paddingValues = paddingValues,
                     viewModel = viewModel,
                     refreshMapFunction = {
-                        mapViewRef.value?.let { viewModel.updateMap(it) }
+                        mapViewRef.value?.let { viewModel.refreshMap(it) }
                     },
                     centerCameraFunction = {
                         mapViewRef.value?.let {
