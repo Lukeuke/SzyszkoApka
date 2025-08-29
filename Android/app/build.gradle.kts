@@ -65,6 +65,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.play.services.location)
+    implementation(libs.androidx.paging.common.android)
+    implementation(libs.androidx.paging.common.jvm)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.hilt.android)
     implementation(libs.retrofit.converter.gson)

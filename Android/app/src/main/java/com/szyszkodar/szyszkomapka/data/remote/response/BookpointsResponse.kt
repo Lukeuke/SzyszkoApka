@@ -1,6 +1,7 @@
 package com.szyszkodar.szyszkomapka.data.remote.response
 
 import com.google.gson.annotations.SerializedName
+import com.szyszkodar.szyszkomapka.domain.remote.response.PageableResponse
 import com.szyszkodar.szyszkomapka.domain.remote.response.Response
 import com.szyszkodar.szyszkomapka.domain.remote.response.ResponseElement
 
@@ -16,6 +17,6 @@ data class BookpointResponseElement(
 ): ResponseElement
 
 data class BookpointsResponse(
-    val data: List<BookpointResponseElement>,
-    val total: Int
-): Response
+    override val data: List<BookpointResponseElement>,
+    override val total: Int
+): PageableResponse<BookpointResponseElement>
