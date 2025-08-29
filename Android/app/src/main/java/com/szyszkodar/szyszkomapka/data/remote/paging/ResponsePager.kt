@@ -13,7 +13,7 @@ class ResponsePager<T: PageableResponse<R>, R: ResponseElement>(
     private val pageSize: Int,
     private val loadDataFunction: suspend (Int) -> Result<T, NetworkError>
 ) {
-    inner class ResponsePagingSource: PagingSource<Int, R>() {
+    private inner class ResponsePagingSource: PagingSource<Int, R>() {
         override fun getRefreshKey(state: PagingState<Int, R>): Int? {
             return state.anchorPosition
         }

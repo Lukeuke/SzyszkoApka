@@ -8,6 +8,8 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -38,6 +40,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
+import com.szyszkodar.szyszkomapka.presentation.administratorScreen.AdministratorScreen
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.BookpointBottomSheet
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.FloatingButtonsColumn
@@ -56,7 +59,7 @@ fun AdminMode(
     modifier: Modifier = Modifier
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle()
-    var loginFormVisible by remember { mutableStateOf(false) }
+    var adminScreenVisible by remember { mutableStateOf(false) }
     val rotation = remember { Animatable(0f) }
     var listExpanded by remember { mutableStateOf(false) }
     val labelRotation = remember { Animatable(90f) }
@@ -114,7 +117,7 @@ fun AdminMode(
                     firstButtonIcon = Icons.Default.Person,
                     firstButtonColor = MaterialTheme.colorScheme.primary,
                     onFirstButtonClick = {
-                        loginFormVisible = true
+                        adminScreenVisible = true
                     },
                     secondButtonName = "Dodaj Biblioteczke",
                     secondButtonIcon = Icons.Default.Add,
@@ -186,6 +189,17 @@ fun AdminMode(
             text = "SzyszkoMapka",
             modifier = Modifier
         )
+
+        AnimatedVisibility(
+            visible = adminScreenVisible,
+            enter = slideInHorizontally { it },
+            exit = slideOutHorizontally { it }
+        ) {
+            AdministratorScreen(
+                token = state.value.bearerToken,
+                onExitClick = { adminScreenVisible = false }
+            )
+        }
 
     }
 }

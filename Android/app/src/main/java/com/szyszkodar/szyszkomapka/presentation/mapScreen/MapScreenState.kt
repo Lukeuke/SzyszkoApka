@@ -5,6 +5,8 @@ import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.data.uiClasses.BookpointUI
 import org.maplibre.android.geometry.LatLng
 import java.time.LocalDateTime
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.KProperty
 
 data class MapScreenState(
     val bookpoints: List<BookpointUI> = emptyList(),
@@ -16,5 +18,4 @@ data class MapScreenState(
     val userLocation: LatLng? = null,
     var bearerToken: String? = null,
     val chosenBookpoint: BookpointUI? = null
-) {
-}
+)

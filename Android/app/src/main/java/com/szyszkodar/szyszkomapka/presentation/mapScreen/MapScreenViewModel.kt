@@ -4,13 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.util.Log
-import android.widget.Toast
+import android.graphics.PointF
 import androidx.annotation.Px
-import androidx.compose.material3.MaterialTheme
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
+import androidx.paging.map
 import com.google.gson.Gson
 import com.szyszkodar.szyszkomapka.R
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
@@ -18,7 +18,9 @@ import com.szyszkodar.szyszkomapka.data.mappers.BookpointsMapper
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
 import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.filter.BookpointsFilter
+import com.szyszkodar.szyszkomapka.data.remote.paging.ResponsePager
 import com.szyszkodar.szyszkomapka.data.remote.query.GetBookpointsQuery
+import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponse
 import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
 import com.szyszkodar.szyszkomapka.data.uiClasses.BookpointUI
 import com.szyszkodar.szyszkomapka.domain.errorHandling.Result
@@ -28,6 +30,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -340,7 +343,7 @@ class MapScreenViewModel @Inject  constructor(
 
     private fun setCenterCoordinates(mapView: MapView) {
         mapView.getMapAsync{ map ->
-            val centerScreenPoint = android.graphics.PointF(
+            val centerScreenPoint = PointF(
                 map.width / 2f,
                 map.height / 2f
             )
