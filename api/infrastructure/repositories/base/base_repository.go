@@ -38,11 +38,10 @@ func (r *BaseRepository[T]) GetAll(ctx context.Context, query *dto.DataQuery) (d
 
 	q := r.client.From(r.tableName).Select("*", "exact", false)
 
-	for _, filter := range query.Filters {
-		if !r.validOps[filter.Operator] {
-			return result, fmt.Errorf("invalid filter operator: %s", filter.Operator)
-		}
-		q = q.Filter(filter.Field, filter.Operator, filter.Value)
+	q, err := r.applyFilters(q, query.Filters)
+
+	if err != nil {
+		return result, fmt.Errorf("query execution failed: %w", err)
 	}
 
 	if query.Sort != "" {
@@ -57,14 +56,9 @@ func (r *BaseRepository[T]) GetAll(ctx context.Context, query *dto.DataQuery) (d
 	end := query.Page*query.PageSize - 1
 	q = q.Range(start, end, "")
 
-	data, _, err := q.Execute()
+	data, total, err := q.Execute()
 	if err != nil {
 		return result, fmt.Errorf("query execution failed: %w", err)
-	}
-
-	_, total, err := r.client.From(r.tableName).Select("id", "exact", true).Range(0, 0, "").Execute()
-	if err != nil {
-		return result, err
 	}
 
 	var items []T
@@ -75,4 +69,17 @@ func (r *BaseRepository[T]) GetAll(ctx context.Context, query *dto.DataQuery) (d
 	result.Data = items
 	result.Total = total
 	return result, nil
+}
+
+func (r *BaseRepository[T]) applyFilters(
+	query *postgrest.FilterBuilder,
+	filters []dto.Filter,
+) (*postgrest.FilterBuilder, error) {
+	for _, filter := range filters {
+		if !r.validOps[filter.Operator] {
+			return query, fmt.Errorf("invalid filter operator: %s", filter.Operator)
+		}
+		query = query.Filter(filter.Field, filter.Operator, filter.Value)
+	}
+	return query, nil
 }
