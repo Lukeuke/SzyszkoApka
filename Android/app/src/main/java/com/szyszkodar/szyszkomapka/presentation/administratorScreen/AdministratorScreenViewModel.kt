@@ -1,5 +1,6 @@
 package com.szyszkodar.szyszkomapka.presentation.administratorScreen
 
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -45,30 +46,32 @@ class AdministratorScreenViewModel @Inject constructor(
         fetchBookpoints()
     }
 
-    fun fetchBookpoints() {
+    fun fetchBookpoints(query: GetBookpointsQuery = GetBookpointsQuery(filters = emptyList())) {
         val mapper = BookpointsMapper()
         setIsLoading(true)
 
         val bookpoints = ResponsePager(20) { page ->
-            val query = GetBookpointsQuery(filters = emptyList(), page = page, pageSize = 20)
-            val result = bookpointsRepository.getBookpoints(query)
+            val bookpointsQuery = query.copy(page = page, pageSize = 20)
+            val result = bookpointsRepository.getBookpoints(bookpointsQuery)
 
             if(result is Result.Error ) {
                 _state.update { it.copy(errorMessage = result.error.message) }
             }
 
+            setIsLoading(false)
             return@ResponsePager result
         }.pager.map { pagingData -> pagingData.map { el -> mapper.convert(el) } }.cachedIn(viewModelScope)
 
         _state.update { it.copy(bookPoints = bookpoints) }
-        setIsLoading(false)
     }
 
     fun deleteBookpoint(bookpoint: BookpointUI, token: String) {
         setIsLoading(true)
 
         viewModelScope.launch {
-            when(val result = bookpointsRepository.deleteBookpoint(bookpoint.id, token)) {
+            val result = bookpointsRepository.deleteBookpoint(bookpoint.id, token)
+
+            when(result) {
                 is Result.Error -> {}
                 is Result.Success -> {
                     _state.update { it.copy(toastMessage = "Pomyślnie usunięto") }
@@ -94,5 +97,9 @@ class AdministratorScreenViewModel @Inject constructor(
 
     fun setMessageNull() {
         _state.update { it.copy(toastMessage = null) }
+    }
+
+    fun updateSearchValue(newValue: TextFieldValue) {
+        _state.update { it.copy(searchValue = newValue) }
     }
 }
