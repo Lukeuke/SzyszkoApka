@@ -1,6 +1,8 @@
 package com.szyszkodar.szyszkomapka.presentation.administratorScreen
 
+
 import androidx.compose.ui.text.input.TextFieldValue
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -46,7 +48,9 @@ class AdministratorScreenViewModel @Inject constructor(
         fetchBookpoints()
     }
 
+
     fun fetchBookpoints(query: GetBookpointsQuery = GetBookpointsQuery(filters = emptyList())) {
+
         val mapper = BookpointsMapper()
         setIsLoading(true)
 
@@ -59,6 +63,7 @@ class AdministratorScreenViewModel @Inject constructor(
             }
 
             setIsLoading(false)
+          
             return@ResponsePager result
         }.pager.map { pagingData -> pagingData.map { el -> mapper.convert(el) } }.cachedIn(viewModelScope)
 
@@ -69,6 +74,7 @@ class AdministratorScreenViewModel @Inject constructor(
         setIsLoading(true)
 
         viewModelScope.launch {
+
             val result = bookpointsRepository.deleteBookpoint(bookpoint.id, token)
 
             when(result) {
@@ -99,7 +105,8 @@ class AdministratorScreenViewModel @Inject constructor(
         _state.update { it.copy(toastMessage = null) }
     }
 
+
     fun updateSearchValue(newValue: TextFieldValue) {
         _state.update { it.copy(searchValue = newValue) }
     }
-}
+

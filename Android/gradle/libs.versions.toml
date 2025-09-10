@@ -54,6 +54,7 @@ androidx-paging-common-android = { group = "androidx.paging", name = "paging-com
 androidx-paging-common-jvm = { group = "androidx.paging", name = "paging-compose", version.ref = "pagingCommonAndroid" }
 androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
 
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

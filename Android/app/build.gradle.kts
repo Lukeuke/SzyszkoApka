@@ -67,7 +67,9 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.androidx.paging.common.android)
     implementation(libs.androidx.paging.common.jvm)
+
     implementation(libs.androidx.rules)
+
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.hilt.android)
     implementation(libs.retrofit.converter.gson)
@@ -93,4 +95,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.paging.runtime)
     testImplementation(kotlin("test"))
+
 }
