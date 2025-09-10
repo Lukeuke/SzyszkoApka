@@ -31,8 +31,6 @@ class BookpointsRepository @Inject constructor(
     suspend fun createBookpoint(
         body: CreateBookpointBody
     ): Result<Unit, NetworkError> {
-        Log.d("koń1", ApiRequest.CreateBookpoint(body).toString())
-        Log.d("koń1", body.toString())
         return request(ApiRequest.CreateBookpoint(body))
     }
 

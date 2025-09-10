@@ -2,6 +2,7 @@ package com.szyszkodar.szyszkomapka.presentation.administratorScreen
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,14 +18,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
@@ -42,8 +47,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.widget.TextViewCompat.AutoSizeTextType
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -82,6 +90,10 @@ fun AdministratorScreen(
                 shape = RoundedCornerShape(16.dp)
             )
     ) {
+        var acceptedEnabled by remember { mutableStateOf(true) }
+        var waitingEnabled by remember { mutableStateOf(true) }
+
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -117,7 +129,19 @@ fun AdministratorScreen(
                     value = state.value.searchValue,
                     onValueChange = {
                         viewModel.updateSearchValue(it)
-                        viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${it.text}%"))))
+                        if(acceptedEnabled && waitingEnabled) {
+                            viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${it.text}%"))))
+                        } else if(acceptedEnabled) {
+                            viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(
+                                BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${it.text}%"),
+                                BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, true)
+                                )))
+                        } else if (waitingEnabled) {
+                            viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(
+                                BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${it.text}%"),
+                                BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, false)
+                            )))
+                        }
                     },
                     placeholder = { Text(text = "Wyszukaj...") },
                     shape = RoundedCornerShape(16.dp),
@@ -159,22 +183,82 @@ fun AdministratorScreen(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .padding(20.dp)
                         ) {
+
                             Button(
-                                onClick = {},
+                                onClick = {
+                                    acceptedEnabled = !acceptedEnabled
+
+                                    if(acceptedEnabled && waitingEnabled) {
+                                        viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.value.searchValue.text}%"))))
+                                    } else if(acceptedEnabled) {
+                                        viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(
+                                            BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.value.searchValue.text}%"),
+                                            BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, true)
+                                        )))
+                                    } else if (waitingEnabled) {
+                                        viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(
+                                            BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.value.searchValue.text}%"),
+                                            BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, false)
+                                        )))
+                                    }
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = if (acceptedEnabled) MaterialTheme.colorScheme.secondary else Color.Transparent,
+                                ),
+                                border = BorderStroke(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                ),
                                 modifier = Modifier
                                     .weight(1f)
-                                    .clip(RoundedCornerShape(4.dp))
                             ) {
-                                Text("Zaakceptowano")
+                                BasicText(
+                                    text = "Zaakceptowano",
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    autoSize = TextAutoSize.StepBased(minFontSize = 1.sp),
+                                    modifier = Modifier
+                                            .fillMaxWidth()
+                                )
                             }
-                            Button(
-                                onClick = {},
+                            OutlinedButton(
+                                onClick = {
+                                    waitingEnabled = !waitingEnabled
+
+                                    if(acceptedEnabled && waitingEnabled) {
+                                        viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.value.searchValue.text}%"))))
+                                    } else if(acceptedEnabled) {
+                                        viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(
+                                            BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.value.searchValue.text}%"),
+                                            BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, true)
+                                        )))
+                                    } else if (waitingEnabled) {
+                                        viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(
+                                            BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.value.searchValue.text}%"),
+                                            BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, false)
+                                        )))
+                                    }
+                                          },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = if (waitingEnabled) MaterialTheme.colorScheme.secondary else Color.Transparent,
+                                ),
+                                border = BorderStroke(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                ),
                                 modifier = Modifier
                                     .weight(1f)
-                                    .clip(RoundedCornerShape(4.dp))
                             ) {
-                                Text("Oczekuje")
+                                BasicText(
+                                    text = "Oczekuje",
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    autoSize = TextAutoSize.StepBased(minFontSize = 1.sp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                )
                             }
                         }
                     }
