@@ -27,8 +27,8 @@ enum class OperatorParam : FilterParam {
     @SerializedName("ilike")
     ILIKE,
 
-    @SerializedName("in")
-    IN,
+    @SerializedName("sub")
+    SUB,
 
     @SerializedName("is")
     IS,

@@ -25,7 +25,7 @@ class ResponsePager<T: PageableResponse<R>, R: ResponseElement>(
                 is Result.Success -> LoadResult.Page(
                     data = response.data.data,
                     prevKey = if (page == 1) null else page - 1,
-                    nextKey = if (page == response.data.total/pageSize + 1) null else page + 1
+                    nextKey = if (page >= response.data.total/pageSize - 1) null else page + 1
                 )
 
                 is Result.Error -> LoadResult.Error(Exception(response.error.message))

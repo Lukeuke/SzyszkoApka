@@ -15,12 +15,13 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.9.1"
 activityCompose = "1.10.1"
-composeBom = "2024.09.00"
+composeBom = "2025.08.01"
 pagingRuntime = "3.3.6"
 playServicesLocation = "21.3.0"
 retrofit = "2.11.0"
 converterGson = "2.11.0"
 pagingCommonAndroid = "3.3.6"
+rules = "1.7.0"
 
 [libraries]
 android-plugin-annotation-v9 = { module = "org.maplibre.gl:android-plugin-annotation-v9", version.ref = "androidPluginAnnotationV9" }
@@ -51,6 +52,8 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 androidx-paging-common-android = { group = "androidx.paging", name = "paging-common-android", version.ref = "pagingCommonAndroid" }
 androidx-paging-common-jvm = { group = "androidx.paging", name = "paging-compose", version.ref = "pagingCommonAndroid" }
+androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
