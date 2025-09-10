@@ -58,14 +58,15 @@ class AdministratorScreenViewModel @Inject constructor(
             val bookpointsQuery = query.copy(page = page, pageSize = 20)
             val result = bookpointsRepository.getBookpoints(bookpointsQuery)
 
-            if(result is Result.Error ) {
+            if (result is Result.Error) {
                 _state.update { it.copy(errorMessage = result.error.message) }
             }
 
             setIsLoading(false)
-          
+
             return@ResponsePager result
-        }.pager.map { pagingData -> pagingData.map { el -> mapper.convert(el) } }.cachedIn(viewModelScope)
+        }.pager.map { pagingData -> pagingData.map { el -> mapper.convert(el) } }
+            .cachedIn(viewModelScope)
 
         _state.update { it.copy(bookPoints = bookpoints) }
     }
@@ -77,7 +78,7 @@ class AdministratorScreenViewModel @Inject constructor(
 
             val result = bookpointsRepository.deleteBookpoint(bookpoint.id, token)
 
-            when(result) {
+            when (result) {
                 is Result.Error -> {}
                 is Result.Success -> {
                     _state.update { it.copy(toastMessage = "Pomyślnie usunięto") }
@@ -109,4 +110,5 @@ class AdministratorScreenViewModel @Inject constructor(
     fun updateSearchValue(newValue: TextFieldValue) {
         _state.update { it.copy(searchValue = newValue) }
     }
+}
 
