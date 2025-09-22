@@ -1,16 +1,37 @@
+from io import BytesIO
 import xml.etree.ElementTree as ET
 import json
 import hashlib
 import re
 import os
 import requests
+import boto3
+from botocore.client import Config
+import uuid
 
-tree = ET.parse("Biblioteczki-Plenerowe.kml")
+R2_ACCESS_KEY_ID = ""
+R2_SECRET_ACCESS_KEY = ""
+R2_BUCKET_NAME = "images"
+R2_ENDPOINT_URL = ""
+R2_REGION = "auto"
+
+s3 = boto3.client(
+    's3',
+    region_name=R2_REGION,
+    endpoint_url=R2_ENDPOINT_URL,
+    aws_access_key_id=R2_ACCESS_KEY_ID,
+    aws_secret_access_key=R2_SECRET_ACCESS_KEY,
+    config=Config(signature_version="s3v4")
+)
+
+KML_NETWORK_URL = "https://www.google.com/maps/d/kml?forcekml=1&mid=1pwX0dt196mEPkrDBsrooXOa0-Pvqols"
+
+response = requests.get(KML_NETWORK_URL)
+response.raise_for_status()
+
+tree = ET.parse(BytesIO(response.content))
 root = tree.getroot()
 output_path = "biblioteczki.json"
-images_dir = "images"
-
-os.makedirs(images_dir, exist_ok=True) 
 
 ns = {"kml": "http://www.opengis.net/kml/2.2"}
 
@@ -33,30 +54,40 @@ for placemark in root.findall(".//kml:Placemark", ns):
     else:
         lon, lat = "", ""
 
-    hash_input = f"{name}_{lon}_{lat}"
+    hash_input = f"{name.text.strip()}_{lon}_{lat}"
     external_key = hashlib.sha1(hash_input.encode("utf-8")).hexdigest()
 
     image_keys = []
-
     clean_description = ""
+
     if desc is not None and desc.text:
         img_urls = img_url_regex.findall(desc.text)
-        
+
         for index, url in enumerate(img_urls):
             try:
                 response = requests.get(url, timeout=10)
                 if response.status_code == 200:
                     key = f"{external_key}-{index}.jpg"
-                    image_path = os.path.join(images_dir, key)
-                    with open(image_path, "wb") as img_file:
-                        img_file.write(response.content)
-                    print(f"Pobrano: {image_path}")
-
                     image_keys.append(key)
+
+                    try:
+                        s3.head_object(Bucket=R2_BUCKET_NAME, Key=key)
+                        print(f"🔁 Obrazek już istnieje w R2: {key} – pomijam upload.")
+                    except s3.exceptions.ClientError as e:
+                        if e.response['Error']['Code'] == '404':
+                            s3.put_object(
+                                Bucket=R2_BUCKET_NAME,
+                                Key=key,
+                                Body=response.content,
+                                ContentType="image/jpeg"
+                            )
+                            print(f"✔️ Obrazek wysłany do R2: {key}")
+                        else:
+                            print(f"❌ Błąd sprawdzania istnienia {key}: {e}")
                 else:
-                    print(f"Nie udało się pobrać: {url}")
+                    print(f"❌ Nie udało się pobrać: {url}")
             except Exception as e:
-                print(f"Błąd podczas pobierania {url}: {e}")
+                print(f"⚠️ Błąd podczas pobierania {url}: {e}")
 
         clean_description = re.sub(r"<[^>]+>", "", desc.text).strip()
 
@@ -73,4 +104,4 @@ for placemark in root.findall(".//kml:Placemark", ns):
 with open(output_path, "w", encoding="utf-8") as f:
     json.dump(entries, f, ensure_ascii=False, indent=2)
 
-print(f"Zapisano dane do: {output_path}")
+print(f"✅ Zapisano dane do: {output_path}")
