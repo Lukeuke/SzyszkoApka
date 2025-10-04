@@ -2,10 +2,12 @@ module szyszko-api
 
 go 1.23.0
 
-require github.com/gin-gonic/gin v1.10.1
+require (
+	github.com/aws/aws-sdk-go-v2 v1.39.0
+	github.com/gin-gonic/gin v1.10.1
+)
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.39.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.1 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.7 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.7 // indirect
