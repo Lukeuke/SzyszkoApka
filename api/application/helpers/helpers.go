@@ -33,6 +33,14 @@ func MustGetenv(key string) string {
 	return v
 }
 
+func TryGetenv(key string, defaultValue string) string {
+	v, ok := os.LookupEnv(key)
+	if !ok || v == "" {
+		return defaultValue
+	}
+	return v
+}
+
 func TryBindDataQuery(c *gin.Context) (*dto.DataQuery, error) {
 	var query dto.DataQuery
 	if err := c.ShouldBindQuery(&query); err != nil {
@@ -84,7 +92,8 @@ var (
 )
 
 func InitJWTConfig() {
-	secondsStr := MustGetenv("TOKEN_EXPIRATION_SECONDS")
+
+	secondsStr := TryGetenv("TOKEN_EXPIRATION_SECONDS", "86400")
 	key := MustGetenv("TOKEN_KEY")
 
 	JwtKey = []byte(key)
