@@ -26,8 +26,8 @@ type Claims struct {
 }
 
 func MustGetenv(key string) string {
-	v, ok := os.LookupEnv(key)
-	if !ok || v == "" {
+	v := TryGetenv(key, "")
+	if v == "" {
 		log.Fatalf("missing required env: %s", key)
 	}
 	return v
@@ -35,6 +35,9 @@ func MustGetenv(key string) string {
 
 func TryGetenv(key string, defaultValue string) string {
 	v, ok := os.LookupEnv(key)
+
+	log.Printf("ENV CHECK: %s = %s (present: %t)", key, v, ok) // DEBUG
+
 	if !ok || v == "" {
 		return defaultValue
 	}
