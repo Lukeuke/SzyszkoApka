@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"sync"
 	"szyszko-api/application"
 	"szyszko-api/application/helpers"
 	repository "szyszko-api/infrastructure/repositories"
@@ -18,29 +17,30 @@ var (
 	once   sync.Once
 )
 
-func Handler(w http.ResponseWriter, r *http.Request) {
-	once.Do(func() {
-		log.Println("Initializing...")
+func init() {
+	log.Println("Initializing...")
+
+	if os.Getenv("VERCEL_ENV") != "production" {
+		_ = godotenv.Load()
+	}
+
+	log.Println("Loading config...")
+	helpers.InitJWTConfig()
 
 		if os.Getenv("VERCEL_ENV") != "production" {
 			_ = godotenv.Load()
 		}
 
-		log.Println("Loading config...")
-		helpers.InitJWTConfig()
+	log.Println("Initializing supabase client...")
+	application.InitSupabaseClient(url, key)
 
 		url := helpers.MustGetenv("SUPABASE_URL")
 		key := helpers.MustGetenv("SUPABASE_KEY")
 
-		log.Println("Initializing supabase client...")
-		application.InitSupabaseClient(url, key)
+	router = handlers.NewRouter(uow)
 
-		uow := repository.NewUnitOfWork(application.SupabaseClient)
-
-		router = handlers.NewRouter(uow)
-
-		log.Println("Initialized.")
-	})
+	log.Println("Initialied.")
+}
 
 	router.ServeHTTP(w, r)
 	log.Println("Serving HTTP")
