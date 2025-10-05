@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"os"
 	"szyszko-api/application"
 	"szyszko-api/application/helpers"
 	repository "szyszko-api/infrastructure/repositories"
@@ -13,7 +14,9 @@ import (
 var router http.Handler
 
 func init() {
-	_ = godotenv.Load()
+	if os.Getenv("VERCEL_ENV") != "production" {
+		_ = godotenv.Load()
+	}
 	helpers.InitJWTConfig()
 
 	url := helpers.MustGetenv("SUPABASE_URL")

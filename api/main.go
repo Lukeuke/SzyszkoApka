@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"szyszko-api/application"
 	"szyszko-api/application/helpers"
 	repository "szyszko-api/infrastructure/repositories"
@@ -10,7 +11,10 @@ import (
 )
 
 func main() {
-	_ = godotenv.Load()
+	if os.Getenv("VERCEL_ENV") != "production" {
+		_ = godotenv.Load()
+	}
+
 	helpers.InitJWTConfig()
 
 	url := helpers.MustGetenv("SUPABASE_URL")
