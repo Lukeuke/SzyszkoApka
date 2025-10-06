@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"szyszko-api/domain"
 	repository "szyszko-api/infrastructure/repositories"
+	"time"
 
 	helpers "szyszko-api/application/helpers"
 
@@ -15,6 +16,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"golang.org/x/time/rate"
 )
 
 type BookPointHandler struct {
@@ -29,12 +31,13 @@ func NewBookPointHandler(uow *repository.UnitOfWork) *BookPointHandler {
 
 func RegisterBookPoints(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 	handler := NewBookPointHandler(uow)
+	rateLimiter := middlewares.NewRateLimiter(rate.Every(8*time.Hour), 3)
 
 	bookPoints := group.Group("/book-points")
 
 	bookPoints.GET("/", handler.getAllBookPoints)
 	bookPoints.GET("/:id", handler.getBookPointByID)
-	bookPoints.POST("/", handler.insertNewBookPoint)
+	bookPoints.POST("/", middlewares.UnAuthorizedRateLimit(uow, rateLimiter), handler.insertNewBookPoint)
 	bookPoints.PUT("/:id", middlewares.AuthMiddleware(uow), handler.editBookPoint)             // Authorized only
 	bookPoints.DELETE("/:id", middlewares.AuthMiddleware(uow), handler.deleteBookPoint)        // Authorized only
 	bookPoints.POST("/approve/:id", middlewares.AuthMiddleware(uow), handler.approveBookPoint) // Authorized only
