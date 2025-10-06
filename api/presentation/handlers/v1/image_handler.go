@@ -1,9 +1,13 @@
 package v1
 
 import (
+	"bytes"
 	"context"
+	"image/jpeg"
 	"io"
+	"log"
 	"net/http"
+	"strconv"
 	helpers "szyszko-api/application/helpers"
 	repository "szyszko-api/infrastructure/repositories"
 
@@ -11,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 )
 
@@ -42,6 +47,7 @@ func RegisterImage(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 	image := group.Group("/images")
 
 	image.GET("/:id", handler.getImage)
+	image.POST("/", handler.uploadImage)
 }
 
 func (h *ImageHandler) getImage(c *gin.Context) {
@@ -83,4 +89,51 @@ func (h *ImageHandler) getImage(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to stream image"})
 		return
 	}
+}
+
+func (h *ImageHandler) uploadImage(c *gin.Context) {
+	qualityParam := c.Query("q")
+	quality, err := strconv.Atoi(qualityParam)
+
+	if err != nil {
+		quality = 80
+	}
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No file is received"})
+		return
+	}
+
+	openedFile, err := file.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to open the file"})
+		return
+	}
+	defer openedFile.Close()
+
+	fileBytes, err := io.ReadAll(openedFile)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to read the file"})
+		return
+	}
+
+	img, err := imaging.Decode(bytes.NewReader(fileBytes))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "File is not a valid image"})
+		return
+	}
+
+	var buf bytes.Buffer
+
+	log.Printf("Quality: %v", quality)
+
+	// Compress image with quality 50 (range 1-100, lower is more compression)
+	err = jpeg.Encode(&buf, img, &jpeg.Options{Quality: quality})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to encode compressed image"})
+		return
+	}
+
+	c.Data(http.StatusOK, "image/jpeg", buf.Bytes())
 }
