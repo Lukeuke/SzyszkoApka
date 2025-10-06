@@ -13,6 +13,8 @@ import (
 func NewRouter(uow *repository.UnitOfWork) *gin.Engine {
 	r := gin.Default()
 
+	r.MaxMultipartMemory = 8 << 2
+
 	r.Use(helpers.DiscordLogger())
 
 	r.Use(func(c *gin.Context) {
