@@ -35,8 +35,8 @@ func RegisterBookPoints(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 
 	bookPoints := group.Group("/book-points")
 
-	bookPoints.GET("/", handler.getAllBookPoints)
-	bookPoints.GET("/:id", handler.getBookPointByID)
+	bookPoints.GET("/", middlewares.UnAuthorizedCache(), handler.getAllBookPoints)
+	bookPoints.GET("/:id", middlewares.UnAuthorizedCache(), handler.getBookPointByID)
 	bookPoints.POST("/", middlewares.UnAuthorizedRateLimit(uow, rateLimiter), handler.insertNewBookPoint)
 	bookPoints.PUT("/:id", middlewares.AuthMiddleware(uow), handler.editBookPoint)             // Authorized only
 	bookPoints.DELETE("/:id", middlewares.AuthMiddleware(uow), handler.deleteBookPoint)        // Authorized only
@@ -58,7 +58,6 @@ func (h *BookPointHandler) getAllBookPoints(c *gin.Context) {
 		return
 	}
 
-	c.Header("Cache-Control", "public, max-age=300, stale-while-revalidate=3600")
 	c.JSON(http.StatusOK, result)
 }
 
@@ -79,7 +78,6 @@ func (h *BookPointHandler) getBookPointByID(c *gin.Context) {
 		return
 	}
 
-	c.Header("Cache-Control", "public, max-age=300, stale-while-revalidate=3600")
 	c.JSON(http.StatusOK, point)
 }
 

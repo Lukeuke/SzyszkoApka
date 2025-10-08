@@ -10,6 +10,7 @@ import (
 	"strconv"
 	helpers "szyszko-api/application/helpers"
 	repository "szyszko-api/infrastructure/repositories"
+	"szyszko-api/presentation/handlers/v1/middlewares"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -47,7 +48,7 @@ func RegisterImage(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 	handler := NewImageHandler(uow)
 	image := group.Group("/images")
 
-	image.GET("/:id", handler.getImage)
+	image.GET("/:id", middlewares.UnAuthorizedCache(), handler.getImage)
 	image.POST("/", handler.uploadImage)
 }
 
