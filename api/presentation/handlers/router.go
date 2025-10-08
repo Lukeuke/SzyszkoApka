@@ -13,6 +13,8 @@ import (
 func NewRouter(uow *repository.UnitOfWork) *gin.Engine {
 	r := gin.Default()
 
+	r.MaxMultipartMemory = 8 << 2
+
 	r.Use(helpers.DiscordLogger())
 
 	r.Use(func(c *gin.Context) {
@@ -36,6 +38,7 @@ func NewRouter(uow *repository.UnitOfWork) *gin.Engine {
 	{
 		v1.RegisterBookPoints(v1Group, uow)
 		v1.RegisterIdentity(v1Group, uow)
+		v1.RegisterImage(v1Group, uow)
 	}
 
 	return r

@@ -26,9 +26,20 @@ type Claims struct {
 }
 
 func MustGetenv(key string) string {
-	v, ok := os.LookupEnv(key)
-	if !ok || v == "" {
+	v := TryGetenv(key, "")
+	if v == "" {
 		log.Fatalf("missing required env: %s", key)
+	}
+	return v
+}
+
+func TryGetenv(key string, defaultValue string) string {
+	v, ok := os.LookupEnv(key)
+
+	log.Printf("ENV CHECK: %s = %s (present: %t)", key, v, ok) // DEBUG
+
+	if !ok || v == "" {
+		return defaultValue
 	}
 	return v
 }
@@ -84,7 +95,8 @@ var (
 )
 
 func InitJWTConfig() {
-	secondsStr := MustGetenv("TOKEN_EXPIRATION_SECONDS")
+
+	secondsStr := TryGetenv("TOKEN_EXPIRATION_SECONDS", "86400")
 	key := MustGetenv("TOKEN_KEY")
 
 	JwtKey = []byte(key)
