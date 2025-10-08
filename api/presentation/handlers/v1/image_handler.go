@@ -17,6 +17,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 var (
@@ -93,15 +94,29 @@ func (h *ImageHandler) getImage(c *gin.Context) {
 
 func (h *ImageHandler) uploadImage(c *gin.Context) {
 	qualityParam := c.Query("q")
+	bookPointIdParam := c.Query("id")
 	quality, err := strconv.Atoi(qualityParam)
+	bookPointId, err := uuid.Parse(bookPointIdParam)
 
-	if err != nil {
-		quality = 80
+	if err == nil {
+		quality = 70
 	}
 
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No file is received"})
+		return
+	}
+
+	count, err := h.uow.BookPointRepo.AttachmentsCount(c, bookPointId)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to retrieve attachments count"})
+		return
+	}
+
+	if count > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Reached max file attachments for this bookpoint"})
 		return
 	}
 
@@ -135,5 +150,48 @@ func (h *ImageHandler) uploadImage(c *gin.Context) {
 		return
 	}
 
-	c.Data(http.StatusOK, "image/jpeg", buf.Bytes())
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion(r2Region),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(r2AccessKey, r2SecretKey, "")),
+		config.WithEndpointResolverWithOptions(aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+			return aws.Endpoint{
+				URL:           r2Endpoint,
+				SigningRegion: r2Region,
+			}, nil
+		})),
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "config error"})
+		return
+	}
+
+	client := s3.NewFromConfig(cfg)
+
+	fileName := bookPointIdParam + ".jpg"
+
+	_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
+		Bucket:      aws.String("images"),
+		Key:         aws.String(fileName),
+		Body:        bytes.NewReader(buf.Bytes()),
+		ContentType: aws.String("image/jpeg"),
+	})
+
+	if err != nil {
+		log.Printf("Failed to upload image: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload image"})
+		return
+	}
+
+	_, err = h.uow.BookPointRepo.AssignFileName(c, bookPointId, fileName)
+
+	if err != nil {
+		log.Printf("Failed to assign image: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to assign image"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "Image uploaded successfully",
+		"id":      fileName,
+	})
 }
