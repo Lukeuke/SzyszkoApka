@@ -1,6 +1,5 @@
 package com.szyszkodar.szyszkomapka.domain.repository
 
-import android.util.Log
 import com.szyszkodar.szyszkomapka.data.remote.MakeApiCall
 import com.szyszkodar.szyszkomapka.domain.errorHandling.NetworkError
 import com.szyszkodar.szyszkomapka.domain.errorHandling.Result

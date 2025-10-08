@@ -1,7 +1,6 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen.components
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

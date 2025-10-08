@@ -41,12 +41,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.szyszkodar.szyszkomapka.BuildConfig
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.BookpointBottomSheet
+import com.szyszkodar.szyszkomapka.presentation.logInForm.LogInForm
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.FloatingButtonsColumn
-import com.szyszkodar.szyszkomapka.presentation.logInForm.LogInForm
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.TopBar
 import com.szyszkodar.szyszkomapka.presentation.shared.icons.MyLocationIcon
 import kotlinx.coroutines.async

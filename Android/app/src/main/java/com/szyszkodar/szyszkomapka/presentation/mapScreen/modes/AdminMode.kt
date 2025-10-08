@@ -49,12 +49,14 @@ import com.szyszkodar.szyszkomapka.presentation.shared.icons.MyLocationIcon
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
+import org.maplibre.android.geometry.LatLng
 
 @Composable
 fun AdminMode(
     paddingValues: PaddingValues,
     viewModel: MapScreenViewModel,
     refreshMapFunction: () -> Unit,
+    localizeBookpointFunction: (LatLng) -> Unit,
     centerCameraFunction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -197,7 +199,11 @@ fun AdminMode(
         ) {
             AdministratorScreen(
                 token = state.value.bearerToken,
-                onExitClick = { adminScreenVisible = false }
+                onExitClick = { adminScreenVisible = false },
+                localizeBookpointFunction = { latLng ->
+                    adminScreenVisible = false
+                    localizeBookpointFunction(latLng)
+                }
             )
         }
 

@@ -7,12 +7,10 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -85,6 +83,15 @@ fun MapScreen(
                     viewModel = viewModel,
                     refreshMapFunction = {
                         mapViewRef.value?.let { viewModel.refreshMap(it) }
+                    },
+                    localizeBookpointFunction = { latLng ->
+                        mapViewRef.value?.let { mapView ->
+                            viewModel.mapViewCameraPositionChange(
+                                mapView = mapView,
+                                targetLatLng = latLng,
+                                targetZoom = 18.0
+                            )
+                        }
                     },
                     centerCameraFunction = {
                         mapViewRef.value?.let {

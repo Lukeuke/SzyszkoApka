@@ -2,7 +2,6 @@ package com.szyszkodar.szyszkomapka.data.remote
 
 import com.szyszkodar.szyszkomapka.domain.remote.Api
 import com.szyszkodar.szyszkomapka.domain.remote.ApiRequest
-import com.szyszkodar.szyszkomapka.domain.remote.response.Response
 
 // Complete list of api calls - used by repository to choose what call to make
 class MakeApiCall(private val api: Api) {
