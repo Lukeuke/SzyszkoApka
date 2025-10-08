@@ -8,6 +8,29 @@ import requests
 import boto3
 from botocore.client import Config
 import uuid
+from PIL import Image
+
+MAX_IMAGE_SIZE = 6 * 1024 * 1024  # 6MB
+
+def compress_image(image_data, max_size=MAX_IMAGE_SIZE):
+    try:
+        img = Image.open(BytesIO(image_data)).convert("RGB")
+        quality = 95
+        buffer = BytesIO()
+
+        while quality >= 10:
+            buffer.seek(0)
+            buffer.truncate(0)
+            img.save(buffer, format="JPEG", quality=quality)
+            size = buffer.tell()
+            if size <= max_size:
+                buffer.seek(0)
+                return buffer.read()
+            quality -= 5
+        return None
+    except Exception as e:
+        print(f"⚠️ Błąd podczas kompresji: {e}")
+        return None
 
 R2_ACCESS_KEY_ID = ""
 R2_SECRET_ACCESS_KEY = ""
@@ -67,6 +90,11 @@ for placemark in root.findall(".//kml:Placemark", ns):
             try:
                 response = requests.get(url, timeout=10)
                 if response.status_code == 200:
+                    compressed_image = compress_image(response.content)
+                    if not compressed_image:
+                        print(f"❌ Nie udało się skompresować do <6MB: {url}")
+                        continue
+
                     key = f"{external_key}-{index}.jpg"
                     image_keys.append(key)
 
@@ -78,7 +106,7 @@ for placemark in root.findall(".//kml:Placemark", ns):
                             s3.put_object(
                                 Bucket=R2_BUCKET_NAME,
                                 Key=key,
-                                Body=response.content,
+                                Body=compressed_image,
                                 ContentType="image/jpeg"
                             )
                             print(f"✔️ Obrazek wysłany do R2: {key}")
