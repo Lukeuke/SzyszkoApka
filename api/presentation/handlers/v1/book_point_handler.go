@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,6 +15,11 @@ import (
 	results "szyszko-api/presentation/dto/common"
 	"szyszko-api/presentation/handlers/v1/middlewares"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/time/rate"
@@ -180,11 +186,57 @@ func (h *BookPointHandler) deleteBookPoint(c *gin.Context) {
 		return
 	}
 
+	bookPoint, err := h.uow.BookPointRepo.GetByID(c, id)
+
+	if err != nil {
+		log.Printf("Bookpoint not found: %v\n", err)
+		c.JSON(http.StatusNotFound, results.ErrorResult[error]("Bookpoint not found"))
+		return
+	}
+
 	err = h.uow.BookPointRepo.Remove(c.Request.Context(), id)
 	if err != nil {
 		log.Printf("deleteBookPoint error: %v", err)
 		c.JSON(http.StatusInternalServerError, results.ErrorResult[error](err))
 		return
+	}
+
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion(r2Region),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(r2AccessKey, r2SecretKey, "")),
+		config.WithEndpointResolverWithOptions(aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+			return aws.Endpoint{
+				URL:           r2Endpoint,
+				SigningRegion: r2Region,
+			}, nil
+		})),
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "config error"})
+		return
+	}
+
+	client := s3.NewFromConfig(cfg)
+
+	var objectsToDelete []types.ObjectIdentifier
+	for _, image := range bookPoint.Images {
+		objectsToDelete = append(objectsToDelete, types.ObjectIdentifier{
+			Key: aws.String(image),
+		})
+	}
+
+	if len(objectsToDelete) > 0 {
+		_, err := client.DeleteObjects(context.TODO(), &s3.DeleteObjectsInput{
+			Bucket: aws.String(bucketName),
+			Delete: &types.Delete{
+				Objects: objectsToDelete,
+				Quiet:   aws.Bool(true),
+			},
+		})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "delete error"})
+			return
+		}
 	}
 
 	c.Status(204)

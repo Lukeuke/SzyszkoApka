@@ -50,6 +50,7 @@ func RegisterImage(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 
 	image.GET("/:id", middlewares.UnAuthorizedCache(), handler.getImage)
 	image.POST("/", handler.uploadImage)
+	image.DELETE("/:id", middlewares.AuthMiddleware(uow), handler.deleteImage)
 }
 
 func (h *ImageHandler) getImage(c *gin.Context) {
@@ -83,7 +84,6 @@ func (h *ImageHandler) getImage(c *gin.Context) {
 	defer resp.Body.Close()
 
 	c.Header("Content-Type", *resp.ContentType)
-	c.Header("Cache-Control", "public, max-age=300, stale-while-revalidate=3600")
 	c.Status(http.StatusOK)
 
 	_, err = io.Copy(c.Writer, resp.Body)
@@ -171,7 +171,7 @@ func (h *ImageHandler) uploadImage(c *gin.Context) {
 	fileName := bookPointIdParam + ".jpg"
 
 	_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
-		Bucket:      aws.String("images"),
+		Bucket:      aws.String(bucketName),
 		Key:         aws.String(fileName),
 		Body:        bytes.NewReader(buf.Bytes()),
 		ContentType: aws.String("image/jpeg"),
@@ -195,4 +195,37 @@ func (h *ImageHandler) uploadImage(c *gin.Context) {
 		"message": "Image uploaded successfully",
 		"id":      fileName,
 	})
+}
+
+func (h *ImageHandler) deleteImage(c *gin.Context) {
+	objectKey := c.Param("id")
+
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion(r2Region),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(r2AccessKey, r2SecretKey, "")),
+		config.WithEndpointResolverWithOptions(aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+			return aws.Endpoint{
+				URL:           r2Endpoint,
+				SigningRegion: r2Region,
+			}, nil
+		})),
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "config error"})
+		return
+	}
+
+	client := s3.NewFromConfig(cfg)
+
+	_, err = client.DeleteObject(context.TODO(), &s3.DeleteObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(objectKey),
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete image"})
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }
