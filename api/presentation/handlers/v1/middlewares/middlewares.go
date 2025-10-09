@@ -3,6 +3,7 @@ package middlewares
 import (
 	"log"
 	"net/http"
+	"strings"
 	helpers "szyszko-api/application/helpers"
 	repository "szyszko-api/infrastructure/repositories"
 
@@ -50,6 +51,39 @@ func AuthMiddleware(uow *repository.UnitOfWork) gin.HandlerFunc {
 		}
 
 		c.Set("user", claims.Username)
+		c.Next()
+	}
+}
+
+func UnAuthorizedCache() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		if c.Request.Method != http.MethodGet {
+			c.Next()
+			return
+		}
+
+		authHeader := c.GetHeader("Authorization")
+
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			c.Header("Cache-Control", "public, max-age=300, stale-while-revalidate=3600")
+			c.Next()
+			return
+		}
+
+		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+		claims := &helpers.Claims{}
+
+		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+			return helpers.JwtKey, nil
+		})
+
+		if err != nil || !token.Valid {
+			c.Header("Cache-Control", "public, max-age=300, stale-while-revalidate=3600")
+		} else {
+			c.Set("claims", claims)
+		}
+
 		c.Next()
 	}
 }

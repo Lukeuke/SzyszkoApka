@@ -1,6 +1,5 @@
 package com.szyszkodar.szyszkomapka.data.repository
 
-import android.util.Log
 import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.query.GetBookpointsQuery
 import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponse

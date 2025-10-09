@@ -2,7 +2,6 @@ package com.szyszkodar.szyszkomapka.data.remote.response
 
 import com.google.gson.annotations.SerializedName
 import com.szyszkodar.szyszkomapka.domain.remote.response.PageableResponse
-import com.szyszkodar.szyszkomapka.domain.remote.response.Response
 import com.szyszkodar.szyszkomapka.domain.remote.response.ResponseElement
 
 data class BookpointResponseElement(

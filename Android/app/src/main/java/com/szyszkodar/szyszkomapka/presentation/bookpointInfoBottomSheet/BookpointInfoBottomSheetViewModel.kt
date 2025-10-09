@@ -2,10 +2,8 @@ package com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
 import com.szyszkodar.szyszkomapka.data.uiClasses.BookpointUI
-import com.szyszkodar.szyszkomapka.domain.errorHandling.NetworkError
 import com.szyszkodar.szyszkomapka.domain.errorHandling.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

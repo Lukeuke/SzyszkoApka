@@ -7,7 +7,6 @@ import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
 import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
 import com.szyszkodar.szyszkomapka.data.repository.IdentityRepository
 import com.szyszkodar.szyszkomapka.domain.remote.Api
-import com.szyszkodar.szyszkomapka.domain.repository.Repository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

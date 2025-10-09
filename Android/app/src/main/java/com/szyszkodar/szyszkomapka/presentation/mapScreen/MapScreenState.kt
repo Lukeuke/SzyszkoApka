@@ -1,12 +1,8 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen
 
-import android.media.session.MediaSession.Token
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.data.uiClasses.BookpointUI
 import org.maplibre.android.geometry.LatLng
-import java.time.LocalDateTime
-import kotlin.reflect.KMutableProperty
-import kotlin.reflect.KProperty
 
 data class MapScreenState(
     val bookpoints: List<BookpointUI> = emptyList(),

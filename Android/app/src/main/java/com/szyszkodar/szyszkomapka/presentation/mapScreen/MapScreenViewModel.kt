@@ -9,8 +9,6 @@ import androidx.annotation.Px
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.cachedIn
-import androidx.paging.map
 import com.google.gson.Gson
 import com.szyszkodar.szyszkomapka.R
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
@@ -18,9 +16,7 @@ import com.szyszkodar.szyszkomapka.data.mappers.BookpointsMapper
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
 import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.filter.BookpointsFilter
-import com.szyszkodar.szyszkomapka.data.remote.paging.ResponsePager
 import com.szyszkodar.szyszkomapka.data.remote.query.GetBookpointsQuery
-import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponse
 import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
 import com.szyszkodar.szyszkomapka.data.uiClasses.BookpointUI
 import com.szyszkodar.szyszkomapka.domain.errorHandling.Result
@@ -30,7 +26,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch

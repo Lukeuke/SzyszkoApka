@@ -23,6 +23,8 @@ type BookPointRepository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.BookPoint, error)
 	GetAll(ctx context.Context, dataQuery *dto.DataQuery) (dto.DataResult[domain.BookPoint], error)
 	ExistsByExternalKey(ctx context.Context, externalKey string) (bool, error)
+	AssignFileName(ctx context.Context, id uuid.UUID, fileName string) (bool, error)
+	AttachmentsCount(ctx context.Context, id uuid.UUID) (int, error)
 }
 
 type supabaseBookPointRepository struct {
@@ -73,6 +75,7 @@ func (r *supabaseBookPointRepository) Edit(ctx context.Context, bp *domain.BookP
 
 	return bp.ID, nil
 }
+
 func (r *supabaseBookPointRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.BookPoint, error) {
 	data, _, err := r.client.From("book_points").
 		Select("*", "exact", false).
@@ -145,4 +148,58 @@ func (r *supabaseBookPointRepository) ExistsByExternalKey(ctx context.Context, e
 	}
 
 	return len(results) > 0, nil
+}
+
+func (r *supabaseBookPointRepository) AssignFileName(ctx context.Context, id uuid.UUID, fileName string) (bool, error) {
+	existing, err := r.GetByID(ctx, id)
+	if err != nil {
+		return false, fmt.Errorf("failed to fetch book point: %w", err)
+	}
+	if existing == nil {
+		return false, fmt.Errorf("book point not found")
+	}
+
+	updatedImages := append(existing.Images, fileName)
+
+	updateData := map[string]interface{}{
+		"images":     updatedImages,
+		"updated_at": time.Now().UTC(),
+	}
+
+	_, _, err = r.client.
+		From("book_points").
+		Update(updateData, "", "").
+		Eq("id", id.String()).
+		Execute()
+
+	if err != nil {
+		return false, fmt.Errorf("failed to update images field: %w", err)
+	}
+
+	return true, nil
+}
+
+func (r *supabaseBookPointRepository) AttachmentsCount(ctx context.Context, id uuid.UUID) (int, error) {
+	data, _, err := r.client.From("book_points").
+		Select("images", "exact", false).
+		Eq("id", id.String()).
+		Execute()
+
+	if err != nil {
+		return -1, err
+	}
+
+	var results []struct {
+		Images []string `json:"images"`
+	}
+
+	if err := json.Unmarshal(data, &results); err != nil {
+		return -1, fmt.Errorf("unmarshal images column: %w", err)
+	}
+
+	if len(results) == 0 {
+		return 0, nil
+	}
+
+	return len(results[0].Images), nil
 }
