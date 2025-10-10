@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.szyszkodar.szyszkomapka.data.SessionManager
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.BookpointBottomSheet
 import com.szyszkodar.szyszkomapka.presentation.logInForm.LogInForm
@@ -195,7 +196,7 @@ fun DefaultMode(
             LogInForm(
                 onExitClick = { loginFormVisible = false },
                 onLoginSuccessFunction = {
-                    viewModel.setBearerToken(it)
+                    SessionManager.setToken(it)
                     loginFormVisible = false
                     viewModel.changeAppMode(AppMode.ADMIN)
                     Toast.makeText(context, "Pomyślnie zalogowano", Toast.LENGTH_SHORT).show()

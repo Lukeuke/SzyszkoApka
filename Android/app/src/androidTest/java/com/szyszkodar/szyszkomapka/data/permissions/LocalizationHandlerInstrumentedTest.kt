@@ -1,13 +1,9 @@
 package com.szyszkodar.szyszkomapka.data.permissions
 
-import android.content.Context
-import android.location.LocationManager
-import androidx.test.espresso.internal.inject.InstrumentationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import junit.framework.TestCase.assertNotNull
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull

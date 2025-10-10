@@ -21,6 +21,6 @@ class IdentityRepository @Inject constructor(
     }
 
     suspend fun changePassword(token: String, body: PasswordChangeBody): Result<Unit, NetworkError> {
-        return request(ApiRequest.PasswordChange(token, body))
+        return request(ApiRequest.PasswordChange(body))
     }
 }

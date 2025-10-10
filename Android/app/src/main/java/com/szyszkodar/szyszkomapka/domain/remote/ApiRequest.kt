@@ -15,17 +15,14 @@ sealed interface ApiRequest {
     ): ApiRequest
 
     data class DeleteBookpoints(
-        val id: String,
-        val bearerToken: String
+        val id: String
     ): ApiRequest
 
     data class ApproveBookpoints(
-        val id: String,
-        val bearerToken: String
+        val id: String
     ): ApiRequest
 
     data class PasswordChange(
-        val bearerToken: String,
         val body: PasswordChangeBody
     ): ApiRequest
 

@@ -60,12 +60,12 @@ class AdministratorScreenViewModel @Inject constructor(
         _state.update { it.copy(bookPoints = bookpoints) }
     }
 
-    fun deleteBookpoint(bookpoint: BookpointUI, token: String) {
+    fun deleteBookpoint(bookpoint: BookpointUI) {
         setIsLoading(true)
 
         viewModelScope.launch {
 
-            val result = bookpointsRepository.deleteBookpoint(bookpoint.id, token)
+            val result = bookpointsRepository.deleteBookpoint(bookpoint.id)
 
             when (result) {
                 is Result.Error -> { setToastMessage(result.error.message) }
@@ -79,11 +79,11 @@ class AdministratorScreenViewModel @Inject constructor(
         }
     }
 
-    fun acceptBookpoint(bookpoint: BookpointUI, token: String) {
+    fun acceptBookpoint(bookpoint: BookpointUI) {
         setIsLoading(true)
 
         viewModelScope.launch {
-            val result = bookpointsRepository.approveBookpoint(id = bookpoint.id, bearerToken = token)
+            val result = bookpointsRepository.approveBookpoint(id = bookpoint.id)
 
             when(result) {
                 is Result.Error -> { setToastMessage(result.error.message) }

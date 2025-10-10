@@ -22,9 +22,8 @@ class BookpointsRepository @Inject constructor(
 
     suspend fun deleteBookpoint(
         id: String,
-        bearerToken: String
     ): Result<Unit, NetworkError> {
-        return request(ApiRequest.DeleteBookpoints(id, bearerToken))
+        return request(ApiRequest.DeleteBookpoints(id))
     }
 
     suspend fun createBookpoint(
@@ -35,8 +34,7 @@ class BookpointsRepository @Inject constructor(
 
     suspend fun approveBookpoint(
         id: String,
-        bearerToken: String
     ): Result<Unit, NetworkError> {
-        return request(ApiRequest.ApproveBookpoints(id = id, bearerToken = bearerToken))
+        return request(ApiRequest.ApproveBookpoints(id = id))
     }
 }

@@ -3,6 +3,7 @@ package com.szyszkodar.szyszkomapka.data.di
 import android.content.Context
 import com.google.gson.GsonBuilder
 import com.szyszkodar.szyszkomapka.BuildConfig
+import com.szyszkodar.szyszkomapka.data.SessionManager
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
 import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
 import com.szyszkodar.szyszkomapka.data.repository.IdentityRepository
@@ -32,6 +33,11 @@ object AppModule {
             .addInterceptor { chain ->
                 val newRequest = chain.request().newBuilder()
                     .addHeader("X-App-ID", BuildConfig.API_KEY)
+                    .apply {
+                        SessionManager.getToken()?.let { bearer ->
+                            addHeader("Authorization", bearer)
+                        }
+                    }
                     .build()
 
                 chain.proceed(newRequest)

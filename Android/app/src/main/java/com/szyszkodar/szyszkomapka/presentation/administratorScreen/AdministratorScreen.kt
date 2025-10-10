@@ -60,7 +60,6 @@ import org.maplibre.android.geometry.LatLng
 
 @Composable
 fun AdministratorScreen(
-    token: String?,
     onExitClick: () ->Unit,
     localizeBookpointFunction: (LatLng) -> Unit,
     modifier: Modifier = Modifier
@@ -278,13 +277,13 @@ fun AdministratorScreen(
                             BookpointListItem(
                                 bookpointUI = bookpoint,
                                 deleteBookpointFunction = {
-                                    token?.let {
-                                        viewModel.deleteBookpoint(bookpoint, it)
-                                    }
+
+                                    viewModel.deleteBookpoint(bookpoint)
+
                                 },
                                 localizeBookpointFunction = localizeBookpointFunction,
                                 acceptBookpoint = {
-                                    token?.let { viewModel.acceptBookpoint(bookpoint, it) }
+                                    viewModel.acceptBookpoint(bookpoint)
                                 }
                             )
                         }
