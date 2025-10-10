@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 	"strings"
 	"szyszko-api/application/helpers"
@@ -18,7 +19,20 @@ func NewRouter(uow *repository.UnitOfWork) *gin.Engine {
 	r.Use(helpers.DiscordLogger())
 
 	r.Use(func(c *gin.Context) {
-		xAppId := c.GetHeader("X-App-ID")
+		xAppId := c.GetHeader("x-app-id")
+		callingUserId := c.GetHeader("x-user-id")
+
+		if len(callingUserId) < 1 {
+			c.JSON(http.StatusForbidden, gin.H{
+				"message": "Access denied - wrong user",
+			})
+			c.Abort()
+			return
+		}
+
+		ctx := context.WithValue(c.Request.Context(), "user_id", callingUserId)
+		c.Request = c.Request.WithContext(ctx)
+
 		host := c.Request.Host
 
 		appId := helpers.MustGetenv("APP_ID")
