@@ -64,47 +64,48 @@ fun MapScreen(
             }
         ) { mode ->
             when(mode) {
-                AppMode.DEFAULT -> DefaultMode(
-                    paddingValues = paddingValues,
-                    viewModel = viewModel,
-                    centerCameraFunction = {
-                        mapViewRef.value?.let {
+                AppMode.DEFAULT -> mapViewRef.value?.let { mapView ->
+                    DefaultMode(
+                        mapView = mapView,
+                        paddingValues = paddingValues,
+                        viewModel = viewModel,
+                        centerCameraFunction = {
                             state.value.userLocation?.let { cords ->
                                 viewModel.mapViewCameraPositionChange(
-                                    mapView = it,
+                                    mapView = mapView,
                                     targetLatLng = cords
                                 )
                             }
                         }
-                    }
-                )
-                AppMode.ADMIN -> AdminMode(
-                    paddingValues = paddingValues,
-                    viewModel = viewModel,
-                    refreshMapFunction = {
-                        mapViewRef.value?.let { viewModel.refreshMap(it) }
-                    },
-                    localizeBookpointFunction = { latLng ->
-                        mapViewRef.value?.let { mapView ->
+                    )
+                }
+                AppMode.ADMIN -> mapViewRef.value?.let { mapView ->
+                    AdminMode(
+                        mapView = mapView,
+                        paddingValues = paddingValues,
+                        viewModel = viewModel,
+                        refreshMapFunction = {
+                            viewModel.refreshMap(mapView)
+
+                        },
+                        localizeBookpointFunction = { latLng ->
                             viewModel.mapViewCameraPositionChange(
                                 mapView = mapView,
                                 targetLatLng = latLng,
                                 targetZoom = 18.0
                             )
-                        }
-                    },
-                    centerCameraFunction = {
-                        mapViewRef.value?.let {
+                        },
+                        centerCameraFunction = {
                             state.value.userLocation?.let { cords ->
                                 viewModel.mapViewCameraPositionChange(
-                                    mapView = it,
+                                    mapView = mapView,
                                     targetLatLng = cords
                                 )
                             }
                         }
-                    }
-                )
-                AppMode.ADD_BOOKPOINT -> mapViewRef.value?.let {
+                    )
+                }
+                        AppMode.ADD_BOOKPOINT -> mapViewRef.value?.let {
                     AddBookpointMode(
                         paddingValues = paddingValues,
                         viewModel = viewModel,

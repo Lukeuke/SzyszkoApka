@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PointF
+import android.util.Log
 import androidx.annotation.Px
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
@@ -82,18 +83,31 @@ class MapScreenViewModel @Inject  constructor(
 
     private suspend fun fetchBookpoints(query: GetBookpointsQuery): List<BookpointUI>? {
         val bookpointsMapper = BookpointsMapper()
+        var total: Int? = null
+        var fetched = 0
+        var page = 1
 
-        return when(val response = bookpointsRepository.getBookpoints(query)) {
-            is Result.Success -> {
-                response.data.data.map { el ->
-                    bookpointsMapper.convert(el)
+        val bookpoints = mutableListOf<BookpointUI>()
+
+        while (fetched!=total) {
+            when(val response = bookpointsRepository.getBookpoints(query.copy(page = page))) {
+                is Result.Success -> {
+                    if(total == null) total = response.data.total
+
+                    response.data.data.map { el ->
+                        bookpoints.add(bookpointsMapper.convert(el))
+                        fetched++
+                    }
+                    page++
+                }
+                is Result.Error -> {
+                    _state.update { it.copy(errorMessage = response.error.message) }
+                    return null
                 }
             }
-            is Result.Error -> {
-                _state.update { it.copy(errorMessage = response.error.message) }
-                null
-            }
         }
+
+        return bookpoints
     }
 
     fun updateMap(mapView: MapView){
@@ -108,6 +122,25 @@ class MapScreenViewModel @Inject  constructor(
             }
         }
 
+        mapView.getMapAsync { map ->
+
+
+            // Edit map style
+            map.getStyle { style ->
+
+                // User localization
+                val userLocalization = _state.value.userLocation
+                if(userLocalization != null) {
+                    val userFeature = Feature.fromGeometry(Point.fromLngLat(userLocalization.longitude, userLocalization.latitude))
+                    val userSource = style.getSourceAs<GeoJsonSource>("user-location-source")
+                    userSource?.setGeoJson(userFeature)
+                }
+            }
+        }
+        setCenterCoordinates(mapView)
+    }
+
+    private fun updateBookpoints(mapView: MapView) {
         mapView.getMapAsync { map ->
             // Create list of markers
             val features = state.value.bookpoints.map {
@@ -127,8 +160,6 @@ class MapScreenViewModel @Inject  constructor(
             }
             val unapprovedGeoJson = FeatureCollection.fromFeatures(unapprovedFeatures)
 
-
-            // Edit map style
             map.getStyle { style ->
                 val source = style.getSourceAs<GeoJsonSource>("marker-source")
                 val unapprovedBookpointsSource = style.getSourceAs<GeoJsonSource>("unapproved-marker-source")
@@ -140,17 +171,8 @@ class MapScreenViewModel @Inject  constructor(
                 if (_state.value.appMode == AppMode.ADMIN) {
                     unapprovedBookpointsSource?.setGeoJson(unapprovedGeoJson)
                 }
-
-                // User localization
-                val userLocalization = _state.value.userLocation
-                if(userLocalization != null) {
-                    val userFeature = Feature.fromGeometry(Point.fromLngLat(userLocalization.longitude, userLocalization.latitude))
-                    val userSource = style.getSourceAs<GeoJsonSource>("user-location-source")
-                    userSource?.setGeoJson(userFeature)
-                }
             }
         }
-        setCenterCoordinates(mapView)
     }
 
     fun refreshMap(mapView: MapView) {
@@ -160,7 +182,7 @@ class MapScreenViewModel @Inject  constructor(
 
             if (approved != null && unapproved != null) {
                 _state.update { it.copy(bookpoints = approved, unapprovedBookpoints = unapproved) }
-                updateMap(mapView)
+                updateBookpoints(mapView)
             }
         }
     }
@@ -230,6 +252,7 @@ class MapScreenViewModel @Inject  constructor(
             // Create listener to marker clicks
             markerClickListener(map)
         }
+        refreshMap(mapView)
 
         return mapView
     }
@@ -332,7 +355,8 @@ class MapScreenViewModel @Inject  constructor(
         _state.update { it.copy(errorShown = true) }
     }
 
-    fun changeAppMode(mode: AppMode) {
+    fun changeAppMode(mode: AppMode, mapView: MapView) {
+        refreshMap(mapView)
         _state.update { it.copy(appMode = mode) }
     }
 

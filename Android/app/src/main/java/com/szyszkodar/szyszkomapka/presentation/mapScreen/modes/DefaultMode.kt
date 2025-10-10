@@ -46,15 +46,18 @@ import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.BookpointBottomSheet
 import com.szyszkodar.szyszkomapka.presentation.logInForm.LogInForm
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
+import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.FloatingButtonSettings
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.FloatingButtonsColumn
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.TopBar
 import com.szyszkodar.szyszkomapka.presentation.shared.icons.MyLocationIcon
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
+import org.maplibre.android.maps.MapView
 
 @Composable
 fun DefaultMode(
+    mapView: MapView,
     paddingValues: PaddingValues,
     viewModel: MapScreenViewModel,
     centerCameraFunction: () -> Unit,
@@ -116,20 +119,22 @@ fun DefaultMode(
                     .offset(y = buttonsListOffset.value)
             ) {
                 FloatingButtonsColumn(
-                    firstButtonName = "Logowanie",
-                    firstButtonIcon = Icons.Default.Lock,
-                    firstButtonColor = MaterialTheme.colorScheme.primary,
-                    onFirstButtonClick = {
-                        loginFormVisible = true
-                    },
-                    secondButtonName = "Dodaj Biblioteczke",
-                    secondButtonIcon = Icons.Default.Add,
-                    secondButtonColor = MaterialTheme.colorScheme.primary,
-                    onSecondButtonClick = {
-                        viewModel.changeAppMode(AppMode.ADD_BOOKPOINT)
-                    },
-                    labelRotation = labelRotation,
-                    buttonsSize = mainButtonHeight - 10.dp
+                    mainButtonHeight - 10.dp,
+                    labelRotation,
+                    Modifier,
+                        FloatingButtonSettings(
+                            name = "Logowanie",
+                            color = MaterialTheme.colorScheme.primary,
+                            icon = Icons.Default.Lock,
+                            onClick = { loginFormVisible = true }
+                        ),
+                        FloatingButtonSettings(
+                            name = "Dodaj biblioteczke",
+                            color = MaterialTheme.colorScheme.primary,
+                            icon = Icons.Default.Add,
+                            onClick = { viewModel.changeAppMode(mode = AppMode.ADD_BOOKPOINT, mapView = mapView) }
+                        )
+
                 )
             }
 
@@ -198,7 +203,7 @@ fun DefaultMode(
                 onLoginSuccessFunction = {
                     SessionManager.setToken(it)
                     loginFormVisible = false
-                    viewModel.changeAppMode(AppMode.ADMIN)
+                    viewModel.changeAppMode(mode = AppMode.ADMIN, mapView = mapView)
                     Toast.makeText(context, "Pomyślnie zalogowano", Toast.LENGTH_SHORT).show()
                 }
             )

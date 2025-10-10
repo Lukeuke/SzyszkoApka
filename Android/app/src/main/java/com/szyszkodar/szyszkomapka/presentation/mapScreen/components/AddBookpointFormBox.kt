@@ -56,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.szyszkodar.szyszkomapka.data.SessionManager
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
 import com.szyszkodar.szyszkomapka.presentation.shared.animations.shakeErrorAnimation
@@ -192,7 +193,9 @@ fun AddBookpointBoxForm(
             )
             IconButton(
                 onClick = {
-                    viewModel.changeAppMode(AppMode.DEFAULT)
+                    val isBearerNull = SessionManager.getToken() == null
+
+                    viewModel.changeAppMode(mode = if (isBearerNull) AppMode.DEFAULT else AppMode.ADMIN, mapView = mapView)
                 },
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = Color(0xFFEAE5E5)
