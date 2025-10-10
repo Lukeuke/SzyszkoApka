@@ -44,7 +44,7 @@ func RegisterBookPoints(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 	bookPoints.GET("/", middlewares.UnAuthorizedCache(), handler.getAllBookPoints)
 	bookPoints.GET("/:id", middlewares.UnAuthorizedCache(), handler.getBookPointByID)
 	bookPoints.POST("/", middlewares.UnAuthorizedRateLimit(uow, rateLimiter), handler.insertNewBookPoint)
-	bookPoints.PUT("/:id", middlewares.AuthMiddleware(uow), handler.editBookPoint)             // Authorized only
+	bookPoints.PUT("/:id", handler.editBookPoint)
 	bookPoints.DELETE("/:id", middlewares.AuthMiddleware(uow), handler.deleteBookPoint)        // Authorized only
 	bookPoints.POST("/approve/:id", middlewares.AuthMiddleware(uow), handler.approveBookPoint) // Authorized only
 }
@@ -137,9 +137,26 @@ func (h *BookPointHandler) editBookPoint(c *gin.Context) {
 		return
 	}
 
+	userID, ok := c.Request.Context().Value("user_id").(string)
+
+	if !ok {
+		log.Printf("user_id not found in context")
+		c.JSON(http.StatusBadRequest, results.ErrorResult[error](err))
+		return
+	}
+
+	isOwner := point.CreatedBy == userID
+	isAuthorized := helpers.IsAuthorized(c)
+	isApproved := point.Approved
+
+	if !isAuthorized && !(isOwner && !isApproved) {
+		c.JSON(http.StatusForbidden, results.ErrorResult[error]("You don't have permission to edit this book point"))
+		return
+	}
+
 	log.Printf("Editing book point %v\n", id)
 
-	point.Approved = cmd.Approved
+	point.Approved = *cmd.Approved
 	point.Title = cmd.Title
 	point.Description = cmd.Description
 	point.Lat = cmd.Lat
