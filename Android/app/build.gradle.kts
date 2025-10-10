@@ -95,5 +95,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.paging.runtime)
     testImplementation(kotlin("test"))
-
+    implementation(libs.androidx.security.crypto)
 }
