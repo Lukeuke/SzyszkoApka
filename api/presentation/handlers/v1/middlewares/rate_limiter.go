@@ -28,23 +28,12 @@ func NewRateLimiter(r rate.Limit, b int) *RateLimiter {
 	}
 }
 
-func (r *RateLimiter) GetLimiter(ip string) *rate.Limiter {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	limiter, exists := r.limiters[ip]
-	if !exists {
-		limiter = rate.NewLimiter(r.rate, r.burst)
-		r.limiters[ip] = limiter
-	}
-	return limiter
-}
-
 func UnAuthorizedRateLimit(uow *repository.UnitOfWork, rl *RateLimiter) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
+		calingUserId := c.GetHeader("x-user-id")
 
-		if authHeader == "" {
+		if authHeader == "" || calingUserId == "" {
 			limitUnauthorized(c, rl)
 			return
 		}
@@ -80,7 +69,16 @@ func UnAuthorizedRateLimit(uow *repository.UnitOfWork, rl *RateLimiter) gin.Hand
 
 func limitUnauthorized(c *gin.Context, rl *RateLimiter) {
 	ip := c.ClientIP()
-	limiter := rl.GetLimiter(ip)
+	userID := c.GetHeader("x-user-id")
+
+	var key string
+	if userID != "" {
+		key = "user:" + userID
+	} else {
+		key = "ip:" + ip
+	}
+
+	limiter := rl.GetLimiterForKey(key)
 
 	if !limiter.Allow() {
 		c.JSON(http.StatusTooManyRequests, dto.ErrorResult[string]("Unauthorized rate limit hit"))
@@ -89,4 +87,16 @@ func limitUnauthorized(c *gin.Context, rl *RateLimiter) {
 	}
 
 	c.Next()
+}
+
+func (r *RateLimiter) GetLimiterForKey(key string) *rate.Limiter {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	limiter, exists := r.limiters[key]
+	if !exists {
+		limiter = rate.NewLimiter(r.rate, r.burst)
+		r.limiters[key] = limiter
+	}
+	return limiter
 }
