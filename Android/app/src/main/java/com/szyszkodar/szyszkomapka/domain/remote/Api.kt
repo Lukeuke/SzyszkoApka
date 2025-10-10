@@ -5,11 +5,13 @@ import com.szyszkodar.szyszkomapka.data.remote.body.IdentityBody
 import com.szyszkodar.szyszkomapka.data.remote.body.PasswordChangeBody
 import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponse
 import com.szyszkodar.szyszkomapka.data.remote.response.IdentityResponse
+import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.QueryMap
 
@@ -27,24 +29,32 @@ interface Api {
 
     @POST("password-change")
     suspend fun passwordChange(
-        @Header("Authorization") bearerToken: String,
         @Body passwordChangeBody: PasswordChangeBody
     )
 
     @DELETE("book-points/{id}")
     suspend fun deleteBookpoints(
-        @Header("Authorization") bearerToken: String,
         @Path("id") id: String
     )
 
     @POST("book-points/approve/{id}")
     suspend fun approveBookpoint(
-        @Header("Authorization") bearerToken: String,
         @Path("id") id: String
     )
 
     @POST("book-points")
     suspend fun createBookpoint(
         @Body createBookpointBody: CreateBookpointBody
+    )
+
+    @GET("images/{id}")
+    suspend fun getImage(
+        @Path("id") id: String
+    )
+
+    @Multipart
+    @POST("images")
+    suspend fun sendImage(
+        @Part file: MultipartBody.Part
     )
 }

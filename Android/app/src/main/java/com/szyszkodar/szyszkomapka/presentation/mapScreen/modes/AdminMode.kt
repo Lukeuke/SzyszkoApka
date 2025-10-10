@@ -178,7 +178,6 @@ fun AdminMode(
             state.value.chosenBookpoint?.let {
                 BookpointBottomSheet(
                     bookpoint = it,
-                    bearerToken = state.value.bearerToken,
                     refreshMapFunction = refreshMapFunction,
                     onDismissRequest = {
                         viewModel.toggleBookpointVisibility()
@@ -198,7 +197,6 @@ fun AdminMode(
             exit = slideOutHorizontally { it }
         ) {
             AdministratorScreen(
-                token = state.value.bearerToken,
                 onExitClick = { adminScreenVisible = false },
                 localizeBookpointFunction = { latLng ->
                     adminScreenVisible = false

@@ -10,10 +10,10 @@ class MakeApiCall(private val api: Api) {
     ): T {
         return when(request) {
             is ApiRequest.CheckIdentity -> api.identity(request.body)
-            is ApiRequest.DeleteBookpoints -> api.deleteBookpoints(id = request.id, bearerToken = request.bearerToken)
+            is ApiRequest.DeleteBookpoints -> api.deleteBookpoints(id = request.id)
             is ApiRequest.GetBookpoints -> api.getBooks(request.queryMap)
-            is ApiRequest.ApproveBookpoints -> api.approveBookpoint(bearerToken = request.bearerToken, id = request.id)
-            is ApiRequest.PasswordChange -> api.passwordChange(bearerToken = request.bearerToken, passwordChangeBody = request.body)
+            is ApiRequest.ApproveBookpoints -> api.approveBookpoint(id = request.id)
+            is ApiRequest.PasswordChange -> api.passwordChange(passwordChangeBody = request.body)
             is ApiRequest.CreateBookpoint -> api.createBookpoint(createBookpointBody = request.createBookpointBody)
         } as T
     }

@@ -12,6 +12,5 @@ data class MapScreenState(
     val appMode: AppMode = AppMode.DEFAULT,
     val centerLatLng: LatLng = LatLng(0.0,0.0),
     val userLocation: LatLng? = null,
-    var bearerToken: String? = null,
     val chosenBookpoint: BookpointUI? = null
 )

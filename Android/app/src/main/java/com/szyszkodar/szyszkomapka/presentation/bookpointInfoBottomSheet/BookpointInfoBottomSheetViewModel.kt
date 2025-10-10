@@ -27,7 +27,7 @@ class BookpointInfoBottomSheetViewModel @Inject constructor(
     fun approveBookpoint(bookpoint: BookpointUI, token: String, onSuccess: () -> Unit) {
         toggleLoading(true)
         viewModelScope.launch {
-            when(val response = bookpointsRepository.approveBookpoint(bookpoint.id, token)) {
+            when(val response = bookpointsRepository.approveBookpoint(bookpoint.id)) {
                 is Result.Success -> {
                     setToastMessage("Pomyślnie dodano biblioteczkę")
                     onSuccess()
