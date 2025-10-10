@@ -32,7 +32,7 @@ object AppModule {
         val client = OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val newRequest = chain.request().newBuilder()
-                    .addHeader("X-App-ID", BuildConfig.API_KEY)
+                    .addHeader("x-app-id", BuildConfig.API_KEY)
                     .apply {
                         SessionManager.getToken()?.let { bearer ->
                             addHeader("Authorization", bearer)
