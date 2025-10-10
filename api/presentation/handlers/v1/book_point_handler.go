@@ -162,6 +162,11 @@ func (h *BookPointHandler) editBookPoint(c *gin.Context) {
 	point.Lat = cmd.Lat
 	point.Lon = cmd.Lon
 
+	// Users cant approve
+	if !isAuthorized {
+		point.Approved = false
+	}
+
 	_, err = h.uow.BookPointRepo.Edit(c.Request.Context(), point)
 	if err != nil {
 		log.Printf("Edit error: %v", err)
