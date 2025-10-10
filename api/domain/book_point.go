@@ -17,4 +17,5 @@ type BookPoint struct {
 	Approved    bool      `json:"approved" db:"approved"`
 	ExternalKey string    `json:"external_key" db:"external_key"`
 	Images      []string  `json:"images" db:"images"`
+	CreatedBy   string    `json:"created_by" db:"created_by"`
 }
