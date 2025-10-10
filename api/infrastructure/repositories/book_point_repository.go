@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -41,6 +42,13 @@ func (r *supabaseBookPointRepository) Insert(ctx context.Context, bp *domain.Boo
 	bp.ID = uuid.New()
 	bp.CreatedAt = time.Now().UTC()
 	bp.UpdatedAt = time.Now().UTC()
+	userID, ok := ctx.Value("user_id").(string)
+
+	if !ok {
+		return uuid.Nil, errors.New("user_id not found in context")
+	}
+
+	bp.CreatedBy = userID
 
 	data, count, err := r.client.From("book_points").Insert(bp, false, "", "representation", "").Execute()
 	if err != nil {
