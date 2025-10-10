@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"errors"
@@ -229,4 +230,21 @@ func DiscordLogger() gin.HandlerFunc {
 			LogInfo(logMsg, "")
 		}
 	}
+}
+
+func IsAuthorized(c *gin.Context) bool {
+	authHeader := c.GetHeader("Authorization")
+
+	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+		return false
+	}
+
+	tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+	claims := &Claims{}
+
+	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		return JwtKey, nil
+	})
+
+	return err == nil && token.Valid
 }
