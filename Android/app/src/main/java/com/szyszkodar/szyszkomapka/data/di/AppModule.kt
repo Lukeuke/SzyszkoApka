@@ -1,9 +1,11 @@
 package com.szyszkodar.szyszkomapka.data.di
 
 import android.content.Context
+import android.util.Log
 import com.google.gson.GsonBuilder
 import com.szyszkodar.szyszkomapka.BuildConfig
 import com.szyszkodar.szyszkomapka.data.SessionManager
+import com.szyszkodar.szyszkomapka.data.keystore.UserIdStore
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
 import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
 import com.szyszkodar.szyszkomapka.data.repository.IdentityRepository
@@ -25,14 +27,21 @@ import javax.inject.Singleton
 object AppModule {
     private const val BASE_URL = BuildConfig.BASE_URL
 
+    @Provides
+    @Singleton
+    fun provideUserIdStore(@ApplicationContext context: Context): UserIdStore {
+        return UserIdStore(context)
+    }
+
     // Provide Api object
     @Provides
     @Singleton
-    fun provideApi(): Api {
+    fun provideApi(userIdStore: UserIdStore): Api {
         val client = OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val newRequest = chain.request().newBuilder()
                     .addHeader("x-app-id", BuildConfig.API_KEY)
+                    .addHeader("x-user-id", userIdStore.getOrCreateUserId())
                     .apply {
                         SessionManager.getToken()?.let { bearer ->
                             addHeader("Authorization", bearer)
