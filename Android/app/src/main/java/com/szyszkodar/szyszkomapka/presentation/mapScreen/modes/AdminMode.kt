@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -43,6 +44,7 @@ import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.presentation.administratorScreen.AdministratorScreen
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.BookpointBottomSheet
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
+import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.FloatingButtonSettings
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.FloatingButtonsColumn
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.TopBar
 import com.szyszkodar.szyszkomapka.presentation.shared.icons.MyLocationIcon
@@ -50,9 +52,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.maps.MapView
 
 @Composable
 fun AdminMode(
+    mapView: MapView,
     paddingValues: PaddingValues,
     viewModel: MapScreenViewModel,
     refreshMapFunction: () -> Unit,
@@ -115,20 +119,27 @@ fun AdminMode(
                     .offset(y = buttonsListOffset.value)
             ) {
                 FloatingButtonsColumn(
-                    firstButtonName = "Administrator",
-                    firstButtonIcon = Icons.Default.Person,
-                    firstButtonColor = MaterialTheme.colorScheme.primary,
-                    onFirstButtonClick = {
-                        adminScreenVisible = true
-                    },
-                    secondButtonName = "Dodaj Biblioteczke",
-                    secondButtonIcon = Icons.Default.Add,
-                    secondButtonColor = MaterialTheme.colorScheme.primary,
-                    onSecondButtonClick = {
-                        viewModel.changeAppMode(AppMode.ADD_BOOKPOINT)
-                    },
-                    labelRotation = labelRotation,
-                    buttonsSize = mainButtonHeight - 10.dp
+                    mainButtonHeight - 10.dp,
+                    labelRotation,
+                    Modifier,
+                    FloatingButtonSettings(
+                        name = "Administrator",
+                        color = MaterialTheme.colorScheme.primary,
+                        icon = Icons.Default.Person,
+                        onClick = { adminScreenVisible = true }
+                    ),
+                    FloatingButtonSettings(
+                        name = "Dodaj Biblioteczke",
+                        color = MaterialTheme.colorScheme.primary,
+                        icon = Icons.Default.Add,
+                        onClick = { viewModel.changeAppMode(mode = AppMode.ADD_BOOKPOINT, mapView = mapView) }
+                    ),
+                    FloatingButtonSettings(
+                        name = "Odswiez dane",
+                        color = MaterialTheme.colorScheme.primary,
+                        icon = Icons.Default.Refresh,
+                        onClick = { refreshMapFunction() }
+                    )
                 )
             }
 

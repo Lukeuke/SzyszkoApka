@@ -27,40 +27,25 @@ import com.szyszkodar.szyszkomapka.ui.theme.LilitaOne
 
 @Composable
 fun FloatingButtonsColumn(
-    firstButtonName: String,
-    secondButtonName: String,
-    firstButtonColor: Color,
-    secondButtonColor: Color,
-    firstButtonIcon: ImageVector,
-    secondButtonIcon: ImageVector,
-    onFirstButtonClick: () -> Unit,
-    onSecondButtonClick: () -> Unit,
     buttonsSize: Dp,
     labelRotation: Animatable<Float, AnimationVector1D>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    vararg buttons: FloatingButtonSettings
 ) {
     Column(
         horizontalAlignment = Alignment.End,
         modifier = modifier
     ) {
-        ButtonWithLabel(
-            buttonName = firstButtonName,
-            buttonIcon = firstButtonIcon,
-            buttonColor = firstButtonColor,
-            buttonsSize = buttonsSize,
-            labelRotation = labelRotation,
-            onClick = onFirstButtonClick
-        )
-
-        ButtonWithLabel(
-            buttonName = secondButtonName,
-            buttonIcon = secondButtonIcon,
-            buttonColor = secondButtonColor,
-            buttonsSize = buttonsSize,
-            labelRotation = labelRotation,
-            onClick = onSecondButtonClick
-        )
-
+        for (button in buttons) {
+            ButtonWithLabel(
+                buttonName = button.name,
+                buttonIcon = button.icon,
+                buttonColor = button.color,
+                buttonsSize = buttonsSize,
+                labelRotation = labelRotation,
+                onClick = button.onClick
+            )
+        }
     }
 }
 
