@@ -12,7 +12,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.szyszkodar.szyszkomapka.R
+import com.szyszkodar.szyszkomapka.data.SessionManager
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
+import com.szyszkodar.szyszkomapka.data.keystore.UserIdStore
 import com.szyszkodar.szyszkomapka.data.mappers.BookpointsMapper
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
 import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
@@ -58,6 +60,7 @@ import javax.inject.Inject
 class MapScreenViewModel @Inject  constructor(
     private val bookpointsRepository: BookpointsRepository,
     private val localizationHandler: LocalizationHandler,
+    private val userIdStore: UserIdStore,
     @ApplicationContext private val context: Context
 ): ViewModel() {
     private val _state = MutableStateFlow(MapScreenState())
@@ -72,6 +75,13 @@ class MapScreenViewModel @Inject  constructor(
             getUserLocation()
             val bookpoints = fetchBookpoints(query = GetBookpointsQuery(filters = listOf(BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, true))))
             bookpoints?.let { _state.update { it.copy(bookpoints = bookpoints) } }
+
+            val userId = SessionManager.getUserId { userIdStore.getOrCreateUserId() }
+            val userBookpoints = fetchBookpoints(query = GetBookpointsQuery(filters = listOf(
+                BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, false),
+                BookpointsFilter(FieldParam.CREATED_BY, OperatorParam.EQ, userId)
+            )))
+            userBookpoints?.let { _state.update { it.copy(userUnapprovedBookpoints = userBookpoints) } }
 
             localizationHandler.observeUserLocation().collect { newLocation ->
                 if (newLocation != null) {
@@ -111,20 +121,17 @@ class MapScreenViewModel @Inject  constructor(
     }
 
     fun updateMap(mapView: MapView){
-
         if (_state.value.appMode == AppMode.ADMIN){
             viewModelScope.launch {
                 val unapprovedBookpoints = fetchBookpoints(query = GetBookpointsQuery(filters = listOf(
                     BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, false)
                 )))
 
-                unapprovedBookpoints?.let { _state.update { it.copy(unapprovedBookpoints = unapprovedBookpoints) }}
+                unapprovedBookpoints?.let { _state.update { it.copy(unapprovedBookpoints = unapprovedBookpoints, userUnapprovedBookpoints = emptyList()) }}
             }
         }
 
         mapView.getMapAsync { map ->
-
-
             // Edit map style
             map.getStyle { style ->
 
@@ -152,12 +159,16 @@ class MapScreenViewModel @Inject  constructor(
             val geoJson = FeatureCollection.fromFeatures(features)
 
             // Create list of unapproved markers
-            val unapprovedFeatures = state.value.unapprovedBookpoints.map {
-                val feature = Feature.fromGeometry(Point.fromLngLat(it.longitude, it.latitude))
-                feature.addStringProperty("data", Gson().toJson(it))
+            val unapprovedFeatures = state.value.unapprovedBookpoints
+                .toMutableList()
+                .apply { addAll(state.value.userUnapprovedBookpoints) }
+                .map {
+                    val feature = Feature.fromGeometry(Point.fromLngLat(it.longitude, it.latitude))
+                    feature.addStringProperty("data", Gson().toJson(it))
 
-                feature
-            }
+                    feature
+                }
+
             val unapprovedGeoJson = FeatureCollection.fromFeatures(unapprovedFeatures)
 
             map.getStyle { style ->
@@ -168,9 +179,9 @@ class MapScreenViewModel @Inject  constructor(
                 source?.setGeoJson(geoJson)
 
                 // Add unapproved markers
-                if (_state.value.appMode == AppMode.ADMIN) {
-                    unapprovedBookpointsSource?.setGeoJson(unapprovedGeoJson)
-                }
+
+                unapprovedBookpointsSource?.setGeoJson(unapprovedGeoJson)
+
             }
         }
     }

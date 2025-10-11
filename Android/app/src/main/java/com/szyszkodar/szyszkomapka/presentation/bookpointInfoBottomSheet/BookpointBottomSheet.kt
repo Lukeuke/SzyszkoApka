@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.data.intentsHandling.GoogleMapsOpener
 import com.szyszkodar.szyszkomapka.data.uiClasses.BookpointUI
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.components.SheetActionButton
@@ -38,6 +39,7 @@ import org.maplibre.android.geometry.LatLng
 @Composable
 fun BookpointBottomSheet(
     bookpoint: BookpointUI,
+    currentMode: AppMode,
     onDismissRequest: () -> Unit,
     refreshMapFunction: () -> Unit = {},
     bearerToken: String ?= null,
@@ -104,7 +106,7 @@ fun BookpointBottomSheet(
                         if (result != null) Toast.makeText(context, result, Toast.LENGTH_SHORT).show()
                     }
                 )
-                if (!bookpoint.approved) {
+                if (!bookpoint.approved && currentMode == AppMode.ADMIN) {
                     Spacer(Modifier.height(10.dp))
 
                     SheetActionButton(
