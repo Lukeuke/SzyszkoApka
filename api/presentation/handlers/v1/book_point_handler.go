@@ -22,7 +22,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"golang.org/x/time/rate"
 )
 
 type BookPointHandler struct {
@@ -37,13 +36,13 @@ func NewBookPointHandler(uow *repository.UnitOfWork) *BookPointHandler {
 
 func RegisterBookPoints(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 	handler := NewBookPointHandler(uow)
-	rateLimiter := middlewares.NewRateLimiter(rate.Every(8*time.Hour), 3)
+	rateLimiter := middlewares.NewInMemoryRateLimiter(3, 24*time.Hour)
 
 	bookPoints := group.Group("/book-points")
 
 	bookPoints.GET("/", middlewares.UnAuthorizedCache(), handler.getAllBookPoints)
 	bookPoints.GET("/:id", middlewares.UnAuthorizedCache(), handler.getBookPointByID)
-	bookPoints.POST("/", middlewares.UnAuthorizedRateLimit(uow, rateLimiter), handler.insertNewBookPoint)
+	bookPoints.POST("/", rateLimiter.UnAuthorizedRateLimit(), handler.insertNewBookPoint)
 	bookPoints.PUT("/:id", handler.editBookPoint)
 	bookPoints.DELETE("/:id", middlewares.AuthMiddleware(uow), handler.deleteBookPoint)        // Authorized only
 	bookPoints.POST("/approve/:id", middlewares.AuthMiddleware(uow), handler.approveBookPoint) // Authorized only
