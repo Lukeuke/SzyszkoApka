@@ -16,6 +16,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -37,11 +38,18 @@ object AppModule {
     @Provides
     @Singleton
     fun provideApi(userIdStore: UserIdStore): Api {
+        val loggingInterceptor = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+
         val client = OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
             .addInterceptor { chain ->
                 val newRequest = chain.request().newBuilder()
                     .addHeader("x-app-id", BuildConfig.API_KEY)
                     .addHeader("x-user-id", userIdStore.getOrCreateUserId())
+                    .addHeader("User-Agent", "SzyszkoMapka/1.0")
+                    .addHeader("Accept", "application/json, image/,/*")
                     .apply {
                         SessionManager.getToken()?.let { bearer ->
                             addHeader("Authorization", bearer)
