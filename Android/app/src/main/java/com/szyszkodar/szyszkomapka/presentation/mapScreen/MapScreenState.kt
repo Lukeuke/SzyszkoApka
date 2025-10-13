@@ -7,6 +7,7 @@ import org.maplibre.android.geometry.LatLng
 data class MapScreenState(
     val bookpoints: List<BookpointUI> = emptyList(),
     val unapprovedBookpoints: List<BookpointUI> = emptyList(),
+    val userUnapprovedBookpoints: List<BookpointUI> = emptyList(),
     val errorMessage: String? = null,
     val errorShown: Boolean = false,
     val appMode: AppMode = AppMode.DEFAULT,

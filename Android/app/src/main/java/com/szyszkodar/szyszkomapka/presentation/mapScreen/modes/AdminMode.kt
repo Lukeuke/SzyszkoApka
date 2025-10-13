@@ -190,6 +190,7 @@ fun AdminMode(
                 BookpointBottomSheet(
                     bookpoint = it,
                     refreshMapFunction = refreshMapFunction,
+                    currentMode = AppMode.ADMIN,
                     onDismissRequest = {
                         viewModel.toggleBookpointVisibility()
                     }

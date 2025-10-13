@@ -1,92 +1,95 @@
 package middlewares
 
 import (
-	"log"
 	"net/http"
+	"strings"
 	"sync"
 	helpers "szyszko-api/application/helpers"
-	repository "szyszko-api/infrastructure/repositories"
-	dto "szyszko-api/presentation/dto/common"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/time/rate"
 )
 
-type RateLimiter struct {
-	limiters map[string]*rate.Limiter
+type ipEntry struct {
+	Count     int
+	FirstSeen time.Time
+}
+
+type InMemoryRateLimiter struct {
 	mu       sync.Mutex
-	rate     rate.Limit
-	burst    int
+	limiters map[string]*ipEntry
+	limit    int
+	window   time.Duration
 }
 
-func NewRateLimiter(r rate.Limit, b int) *RateLimiter {
-	return &RateLimiter{
-		limiters: make(map[string]*rate.Limiter),
-		rate:     r,
-		burst:    b,
+func NewInMemoryRateLimiter(limit int, window time.Duration) *InMemoryRateLimiter {
+	rl := &InMemoryRateLimiter{
+		limiters: make(map[string]*ipEntry),
+		limit:    limit,
+		window:   window,
 	}
+
+	go rl.cleanup()
+	return rl
 }
 
-func UnAuthorizedRateLimit(uow *repository.UnitOfWork, rl *RateLimiter) gin.HandlerFunc {
+func (r *InMemoryRateLimiter) UnAuthorizedRateLimit() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
-		calingUserId := c.GetHeader("x-user-id")
-
-		if authHeader == "" || calingUserId == "" {
-			limitUnauthorized(c, rl)
-			return
-		}
-
-		tokenStr := authHeader[len("Bearer "):]
+		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 		claims := &helpers.Claims{}
 
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 			return helpers.JwtKey, nil
 		})
 
-		if err != nil || !token.Valid {
-			limitUnauthorized(c, rl)
+		if err == nil && token != nil && token.Valid {
+			c.Next()
 			return
 		}
 
-		isEnabled, err := uow.IdentityRepo.IsEnabled(claims.Username)
-		if err != nil {
-			log.Printf("IsEnabled error: %v", err)
-			c.Status(http.StatusInternalServerError)
-			c.Abort()
+		ip := c.ClientIP()
+		now := time.Now()
+
+		r.mu.Lock()
+		entry, exists := r.limiters[ip]
+
+		if !exists || now.Sub(entry.FirstSeen) > r.window {
+			r.limiters[ip] = &ipEntry{Count: 1, FirstSeen: now}
+			r.mu.Unlock()
+			c.Next()
 			return
 		}
 
-		if !isEnabled {
-			limitUnauthorized(c, rl)
+		if entry.Count >= r.limit {
+			r.mu.Unlock()
+			retryIn := entry.FirstSeen.Add(r.window).Sub(now)
+			c.Header("Retry-After", retryIn.String())
+			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
+				"error": "Rate limit exceeded for unauthenticated user",
+			})
 			return
 		}
 
+		entry.Count++
+		r.mu.Unlock()
 		c.Next()
 	}
 }
 
-func limitUnauthorized(c *gin.Context, rl *RateLimiter) {
-	ip := c.ClientIP()
-	userID := c.GetHeader("x-user-id")
-
-	var key string
-	if userID != "" {
-		key = "user:" + userID
-	} else {
-		key = "ip:" + ip
+func (r *InMemoryRateLimiter) cleanup() {
+	for {
+		time.Sleep(time.Hour)
+		r.mu.Lock()
+		now := time.Now()
+		for ip, entry := range r.limiters {
+			if now.Sub(entry.FirstSeen) > r.window {
+				delete(r.limiters, ip)
+			}
+		}
+		r.mu.Unlock()
 	}
-
-	limiter := rl.GetLimiterForKey(key)
-
-	if !limiter.Allow() {
-		c.JSON(http.StatusTooManyRequests, dto.ErrorResult[string]("Unauthorized rate limit hit"))
-		c.Abort()
-		return
-	}
-
-	c.Next()
 }
 
 func (r *RateLimiter) GetLimiterForKey(key string) *rate.Limiter {

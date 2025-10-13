@@ -182,7 +182,10 @@ fun DefaultMode(
 
         AnimatedVisibility(state.value.chosenBookpoint != null) {
             state.value.chosenBookpoint?.let {
-                BookpointBottomSheet(it, {
+                BookpointBottomSheet(
+                    bookpoint = it,
+                    currentMode = AppMode.DEFAULT,
+                    onDismissRequest = {
                     viewModel.toggleBookpointVisibility()
                 })
             }

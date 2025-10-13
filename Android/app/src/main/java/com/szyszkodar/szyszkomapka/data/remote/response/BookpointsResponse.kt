@@ -8,6 +8,7 @@ data class BookpointResponseElement(
     val id: String,
     val lat: Double,
     val lon: Double,
+    @SerializedName("created_by") val createdBy: String,
     @SerializedName("created_at") val createdAt: String,
     @SerializedName("updated_at") val updatedAt: String,
     val title: String,
