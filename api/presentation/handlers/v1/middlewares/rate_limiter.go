@@ -91,15 +91,3 @@ func (r *InMemoryRateLimiter) cleanup() {
 		r.mu.Unlock()
 	}
 }
-
-func (r *RateLimiter) GetLimiterForKey(key string) *rate.Limiter {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	limiter, exists := r.limiters[key]
-	if !exists {
-		limiter = rate.NewLimiter(r.rate, r.burst)
-		r.limiters[key] = limiter
-	}
-	return limiter
-}
