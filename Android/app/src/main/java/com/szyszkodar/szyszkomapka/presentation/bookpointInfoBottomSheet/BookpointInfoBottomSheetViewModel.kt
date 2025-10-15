@@ -1,5 +1,7 @@
 package com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet
 
+import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
@@ -20,7 +22,7 @@ class BookpointInfoBottomSheetViewModel @Inject constructor(
     private val _state = MutableStateFlow(BookpointInfoBottomSheetState())
     val state = _state.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.WhileSubscribed(),
         initialValue = BookpointInfoBottomSheetState()
     )
 
@@ -44,7 +46,26 @@ class BookpointInfoBottomSheetViewModel @Inject constructor(
         _state.update { it.copy(toastMessage = message) }
     }
 
-    private fun toggleLoading(isLoading: Boolean) {
-        _state.update { it.copy(isLoading = isLoading) }
+    fun fetchImage(id: String) {
+
+        _state.update { it.copy(isImageLoading = true) }
+        viewModelScope.launch {
+            when(val response = bookpointsRepository.getImageById(id)) {
+                is Result.Success -> {
+                    response.data.body()?.let { body ->
+                        val bytes = body.bytes()
+                        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                        _state.update { it.copy(imageBitmap = bitmap) }
+                    }
+                }
+                is Result.Error -> setToastMessage(response.error.message)
+            }
+
+            _state.update { it.copy(isImageLoading = false) }
+        }
     }
+
+    private fun toggleLoading(isLoading: Boolean) =
+        _state.update { it.copy(isLoading = isLoading) }
+
 }

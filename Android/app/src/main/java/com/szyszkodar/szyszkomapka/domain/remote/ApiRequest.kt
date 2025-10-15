@@ -29,4 +29,8 @@ sealed interface ApiRequest {
     data class CreateBookpoint(
         val createBookpointBody: CreateBookpointBody
     ): ApiRequest
+
+    data class GetImage(
+        val id: String
+    ): ApiRequest
 }

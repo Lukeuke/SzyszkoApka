@@ -49,7 +49,7 @@ object AppModule {
                     .addHeader("x-app-id", BuildConfig.API_KEY)
                     .addHeader("x-user-id", userIdStore.getOrCreateUserId())
                     .addHeader("User-Agent", "SzyszkoMapka/1.0")
-                    .addHeader("Accept", "application/json, image/,/*")
+                    .addHeader("Accept", "application/json")
                     .apply {
                         SessionManager.getToken()?.let { bearer ->
                             addHeader("Authorization", bearer)

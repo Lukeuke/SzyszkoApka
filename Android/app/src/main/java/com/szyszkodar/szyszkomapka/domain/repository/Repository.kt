@@ -1,5 +1,6 @@
 package com.szyszkodar.szyszkomapka.domain.repository
 
+import android.util.Log
 import com.szyszkodar.szyszkomapka.data.remote.MakeApiCall
 import com.szyszkodar.szyszkomapka.domain.errorHandling.NetworkError
 import com.szyszkodar.szyszkomapka.domain.errorHandling.Result
@@ -25,6 +26,9 @@ abstract class Repository(
             val result = callFunction()
             Result.Success(result)
         } catch(e: HttpException) {
+            Log.e("DEBUG", "HttpException: ${e.code()} ${e.message()}")
+            Log.e("DEBUG", "Error body: ${e.response()?.errorBody()?.string()}")
+
             when(e.code()) {
                 404 -> Result.Error(NetworkError.IDENTITY_ERROR)
                 408 -> Result.Error(NetworkError.REQUEST_TIMEOUT)
@@ -35,6 +39,7 @@ abstract class Repository(
         } catch(e: UnknownHostException) {
             Result.Error(NetworkError.NO_CONNECTION)
         } catch(e: Throwable) {
+            Log.d("DEBUG", e.stackTrace.toString())
             Result.Error(NetworkError.UNKNOWN)
         }
     }

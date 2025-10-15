@@ -8,6 +8,8 @@ import com.szyszkodar.szyszkomapka.domain.errorHandling.Result
 import com.szyszkodar.szyszkomapka.domain.remote.Api
 import com.szyszkodar.szyszkomapka.domain.remote.ApiRequest
 import com.szyszkodar.szyszkomapka.domain.repository.Repository
+import okhttp3.ResponseBody
+import retrofit2.Response
 import javax.inject.Inject
 
 // Bookpoints repository - use it to make call for bookpoints related requests
@@ -36,5 +38,11 @@ class BookpointsRepository @Inject constructor(
         id: String,
     ): Result<Unit, NetworkError> {
         return request(ApiRequest.ApproveBookpoints(id = id))
+    }
+
+    suspend fun getImageById(
+        id: String
+    ): Result<Response<ResponseBody>, NetworkError> {
+        return request(ApiRequest.GetImage(id = id))
     }
 }
