@@ -73,8 +73,8 @@ class MapScreenViewModel @Inject  constructor(
     init {
         viewModelScope.launch {
             getUserLocation()
-            val bookpoints = fetchBookpoints(query = GetBookpointsQuery(filters = listOf(BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, true))))
-            bookpoints?.let { _state.update { it.copy(bookpoints = bookpoints) } }
+            val query = GetBookpointsQuery(filters = listOf(BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, true)), pageSize = 50)
+            fetchBookpoints(query){ bookpoints ->  _state.update { it.copy(bookpoints = bookpoints) } }
 
             val userId = SessionManager.getUserId { userIdStore.getOrCreateUserId() }
             val userBookpoints = fetchBookpoints(query = GetBookpointsQuery(filters = listOf(
@@ -118,6 +118,31 @@ class MapScreenViewModel @Inject  constructor(
         }
 
         return bookpoints
+    }
+
+    private suspend fun fetchBookpoints(query: GetBookpointsQuery, updateStateAction: (List<BookpointUI>) -> Unit) {
+        val bookpointsMapper = BookpointsMapper()
+        var total: Int? = null
+        var fetched = 0
+        var page = 1
+
+        while (fetched!=total) {
+            when(val response = bookpointsRepository.getBookpoints(query.copy(page = page))) {
+                is Result.Success -> {
+                    if(total == null) total = response.data.total
+
+                    response.data.data.map { el ->
+                        fetched++
+                        bookpointsMapper.convert(el)
+                    }.also { updateStateAction(it) }
+
+                    page++
+                }
+                is Result.Error -> {
+                    _state.update { it.copy(errorMessage = response.error.message) }
+                }
+            }
+        }
     }
 
     fun updateMap(mapView: MapView){
