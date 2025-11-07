@@ -59,7 +59,6 @@ import org.maplibre.android.style.sources.GeoJsonSource
 import org.maplibre.geojson.Feature
 import org.maplibre.geojson.FeatureCollection
 import org.maplibre.geojson.Point
-import java.net.URI
 import javax.inject.Inject
 
 @HiltViewModel
@@ -417,7 +416,11 @@ class MapScreenViewModel @Inject  constructor(
 
     }
 
-    suspend fun addBookpoint(name: String, description: String, onSuccess: (String) -> Unit, onSError: (String) -> Unit){
+    fun setImageIsAdding(value: Boolean) {
+        _state.update { it.copy(bookpointIsAdding = value) }
+    }
+
+    suspend fun addBookpoint(name: String, description: String, onSuccess: (String) -> Unit, onError: (String) -> Unit){
         val body = CreateBookpointBody(
             lat = _state.value.centerLatLng.latitude.toFloat(),
             lon = _state.value.centerLatLng.longitude.toFloat(),
@@ -429,9 +432,6 @@ class MapScreenViewModel @Inject  constructor(
 
         when(response) {
             is Result.Success -> {
-                Log.d("DEBUG", _state.value.imageToSend.toString())
-                Log.d("DEBUG", "locarion XDDDD" + response.data.headers()["Location"].toString())
-
                 if (_state.value.imageToSend != null) {
                     val sendImageResponse = bookpointsRepository.uploadImage(
                         id = response.data.headers()["Location"]?.removePrefix("/book-points/") ?: "",
@@ -439,27 +439,33 @@ class MapScreenViewModel @Inject  constructor(
                     )
 
                     when(sendImageResponse) {
-                        is Result.Error -> onSError(sendImageResponse.error.message)
-                        is Result.Success-> {}
+                        is Result.Error -> onError("Nie udało się dodać zdjęcia")
+                        is Result.Success-> { setImageToSendNull() }
                     }
                 }
                 onSuccess(response.data.headers()["Location"] ?: "")
             }
-            is Result.Error -> onSError(response.error.message)
+            is Result.Error -> onError(response.error.message)
         }
     }
 
     fun saveImageAsMultipart(context: Context, uri: Uri) {
         val type = context.contentResolver.getType(uri)
-        Log.d("DEBUG", "saveImageAsMultipart: $type")
         when(type) {
             "image/jpeg" -> {
                 val image = uriToMultipart(uri)
                 Log.d("DEBUG", "Image: $image")
                  _state.update { it.copy(imageToSend = image) }
             }
-            else -> return
+            else -> {
+                _state.update { it.copy(errorMessage = "Zły format pliku") }
+                return
+            }
         }
+    }
+
+    fun setImageToSendNull() {
+        _state.update { it.copy(imageToSend = null) }
     }
 
     private fun uriToMultipart(uri: Uri): MultipartBody.Part? {

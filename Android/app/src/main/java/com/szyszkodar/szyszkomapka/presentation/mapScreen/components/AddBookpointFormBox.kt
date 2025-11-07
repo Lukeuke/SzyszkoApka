@@ -1,6 +1,5 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen.components
 
-import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -44,7 +43,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,6 +66,7 @@ import com.szyszkodar.szyszkomapka.data.SessionManager
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
 import com.szyszkodar.szyszkomapka.presentation.shared.animations.shakeErrorAnimation
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapView
@@ -148,6 +147,7 @@ fun AddBookpointBoxForm(
                 sendButtonEnabled = true
             } else {
                 coroutineScope.launch {
+                    viewModel.setImageIsAdding(true)
                     viewModel.addBookpoint(
                         name = bookpointName.text,
                         description = bookpointDescription.text,
@@ -156,10 +156,11 @@ fun AddBookpointBoxForm(
                             bookpointName = TextFieldValue("")
                             bookpointDescription = TextFieldValue("")
                         },
-                        onSError = { errorMessage ->
+                        onError = { errorMessage ->
                             Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                         }
                     )
+                    viewModel.setImageIsAdding(false)
                     sendButtonEnabled = true
                 }
             }
@@ -236,6 +237,7 @@ fun AddBookpointBoxForm(
             ) {
                 TextField(
                     value = bookpointName,
+                    enabled = !state.value.bookpointIsAdding,
                     singleLine = true,
                     placeholder = { Text(
                         text = "Nazwa biblioteczki"
@@ -261,6 +263,7 @@ fun AddBookpointBoxForm(
                 )
                 TextField(
                     value = bookpointDescription,
+                    enabled = !state.value.bookpointIsAdding,
                     singleLine = false,
                     maxLines = 5,
                     placeholder = { Text(
@@ -320,7 +323,9 @@ fun AddBookpointBoxForm(
                     .padding(horizontal = 30.dp, vertical = 5.dp)
                     .align(Alignment.Start)
                     .pointerInput(Unit) {
-                        isExpanded = true
+                        if(!state.value.bookpointIsAdding) {
+                            isExpanded = true
+                        }
                     }
             )
         }
@@ -437,15 +442,21 @@ fun AddBookpointBoxForm(
 
                 Button(
                     onClick = {
+                        viewModel.setImageToSendNull()
                         launcher.launch(PickVisualMediaRequest(PickVisualMedia.SingleMimeType("image/jpeg")))
                         imageChosen = true
-                    }
+                    },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
                 ) {
-                    Text("Dodaj zdjęcie biblioteczki")
+                    Text(
+                        text = "Dodaj zdjęcie biblioteczki",
+                        color = MaterialTheme.colorScheme.background
+                    )
                 }
 
                 if (imageChosen) {
-                    if (state.value.imageToSend == null) {
+                    if (state.value.imageToSend != null) {
                         Text("Pomyślnie dodano zdjęcie")
                     } else {
                         Text("Wystąpił błąd podczas dodawania zdjęcia")

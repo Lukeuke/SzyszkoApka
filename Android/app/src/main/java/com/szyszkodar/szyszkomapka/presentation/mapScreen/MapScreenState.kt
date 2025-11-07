@@ -15,5 +15,6 @@ data class MapScreenState(
     val centerLatLng: LatLng = LatLng(0.0,0.0),
     val userLocation: LatLng? = null,
     val chosenBookpoint: BookpointUI? = null,
-    val imageToSend: MultipartBody.Part? = null
+    val imageToSend: MultipartBody.Part? = null,
+    val bookpointIsAdding: Boolean = false,
 )
