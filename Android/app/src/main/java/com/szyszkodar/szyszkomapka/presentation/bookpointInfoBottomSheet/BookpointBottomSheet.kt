@@ -23,8 +23,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -128,7 +132,7 @@ fun BookpointBottomSheet(
                     )
                 }
 
-                if (bookpoint.images == null || !bookpoint.images.isEmpty()) {
+                if (bookpoint.images != null) {
                     Spacer(Modifier.height(20.dp))
 
                     if (state.value.isImageLoading) {
@@ -137,7 +141,14 @@ fun BookpointBottomSheet(
                         }
                     } else {
                         state.value.imageBitmap?.let {
-                            Image(bitmap = it.asImageBitmap(), contentDescription = null)
+                            Image(
+                                bitmap = it.asImageBitmap(),
+                                contentDescription = bookpoint.title,
+                                contentScale = ContentScale.FillWidth,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(16.dp))
+                            )
                         }
                     }
                 }

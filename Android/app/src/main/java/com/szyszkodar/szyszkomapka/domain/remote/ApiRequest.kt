@@ -3,6 +3,7 @@ package com.szyszkodar.szyszkomapka.domain.remote
 import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.body.IdentityBody
 import com.szyszkodar.szyszkomapka.data.remote.body.PasswordChangeBody
+import okhttp3.MultipartBody
 
 // Request abstraction
 sealed interface ApiRequest {
@@ -32,5 +33,11 @@ sealed interface ApiRequest {
 
     data class GetImage(
         val id: String
+    ): ApiRequest
+
+    data class UploadImage(
+        val id: String,
+        val q: Int,
+        val file: MultipartBody.Part
     ): ApiRequest
 }

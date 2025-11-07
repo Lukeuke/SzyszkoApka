@@ -1,6 +1,11 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen.components
 
+import android.net.Uri
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -29,6 +34,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -38,6 +44,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +63,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.szyszkodar.szyszkomapka.data.SessionManager
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
@@ -72,6 +80,7 @@ fun AddBookpointBoxForm(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val state = viewModel.state.collectAsStateWithLifecycle()
 
     var bookpointName by remember { mutableStateOf(TextFieldValue("")) }
     var bookpointDescription by remember { mutableStateOf(TextFieldValue("")) }
@@ -419,6 +428,29 @@ fun AddBookpointBoxForm(
                 }
 
                 Spacer(Modifier.height(20.dp))
+
+                var imageChosen by remember { mutableStateOf(false) }
+                val launcher = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
+                    uri?.let { viewModel.saveImageAsMultipart(context, it) }
+                    Log.d("DEBUG", "AddBookpointBoxForm: $uri")
+                }
+
+                Button(
+                    onClick = {
+                        launcher.launch(PickVisualMediaRequest(PickVisualMedia.SingleMimeType("image/jpeg")))
+                        imageChosen = true
+                    }
+                ) {
+                    Text("Dodaj zdjęcie biblioteczki")
+                }
+
+                if (imageChosen) {
+                    if (state.value.imageToSend == null) {
+                        Text("Pomyślnie dodano zdjęcie")
+                    } else {
+                        Text("Wystąpił błąd podczas dodawania zdjęcia")
+                    }
+                }
 
                 OutlinedButton(
                     onClick = { onCheckClick() },

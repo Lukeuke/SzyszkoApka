@@ -1,11 +1,16 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PointF
+import android.net.Uri
 import android.util.Log
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import androidx.annotation.Px
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
@@ -54,6 +59,7 @@ import org.maplibre.android.style.sources.GeoJsonSource
 import org.maplibre.geojson.Feature
 import org.maplibre.geojson.FeatureCollection
 import org.maplibre.geojson.Point
+import java.net.URI
 import javax.inject.Inject
 
 @HiltViewModel
@@ -61,6 +67,7 @@ class MapScreenViewModel @Inject  constructor(
     private val bookpointsRepository: BookpointsRepository,
     private val localizationHandler: LocalizationHandler,
     private val userIdStore: UserIdStore,
+    private val app: Application,
     @ApplicationContext private val context: Context
 ): ViewModel() {
     private val _state = MutableStateFlow(MapScreenState())
@@ -410,7 +417,7 @@ class MapScreenViewModel @Inject  constructor(
 
     }
 
-    suspend fun addBookpoint(name: String, description: String, onSuccess: () -> Unit, onSError: (String) -> Unit){
+    suspend fun addBookpoint(name: String, description: String, onSuccess: (String) -> Unit, onSError: (String) -> Unit){
         val body = CreateBookpointBody(
             lat = _state.value.centerLatLng.latitude.toFloat(),
             lon = _state.value.centerLatLng.longitude.toFloat(),
@@ -418,10 +425,54 @@ class MapScreenViewModel @Inject  constructor(
             description = description
         )
 
-        when(val response = bookpointsRepository.createBookpoint(body)) {
-            is Result.Success -> onSuccess()
+        val response = bookpointsRepository.createBookpoint(body)
+
+        when(response) {
+            is Result.Success -> {
+                Log.d("DEBUG", _state.value.imageToSend.toString())
+                Log.d("DEBUG", "locarion XDDDD" + response.data.headers()["Location"].toString())
+
+                if (_state.value.imageToSend != null) {
+                    val sendImageResponse = bookpointsRepository.uploadImage(
+                        id = response.data.headers()["Location"]?.removePrefix("/book-points/") ?: "",
+                        file = _state.value.imageToSend!!
+                    )
+
+                    when(sendImageResponse) {
+                        is Result.Error -> onSError(sendImageResponse.error.message)
+                        is Result.Success-> {}
+                    }
+                }
+                onSuccess(response.data.headers()["Location"] ?: "")
+            }
             is Result.Error -> onSError(response.error.message)
         }
     }
 
+    fun saveImageAsMultipart(context: Context, uri: Uri) {
+        val type = context.contentResolver.getType(uri)
+        Log.d("DEBUG", "saveImageAsMultipart: $type")
+        when(type) {
+            "image/jpeg" -> {
+                val image = uriToMultipart(uri)
+                Log.d("DEBUG", "Image: $image")
+                 _state.update { it.copy(imageToSend = image) }
+            }
+            else -> return
+        }
+    }
+
+    private fun uriToMultipart(uri: Uri): MultipartBody.Part? {
+        val contentResolver = app.contentResolver
+        val inputStream = contentResolver.openInputStream(uri) ?: return null
+        val fileBytes = inputStream.readBytes()
+        inputStream.close()
+
+        val requestBody = fileBytes.toRequestBody("image/*".toMediaTypeOrNull())
+        return MultipartBody.Part.createFormData(
+            name = "file",
+            filename = "upload.jpg",
+            body = requestBody
+        )
+    }
 }

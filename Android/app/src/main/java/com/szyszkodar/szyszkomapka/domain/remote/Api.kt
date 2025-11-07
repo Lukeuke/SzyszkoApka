@@ -16,6 +16,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 import retrofit2.http.QueryMap
 
 // Interface used by Retrofit to create api requests
@@ -48,7 +49,7 @@ interface Api {
     @POST("book-points")
     suspend fun createBookpoint(
         @Body createBookpointBody: CreateBookpointBody
-    )
+    ): Response<Unit>
 
     @GET("images/{id}")
     suspend fun getImage(
@@ -59,6 +60,8 @@ interface Api {
     @Multipart
     @POST("images")
     suspend fun sendImage(
+        @Query("q") q: Int,
+        @Query("id") id: String,
         @Part file: MultipartBody.Part
     )
 }

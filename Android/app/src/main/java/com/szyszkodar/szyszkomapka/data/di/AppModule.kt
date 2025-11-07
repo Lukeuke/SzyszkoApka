@@ -1,9 +1,11 @@
 package com.szyszkodar.szyszkomapka.data.di
 
+import android.app.Application
 import android.content.Context
 import android.util.Log
 import com.google.gson.GsonBuilder
 import com.szyszkodar.szyszkomapka.BuildConfig
+import com.szyszkodar.szyszkomapka.SzyszkoMapkaApplication
 import com.szyszkodar.szyszkomapka.data.SessionManager
 import com.szyszkodar.szyszkomapka.data.keystore.UserIdStore
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
