@@ -1,7 +1,6 @@
 package com.szyszkodar.szyszkomapka.data
 
 import kotlinx.coroutines.flow.MutableStateFlow
-import okhttp3.internal.userAgent
 
 object SessionManager {
     private val token = MutableStateFlow<String?>(null)

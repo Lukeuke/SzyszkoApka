@@ -1,11 +1,15 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PointF
-import android.util.Log
+import android.net.Uri
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import androidx.annotation.Px
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
@@ -18,6 +22,7 @@ import com.szyszkodar.szyszkomapka.data.keystore.UserIdStore
 import com.szyszkodar.szyszkomapka.data.mappers.BookpointsMapper
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
 import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
+import com.szyszkodar.szyszkomapka.data.remote.body.EditBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.filter.BookpointsFilter
 import com.szyszkodar.szyszkomapka.data.remote.query.GetBookpointsQuery
 import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
@@ -61,6 +66,7 @@ class MapScreenViewModel @Inject  constructor(
     private val bookpointsRepository: BookpointsRepository,
     private val localizationHandler: LocalizationHandler,
     private val userIdStore: UserIdStore,
+    private val app: Application,
     @ApplicationContext private val context: Context
 ): ViewModel() {
     private val _state = MutableStateFlow(MapScreenState())
@@ -73,8 +79,8 @@ class MapScreenViewModel @Inject  constructor(
     init {
         viewModelScope.launch {
             getUserLocation()
-            val bookpoints = fetchBookpoints(query = GetBookpointsQuery(filters = listOf(BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, true))))
-            bookpoints?.let { _state.update { it.copy(bookpoints = bookpoints) } }
+            val query = GetBookpointsQuery(filters = listOf(BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, true)), pageSize = 50)
+            fetchBookpoints(query){ bookpoints ->  _state.update { it.copy(bookpoints = bookpoints) } }
 
             val userId = SessionManager.getUserId { userIdStore.getOrCreateUserId() }
             val userBookpoints = fetchBookpoints(query = GetBookpointsQuery(filters = listOf(
@@ -118,6 +124,31 @@ class MapScreenViewModel @Inject  constructor(
         }
 
         return bookpoints
+    }
+
+    private suspend fun fetchBookpoints(query: GetBookpointsQuery, updateStateAction: (List<BookpointUI>) -> Unit) {
+        val bookpointsMapper = BookpointsMapper()
+        var total: Int? = null
+        var fetched = 0
+        var page = 1
+
+        while (fetched!=total) {
+            when(val response = bookpointsRepository.getBookpoints(query.copy(page = page))) {
+                is Result.Success -> {
+                    if(total == null) total = response.data.total
+
+                    response.data.data.map { el ->
+                        fetched++
+                        bookpointsMapper.convert(el)
+                    }.also { updateStateAction(it) }
+
+                    page++
+                }
+                is Result.Error -> {
+                    _state.update { it.copy(errorMessage = response.error.message) }
+                }
+            }
+        }
     }
 
     fun updateMap(mapView: MapView){
@@ -291,6 +322,7 @@ class MapScreenViewModel @Inject  constructor(
                 // Get bookpoint data
                 val data = clickedFeature.getStringProperty("data")
                 val bookpoint = Gson().fromJson(data, BookpointUI::class.java)
+                val userBookpoint = _state.value.userUnapprovedBookpoints.contains(bookpoint)
 
                 if (geometry is Point) {
                     val markerLatLng = LatLng(geometry.latitude(), geometry.longitude())
@@ -385,7 +417,11 @@ class MapScreenViewModel @Inject  constructor(
 
     }
 
-    suspend fun addBookpoint(name: String, description: String, onSuccess: () -> Unit, onSError: (String) -> Unit){
+    fun setImageIsAdding(value: Boolean) {
+        _state.update { it.copy(bookpointIsAdding = value) }
+    }
+
+    suspend fun addBookpoint(name: String, description: String, onSuccess: (String) -> Unit, onError: (String) -> Unit){
         val body = CreateBookpointBody(
             lat = _state.value.centerLatLng.latitude.toFloat(),
             lon = _state.value.centerLatLng.longitude.toFloat(),
@@ -393,10 +429,74 @@ class MapScreenViewModel @Inject  constructor(
             description = description
         )
 
-        when(val response = bookpointsRepository.createBookpoint(body)) {
-            is Result.Success -> onSuccess()
-            is Result.Error -> onSError(response.error.message)
+        val response = bookpointsRepository.createBookpoint(body)
+
+        when(response) {
+            is Result.Success -> {
+                if (_state.value.imageToSend != null) {
+                    val sendImageResponse = bookpointsRepository.uploadImage(
+                        id = response.data.headers()["Location"]?.removePrefix("/book-points/") ?: "",
+                        file = _state.value.imageToSend!!
+                    )
+
+                    when(sendImageResponse) {
+                        is Result.Error -> onError("Nie udało się dodać zdjęcia")
+                        is Result.Success-> { setImageToSendNull() }
+                    }
+                }
+                onSuccess(response.data.headers()["Location"] ?: "")
+            }
+            is Result.Error -> onError(response.error.message)
         }
     }
 
+    fun saveImageAsMultipart(context: Context, uri: Uri) {
+        val type = context.contentResolver.getType(uri)
+        when(type) {
+            "image/jpeg" -> {
+                val image = uriToMultipart(uri)
+                 _state.update { it.copy(imageToSend = image) }
+            }
+            else -> {
+                _state.update { it.copy(errorMessage = "Zły format pliku") }
+                return
+            }
+        }
+    }
+
+    fun setImageToSendNull() {
+        _state.update { it.copy(imageToSend = null) }
+    }
+
+    private fun uriToMultipart(uri: Uri): MultipartBody.Part? {
+        val contentResolver = app.contentResolver
+        val inputStream = contentResolver.openInputStream(uri) ?: return null
+        val fileBytes = inputStream.readBytes()
+        inputStream.close()
+
+        val requestBody = fileBytes.toRequestBody("image/*".toMediaTypeOrNull())
+        return MultipartBody.Part.createFormData(
+            name = "file",
+            filename = "upload.jpg",
+            body = requestBody
+        )
+    }
+
+    fun setBookpointToEdit(bookpointUI: BookpointUI?) {
+        _state.update { it.copy(bookpointToEdit = bookpointUI) }
+    }
+
+    fun editBookpoint(
+        id: String,
+        bookpoint: EditBookpointBody,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            val response = bookpointsRepository.editBookpoint(id = id, body = bookpoint)
+            when(response) {
+                is Result.Success -> onSuccess()
+                is Result.Error -> { _state.update { it.copy(errorMessage = response.error.message) }}
+            }
+        }
+    }
 }

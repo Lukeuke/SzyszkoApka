@@ -1,5 +1,6 @@
 package com.szyszkodar.szyszkomapka.domain.repository
 
+import android.util.Log
 import com.szyszkodar.szyszkomapka.data.remote.MakeApiCall
 import com.szyszkodar.szyszkomapka.domain.errorHandling.NetworkError
 import com.szyszkodar.szyszkomapka.domain.errorHandling.Result
@@ -35,6 +36,7 @@ abstract class Repository(
         } catch(e: UnknownHostException) {
             Result.Error(NetworkError.NO_CONNECTION)
         } catch(e: Throwable) {
+            Log.d("KOŃ", "returnRequestResult: $e")
             Result.Error(NetworkError.UNKNOWN)
         }
     }

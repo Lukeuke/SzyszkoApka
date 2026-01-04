@@ -1,6 +1,9 @@
 package com.szyszkodar.szyszkomapka.presentation.administratorScreen
 
 
+import android.app.Application
+import android.content.Context
+import android.net.Uri
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +11,7 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
 import com.szyszkodar.szyszkomapka.data.mappers.BookpointsMapper
+import com.szyszkodar.szyszkomapka.data.remote.body.EditBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.paging.ResponsePager
 import com.szyszkodar.szyszkomapka.data.remote.query.GetBookpointsQuery
 import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
@@ -20,10 +24,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 @HiltViewModel
 class AdministratorScreenViewModel @Inject constructor(
+    private val app: Application,
     private val bookpointsRepository: BookpointsRepository
 ): ViewModel() {
     private val _state = MutableStateFlow(AdministratorScreenState())
@@ -79,6 +87,10 @@ class AdministratorScreenViewModel @Inject constructor(
         }
     }
 
+    fun editBookpoint(visible: Boolean, bookpoint: BookpointUI?) {
+        _state.update { it.copy(editBookpointFormVisible = visible, chosenBookpoint = bookpoint) }
+    }
+
     fun acceptBookpoint(bookpoint: BookpointUI) {
         setIsLoading(true)
 
@@ -113,6 +125,54 @@ class AdministratorScreenViewModel @Inject constructor(
 
     fun updateSearchValue(newValue: TextFieldValue) {
         _state.update { it.copy(searchValue = newValue) }
+    }
+
+    private fun uriToMultipart(uri: Uri): MultipartBody.Part? {
+        val contentResolver = app.contentResolver
+        val inputStream = contentResolver.openInputStream(uri) ?: return null
+        val fileBytes = inputStream.readBytes()
+        inputStream.close()
+
+        val requestBody = fileBytes.toRequestBody("image/*".toMediaTypeOrNull())
+        return MultipartBody.Part.createFormData(
+            name = "file",
+            filename = "upload.jpg",
+            body = requestBody
+        )
+    }
+
+    fun setImageToSendNull() {
+        _state.update { it.copy(imageToSend = null) }
+    }
+
+    fun editBookpoint(
+        id: String,
+        bookpoint: EditBookpointBody,
+        onSuccess: () -> Unit
+    ) {
+        _state.update { it.copy(bookpointIsAdding = true) }
+        viewModelScope.launch {
+            val response = bookpointsRepository.editBookpoint(id = id, body = bookpoint)
+            when(response) {
+                is Result.Success -> onSuccess()
+                is Result.Error -> { _state.update { it.copy(errorMessage = response.error.message) }}
+            }
+            _state.update { it.copy(bookpointIsAdding = false) }
+        }
+    }
+
+    fun saveImageAsMultipart(context: Context, uri: Uri) {
+        val type = context.contentResolver.getType(uri)
+        when(type) {
+            "image/jpeg" -> {
+                val image = uriToMultipart(uri)
+                _state.update { it.copy(imageToSend = image) }
+            }
+            else -> {
+                _state.update { it.copy(errorMessage = "Zły format pliku") }
+                return
+            }
+        }
     }
 
     private fun setToastMessage(message: String) {

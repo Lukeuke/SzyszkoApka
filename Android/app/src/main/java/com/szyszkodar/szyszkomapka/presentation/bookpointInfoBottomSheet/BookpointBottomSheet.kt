@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -21,7 +22,15 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,6 +42,8 @@ import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.data.intentsHandling.GoogleMapsOpener
 import com.szyszkodar.szyszkomapka.data.uiClasses.BookpointUI
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.components.SheetActionButton
+import com.szyszkodar.szyszkomapka.presentation.shared.HyperlinkedText
+import kotlinx.coroutines.launch
 import org.maplibre.android.geometry.LatLng
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,15 +52,18 @@ fun BookpointBottomSheet(
     bookpoint: BookpointUI,
     currentMode: AppMode,
     onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    showEditFormFunction: (BookpointUI) -> Unit,
     refreshMapFunction: () -> Unit = {},
-    bearerToken: String ?= null,
-    modifier: Modifier = Modifier
+    userBookpoint: Boolean = false,
+    bearerToken: String ?= null
 ) {
     val viewModel = hiltViewModel<BookpointInfoBottomSheetViewModel>()
     val state = viewModel.state.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     val bottomSheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
 
     ModalBottomSheet(
         onDismissRequest = {
@@ -87,7 +101,7 @@ fun BookpointBottomSheet(
 
                 Spacer(Modifier.height(20.dp))
 
-                Text(
+                HyperlinkedText(
                     text = bookpoint.description,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.primary,
@@ -124,6 +138,43 @@ fun BookpointBottomSheet(
                     )
                 }
 
+                if (currentMode == AppMode.ADMIN || userBookpoint) {
+                    Spacer(Modifier.height(10.dp))
+
+                    SheetActionButton(
+                        name = "Edytuj",
+                        buttonIcon = Icons.Default.Create,
+                        onClick = {
+                            scope.launch {
+                                bottomSheetState.hide()
+                                onDismissRequest()
+                                showEditFormFunction(bookpoint)
+                            }
+                        }
+                    )
+                }
+
+                if (bookpoint.images != null) {
+                    Spacer(Modifier.height(20.dp))
+
+                    if (state.value.isImageLoading) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+                            CircularProgressIndicator()
+                        }
+                    } else {
+                        state.value.imageBitmap?.let {
+                            Image(
+                                bitmap = it.asImageBitmap(),
+                                contentDescription = bookpoint.title,
+                                contentScale = ContentScale.FillWidth,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(16.dp))
+                            )
+                        }
+                    }
+                }
+
                 Spacer(Modifier.height(60.dp))
             }
         }
@@ -134,5 +185,9 @@ fun BookpointBottomSheet(
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             viewModel.setToastMessage()
         }
+    }
+
+    LaunchedEffect(bookpoint.id) {
+        bookpoint.images?.let { if (it.isNotEmpty()) viewModel.fetchImage(it[0]) }
     }
 }

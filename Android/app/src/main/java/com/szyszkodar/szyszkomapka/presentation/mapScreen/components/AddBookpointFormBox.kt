@@ -1,6 +1,10 @@
 package com.szyszkodar.szyszkomapka.presentation.mapScreen.components
 
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -29,6 +33,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -46,9 +51,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -56,10 +64,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.szyszkodar.szyszkomapka.data.SessionManager
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
 import com.szyszkodar.szyszkomapka.presentation.shared.animations.shakeErrorAnimation
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapView
@@ -72,6 +82,7 @@ fun AddBookpointBoxForm(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val state = viewModel.state.collectAsStateWithLifecycle()
 
     var bookpointName by remember { mutableStateOf(TextFieldValue("")) }
     var bookpointDescription by remember { mutableStateOf(TextFieldValue("")) }
@@ -88,6 +99,9 @@ fun AddBookpointBoxForm(
     val latTextBoxOffset = remember { Animatable(0f) }
     val lonTextBoxOffset = remember { Animatable(0f) }
     val errorMessageOffset = remember { Animatable(0f) }
+
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
 
     var errorMessage: String? by remember { mutableStateOf(null) }
 
@@ -139,6 +153,7 @@ fun AddBookpointBoxForm(
                 sendButtonEnabled = true
             } else {
                 coroutineScope.launch {
+                    viewModel.setImageIsAdding(true)
                     viewModel.addBookpoint(
                         name = bookpointName.text,
                         description = bookpointDescription.text,
@@ -147,10 +162,11 @@ fun AddBookpointBoxForm(
                             bookpointName = TextFieldValue("")
                             bookpointDescription = TextFieldValue("")
                         },
-                        onSError = { errorMessage ->
+                        onError = { errorMessage ->
                             Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                         }
                     )
+                    viewModel.setImageIsAdding(false)
                     sendButtonEnabled = true
                 }
             }
@@ -227,6 +243,7 @@ fun AddBookpointBoxForm(
             ) {
                 TextField(
                     value = bookpointName,
+                    enabled = !state.value.bookpointIsAdding,
                     singleLine = true,
                     placeholder = { Text(
                         text = "Nazwa biblioteczki"
@@ -242,8 +259,10 @@ fun AddBookpointBoxForm(
                     onValueChange = {
                         bookpointName = it
                     },
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
-                    keyboardActions = KeyboardActions(onGo = { ongoClick() }),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(
+                        onNext = { focusRequester.requestFocus() }
+                    ),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .padding(horizontal = 20.dp)
@@ -252,6 +271,7 @@ fun AddBookpointBoxForm(
                 )
                 TextField(
                     value = bookpointDescription,
+                    enabled = !state.value.bookpointIsAdding,
                     singleLine = false,
                     maxLines = 5,
                     placeholder = { Text(
@@ -269,12 +289,18 @@ fun AddBookpointBoxForm(
                         bookpointDescription = it
                     },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
-                    keyboardActions = KeyboardActions(onGo = { ongoClick() }),
+                    keyboardActions = KeyboardActions(
+                        onGo = {
+                            focusManager.clearFocus()
+                            ongoClick()
+                        }
+                    ),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .padding(horizontal = 20.dp)
                         .padding(top = 20.dp)
                         .offset(x = descriptionBoxOffset.value.dp)
+                        .focusRequester(focusRequester)
                 )
             }
 
@@ -311,7 +337,9 @@ fun AddBookpointBoxForm(
                     .padding(horizontal = 30.dp, vertical = 5.dp)
                     .align(Alignment.Start)
                     .pointerInput(Unit) {
-                        isExpanded = true
+                        if(!state.value.bookpointIsAdding) {
+                            isExpanded = true
+                        }
                     }
             )
         }
@@ -419,6 +447,34 @@ fun AddBookpointBoxForm(
                 }
 
                 Spacer(Modifier.height(20.dp))
+
+                var imageChosen by remember { mutableStateOf(false) }
+                val launcher = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
+                    uri?.let { viewModel.saveImageAsMultipart(context, it) }
+                }
+
+                Button(
+                    onClick = {
+                        viewModel.setImageToSendNull()
+                        launcher.launch(PickVisualMediaRequest(PickVisualMedia.SingleMimeType("image/jpeg")))
+                        imageChosen = true
+                    },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                ) {
+                    Text(
+                        text = "Dodaj zdjęcie biblioteczki",
+                        color = MaterialTheme.colorScheme.background
+                    )
+                }
+
+                if (imageChosen) {
+                    if (state.value.imageToSend != null) {
+                        Text("Pomyślnie dodano zdjęcie")
+                    } else {
+                        Text("Wystąpił błąd podczas dodawania zdjęcia")
+                    }
+                }
 
                 OutlinedButton(
                     onClick = { onCheckClick() },

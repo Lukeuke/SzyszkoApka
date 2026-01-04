@@ -15,6 +15,9 @@ class MakeApiCall(private val api: Api) {
             is ApiRequest.ApproveBookpoints -> api.approveBookpoint(id = request.id)
             is ApiRequest.PasswordChange -> api.passwordChange(passwordChangeBody = request.body)
             is ApiRequest.CreateBookpoint -> api.createBookpoint(createBookpointBody = request.createBookpointBody)
+            is ApiRequest.EditBookpoint -> api.editBookpoint(id = request.id, editBookpointBody = request.editBookpointBody)
+            is ApiRequest.GetImage -> api.getImage(id = request.id)
+            is ApiRequest.UploadImage -> api.sendImage(id = request.id, file = request.file, q = request.q)
         } as T
     }
 }

@@ -2,6 +2,7 @@ package com.szyszkodar.szyszkomapka.presentation.mapScreen
 
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.data.uiClasses.BookpointUI
+import okhttp3.MultipartBody
 import org.maplibre.android.geometry.LatLng
 
 data class MapScreenState(
@@ -13,5 +14,8 @@ data class MapScreenState(
     val appMode: AppMode = AppMode.DEFAULT,
     val centerLatLng: LatLng = LatLng(0.0,0.0),
     val userLocation: LatLng? = null,
-    val chosenBookpoint: BookpointUI? = null
+    val chosenBookpoint: BookpointUI? = null,
+    val imageToSend: MultipartBody.Part? = null,
+    val bookpointIsAdding: Boolean = false,
+    val bookpointToEdit: BookpointUI? = null
 )

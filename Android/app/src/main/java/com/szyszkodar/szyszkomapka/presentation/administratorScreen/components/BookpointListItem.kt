@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +39,7 @@ import org.maplibre.android.geometry.LatLng
 fun BookpointListItem(
     bookpointUI: BookpointUI,
     deleteBookpointFunction: () -> Unit,
+    editBookpointFunction: () -> Unit,
     localizeBookpointFunction: (LatLng) -> Unit,
     acceptBookpoint: () -> Unit,
     modifier: Modifier = Modifier
@@ -127,6 +129,16 @@ fun BookpointListItem(
                                 tint = themeColor
                             )
                         }
+                    }
+
+                    IconButton(
+                        onClick = editBookpointFunction
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null,
+                            tint = themeColor
+                        )
                     }
 
                     IconButton(

@@ -96,4 +96,6 @@ dependencies {
     implementation(libs.androidx.paging.runtime)
     testImplementation(kotlin("test"))
     implementation(libs.androidx.security.crypto)
+    implementation(libs.logging.interceptor)
+
 }

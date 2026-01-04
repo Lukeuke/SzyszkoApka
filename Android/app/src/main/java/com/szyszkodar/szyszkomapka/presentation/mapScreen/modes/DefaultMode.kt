@@ -46,6 +46,7 @@ import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.BookpointBottomSheet
 import com.szyszkodar.szyszkomapka.presentation.logInForm.LogInForm
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
+import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.EditBookpointForm
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.FloatingButtonSettings
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.FloatingButtonsColumn
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.TopBar
@@ -185,6 +186,8 @@ fun DefaultMode(
                 BookpointBottomSheet(
                     bookpoint = it,
                     currentMode = AppMode.DEFAULT,
+                    userBookpoint = !it.approved,
+                    showEditFormFunction = viewModel::setBookpointToEdit,
                     onDismissRequest = {
                     viewModel.toggleBookpointVisibility()
                 })
@@ -192,8 +195,7 @@ fun DefaultMode(
         }
 
         TopBar(
-            text = "SzyszkoMapka",
-            modifier = Modifier
+            text = "SzyszkoMapka"
         )
 
         AnimatedVisibility(
@@ -210,6 +212,23 @@ fun DefaultMode(
                     Toast.makeText(context, "Pomyślnie zalogowano", Toast.LENGTH_SHORT).show()
                 }
             )
+        }
+
+        AnimatedVisibility(
+            visible = state.value.bookpointToEdit != null,
+            enter = slideInHorizontally { it  },
+            exit = slideOutHorizontally { -it  }
+        ) {
+            state.value.bookpointToEdit?.let {
+                EditBookpointForm(
+                    exit = { viewModel.setBookpointToEdit(null) },
+                    buttonsEnabled = !state.value.bookpointIsAdding,
+                    bookpoint = it,
+                    editBookpoint = viewModel::editBookpoint,
+                    setImageToSendNull = viewModel::setImageToSendNull,
+                    saveImageAsMultipart = viewModel::saveImageAsMultipart
+                )
+            }
         }
     }
 }

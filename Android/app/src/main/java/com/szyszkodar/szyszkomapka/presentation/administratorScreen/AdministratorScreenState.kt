@@ -5,6 +5,7 @@ import androidx.paging.PagingData
 import com.szyszkodar.szyszkomapka.data.uiClasses.BookpointUI
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import okhttp3.MultipartBody
 
 data class AdministratorScreenState(
     val isLoading: Boolean = false,
@@ -12,5 +13,9 @@ data class AdministratorScreenState(
     val visibleBookPoints: Flow<PagingData<BookpointUI>> = flowOf(PagingData.empty()),
     val searchValue: TextFieldValue = TextFieldValue(""),
     val errorMessage: String? = null,
-    val toastMessage: String? = null
+    val toastMessage: String? = null,
+    val editBookpointFormVisible: Boolean = false,
+    val chosenBookpoint: BookpointUI? = null,
+    val imageToSend: MultipartBody.Part? = null,
+    val bookpointIsAdding: Boolean = false
 )

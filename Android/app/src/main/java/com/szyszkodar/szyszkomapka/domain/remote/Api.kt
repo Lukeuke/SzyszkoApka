@@ -1,18 +1,24 @@
 package com.szyszkodar.szyszkomapka.domain.remote
 
 import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
+import com.szyszkodar.szyszkomapka.data.remote.body.EditBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.body.IdentityBody
 import com.szyszkodar.szyszkomapka.data.remote.body.PasswordChangeBody
 import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponse
 import com.szyszkodar.szyszkomapka.data.remote.response.IdentityResponse
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 import retrofit2.http.QueryMap
 
 // Interface used by Retrofit to create api requests
@@ -45,16 +51,25 @@ interface Api {
     @POST("book-points")
     suspend fun createBookpoint(
         @Body createBookpointBody: CreateBookpointBody
-    )
+    ): Response<Unit>
+
+    @PUT("book-points/{id}")
+    suspend fun editBookpoint(
+        @Path("id") id: String,
+        @Body editBookpointBody: EditBookpointBody
+    ): Response<Unit>
 
     @GET("images/{id}")
     suspend fun getImage(
-        @Path("id") id: String
-    )
+        @Path("id") id: String,
+        @Header("Accept") accept: String = "application/json, image/,/*"
+    ): Response<ResponseBody>
 
     @Multipart
     @POST("images")
     suspend fun sendImage(
+        @Query("q") q: Int,
+        @Query("id") id: String,
         @Part file: MultipartBody.Part
     )
 }

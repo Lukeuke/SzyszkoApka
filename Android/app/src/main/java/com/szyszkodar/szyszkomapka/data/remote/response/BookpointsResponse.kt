@@ -13,7 +13,8 @@ data class BookpointResponseElement(
     @SerializedName("updated_at") val updatedAt: String,
     val title: String,
     val description: String,
-    val approved: Boolean
+    val approved: Boolean,
+    val images: List<String>?
 ): ResponseElement
 
 data class BookpointsResponse(

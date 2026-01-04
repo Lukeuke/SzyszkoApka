@@ -1,6 +1,7 @@
 package com.szyszkodar.szyszkomapka.data.repository
 
 import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
+import com.szyszkodar.szyszkomapka.data.remote.body.EditBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.query.GetBookpointsQuery
 import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponse
 import com.szyszkodar.szyszkomapka.domain.errorHandling.NetworkError
@@ -8,6 +9,9 @@ import com.szyszkodar.szyszkomapka.domain.errorHandling.Result
 import com.szyszkodar.szyszkomapka.domain.remote.Api
 import com.szyszkodar.szyszkomapka.domain.remote.ApiRequest
 import com.szyszkodar.szyszkomapka.domain.repository.Repository
+import okhttp3.MultipartBody
+import okhttp3.ResponseBody
+import retrofit2.Response
 import javax.inject.Inject
 
 // Bookpoints repository - use it to make call for bookpoints related requests
@@ -28,13 +32,34 @@ class BookpointsRepository @Inject constructor(
 
     suspend fun createBookpoint(
         body: CreateBookpointBody
-    ): Result<Unit, NetworkError> {
+    ): Result<Response<Unit>, NetworkError> {
         return request(ApiRequest.CreateBookpoint(body))
+    }
+
+    suspend fun editBookpoint(
+        id: String,
+        body: EditBookpointBody
+    ): Result<Response<Unit>, NetworkError> {
+        return request(ApiRequest.EditBookpoint(id, body))
     }
 
     suspend fun approveBookpoint(
         id: String,
     ): Result<Unit, NetworkError> {
         return request(ApiRequest.ApproveBookpoints(id = id))
+    }
+
+    suspend fun getImageById(
+        id: String
+    ): Result<Response<ResponseBody>, NetworkError> {
+        return request(ApiRequest.GetImage(id = id))
+    }
+
+    suspend fun uploadImage(
+        id: String,
+        q: Int = 70,
+        file: MultipartBody.Part
+    ): Result<Unit, NetworkError> {
+        return request(ApiRequest.UploadImage(id, q, file))
     }
 }
