@@ -1,6 +1,7 @@
 package com.szyszkodar.szyszkomapka.data.repository
 
 import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
+import com.szyszkodar.szyszkomapka.data.remote.body.EditBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.query.GetBookpointsQuery
 import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponse
 import com.szyszkodar.szyszkomapka.domain.errorHandling.NetworkError
@@ -33,6 +34,13 @@ class BookpointsRepository @Inject constructor(
         body: CreateBookpointBody
     ): Result<Response<Unit>, NetworkError> {
         return request(ApiRequest.CreateBookpoint(body))
+    }
+
+    suspend fun editBookpoint(
+        id: String,
+        body: EditBookpointBody
+    ): Result<Response<Unit>, NetworkError> {
+        return request(ApiRequest.EditBookpoint(id, body))
     }
 
     suspend fun approveBookpoint(

@@ -2,6 +2,8 @@ package com.szyszkodar.szyszkomapka.presentation.mapScreen
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -18,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
+import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.EditBookpointForm
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.MapLibreView
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.modes.AddBookpointMode
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.modes.AdminMode
@@ -115,7 +118,6 @@ fun MapScreen(
             }
 
         }
-
     }
 
     // Show error message on error

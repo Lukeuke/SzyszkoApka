@@ -51,9 +51,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -96,6 +99,9 @@ fun AddBookpointBoxForm(
     val latTextBoxOffset = remember { Animatable(0f) }
     val lonTextBoxOffset = remember { Animatable(0f) }
     val errorMessageOffset = remember { Animatable(0f) }
+
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
 
     var errorMessage: String? by remember { mutableStateOf(null) }
 
@@ -253,8 +259,10 @@ fun AddBookpointBoxForm(
                     onValueChange = {
                         bookpointName = it
                     },
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
-                    keyboardActions = KeyboardActions(onGo = { ongoClick() }),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(
+                        onNext = { focusRequester.requestFocus() }
+                    ),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .padding(horizontal = 20.dp)
@@ -281,12 +289,18 @@ fun AddBookpointBoxForm(
                         bookpointDescription = it
                     },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
-                    keyboardActions = KeyboardActions(onGo = { ongoClick() }),
+                    keyboardActions = KeyboardActions(
+                        onGo = {
+                            focusManager.clearFocus()
+                            ongoClick()
+                        }
+                    ),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .padding(horizontal = 20.dp)
                         .padding(top = 20.dp)
                         .offset(x = descriptionBoxOffset.value.dp)
+                        .focusRequester(focusRequester)
                 )
             }
 
@@ -437,7 +451,6 @@ fun AddBookpointBoxForm(
                 var imageChosen by remember { mutableStateOf(false) }
                 val launcher = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
                     uri?.let { viewModel.saveImageAsMultipart(context, it) }
-                    Log.d("DEBUG", "AddBookpointBoxForm: $uri")
                 }
 
                 Button(

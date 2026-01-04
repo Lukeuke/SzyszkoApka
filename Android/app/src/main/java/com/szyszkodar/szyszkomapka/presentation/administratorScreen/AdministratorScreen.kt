@@ -1,6 +1,7 @@
 package com.szyszkodar.szyszkomapka.presentation.administratorScreen
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -55,20 +56,53 @@ import com.szyszkodar.szyszkomapka.data.remote.query.GetBookpointsQuery
 import com.szyszkodar.szyszkomapka.domain.remote.filterParams.FieldParam
 import com.szyszkodar.szyszkomapka.domain.remote.filterParams.OperatorParam
 import com.szyszkodar.szyszkomapka.presentation.administratorScreen.components.BookpointListItem
+import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.EditBookpointForm
 import com.szyszkodar.szyszkomapka.presentation.shared.icons.Filter
 import org.maplibre.android.geometry.LatLng
 
 @Composable
 fun AdministratorScreen(
     onExitClick: () ->Unit,
+    localizeBookpointFunction: (LatLng) -> Unit
+) {
+    val viewModel: AdministratorScreenViewModel = hiltViewModel()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        AnimatedContent(
+            targetState = state.editBookpointFormVisible
+        ) {
+            if(it && state.chosenBookpoint != null) EditBookpointForm(
+                bookpoint = state.chosenBookpoint!!,
+                exit = { viewModel.editBookpoint(false, null) },
+                editBookpoint = viewModel::editBookpoint,
+                setImageToSendNull = viewModel::setImageToSendNull,
+                buttonsEnabled = !state.bookpointIsAdding,
+                saveImageAsMultipart = viewModel::saveImageAsMultipart
+            )
+            else AdministratorScreenContent(
+                onExitClick = onExitClick,
+                state = state,
+                localizeBookpointFunction = localizeBookpointFunction,
+                viewModel = viewModel
+            )
+        }
+    }
+}
+@Composable
+private fun AdministratorScreenContent(
+    viewModel: AdministratorScreenViewModel,
+    state: AdministratorScreenState,
+    onExitClick: () ->Unit,
     localizeBookpointFunction: (LatLng) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
 
-    val viewModel: AdministratorScreenViewModel = hiltViewModel()
-    val state = viewModel.state.collectAsStateWithLifecycle()
-    val pagingItems = state.value.bookPoints.collectAsLazyPagingItems()
+    val pagingItems = state.bookPoints.collectAsLazyPagingItems()
     var filtersVisible by remember { mutableStateOf(false) }
 
     Box(
@@ -120,7 +154,7 @@ fun AdministratorScreen(
                     )
             ){
                 TextField(
-                    value = state.value.searchValue,
+                    value = state.searchValue,
                     onValueChange = {
                         viewModel.updateSearchValue(it)
                         if(acceptedEnabled && waitingEnabled) {
@@ -185,15 +219,15 @@ fun AdministratorScreen(
                                     acceptedEnabled = !acceptedEnabled
 
                                     if(acceptedEnabled && waitingEnabled) {
-                                        viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.value.searchValue.text}%"))))
+                                        viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.searchValue.text}%"))))
                                     } else if(acceptedEnabled) {
                                         viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(
-                                            BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.value.searchValue.text}%"),
+                                            BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.searchValue.text}%"),
                                             BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, true)
                                         )))
                                     } else if (waitingEnabled) {
                                         viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(
-                                            BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.value.searchValue.text}%"),
+                                            BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.searchValue.text}%"),
                                             BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, false)
                                         )))
                                     }
@@ -222,15 +256,15 @@ fun AdministratorScreen(
                                     waitingEnabled = !waitingEnabled
 
                                     if(acceptedEnabled && waitingEnabled) {
-                                        viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.value.searchValue.text}%"))))
+                                        viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.searchValue.text}%"))))
                                     } else if(acceptedEnabled) {
                                         viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(
-                                            BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.value.searchValue.text}%"),
+                                            BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.searchValue.text}%"),
                                             BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, true)
                                         )))
                                     } else if (waitingEnabled) {
                                         viewModel.fetchBookpoints(GetBookpointsQuery(filters = listOf(
-                                            BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.value.searchValue.text}%"),
+                                            BookpointsFilter(FieldParam.TITLE, OperatorParam.ILIKE, "%${state.searchValue.text}%"),
                                             BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, false)
                                         )))
                                     }
@@ -258,7 +292,7 @@ fun AdministratorScreen(
                     }
                 }
             }
-        if (state.value.isLoading) {
+        if (state.isLoading) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
@@ -273,17 +307,18 @@ fun AdministratorScreen(
                     items(pagingItems.itemCount) { index ->
                         val bookpoint = pagingItems[index]
 
-                        if (bookpoint != null && bookpoint.title.lowercase().contains(state.value.searchValue.text.lowercase())) {
+                        if (bookpoint != null && bookpoint.title.lowercase().contains(state.searchValue.text.lowercase())) {
                             BookpointListItem(
                                 bookpointUI = bookpoint,
                                 deleteBookpointFunction = {
-
                                     viewModel.deleteBookpoint(bookpoint)
-
                                 },
                                 localizeBookpointFunction = localizeBookpointFunction,
                                 acceptBookpoint = {
                                     viewModel.acceptBookpoint(bookpoint)
+                                },
+                                editBookpointFunction = {
+                                    viewModel.editBookpoint(true, bookpoint)
                                 }
                             )
                         }
@@ -318,7 +353,7 @@ fun AdministratorScreen(
         }
     }
 
-    state.value.toastMessage?.let {
+    state.toastMessage?.let {
         Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
         viewModel.setMessageNull()
     }

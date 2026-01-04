@@ -44,6 +44,7 @@ import com.szyszkodar.szyszkomapka.data.enums.AppMode
 import com.szyszkodar.szyszkomapka.presentation.administratorScreen.AdministratorScreen
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.BookpointBottomSheet
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
+import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.EditBookpointForm
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.FloatingButtonSettings
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.FloatingButtonsColumn
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.TopBar
@@ -191,6 +192,7 @@ fun AdminMode(
                     bookpoint = it,
                     refreshMapFunction = refreshMapFunction,
                     currentMode = AppMode.ADMIN,
+                    showEditFormFunction = viewModel::setBookpointToEdit,
                     onDismissRequest = {
                         viewModel.toggleBookpointVisibility()
                     }
@@ -215,6 +217,23 @@ fun AdminMode(
                     localizeBookpointFunction(latLng)
                 }
             )
+        }
+
+        AnimatedVisibility(
+            visible = state.value.bookpointToEdit != null,
+            enter = slideInHorizontally { it  },
+            exit = slideOutHorizontally { -it  }
+        ) {
+            state.value.bookpointToEdit?.let {
+                EditBookpointForm(
+                    exit = { viewModel.setBookpointToEdit(null) },
+                    bookpoint = it,
+                    buttonsEnabled = !state.value.bookpointIsAdding,
+                    editBookpoint = viewModel::editBookpoint,
+                    setImageToSendNull = viewModel::setImageToSendNull,
+                    saveImageAsMultipart = viewModel::saveImageAsMultipart
+                )
+            }
         }
 
     }

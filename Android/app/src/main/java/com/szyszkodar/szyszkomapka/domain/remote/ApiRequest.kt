@@ -1,6 +1,7 @@
 package com.szyszkodar.szyszkomapka.domain.remote
 
 import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
+import com.szyszkodar.szyszkomapka.data.remote.body.EditBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.body.IdentityBody
 import com.szyszkodar.szyszkomapka.data.remote.body.PasswordChangeBody
 import okhttp3.MultipartBody
@@ -29,6 +30,11 @@ sealed interface ApiRequest {
 
     data class CreateBookpoint(
         val createBookpointBody: CreateBookpointBody
+    ): ApiRequest
+
+    data class EditBookpoint(
+        val id: String,
+        val editBookpointBody: EditBookpointBody
     ): ApiRequest
 
     data class GetImage(

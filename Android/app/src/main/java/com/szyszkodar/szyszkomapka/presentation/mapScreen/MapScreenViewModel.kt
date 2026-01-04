@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PointF
 import android.net.Uri
-import android.util.Log
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -23,6 +22,7 @@ import com.szyszkodar.szyszkomapka.data.keystore.UserIdStore
 import com.szyszkodar.szyszkomapka.data.mappers.BookpointsMapper
 import com.szyszkodar.szyszkomapka.data.permissions.LocalizationHandler
 import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
+import com.szyszkodar.szyszkomapka.data.remote.body.EditBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.filter.BookpointsFilter
 import com.szyszkodar.szyszkomapka.data.remote.query.GetBookpointsQuery
 import com.szyszkodar.szyszkomapka.data.repository.BookpointsRepository
@@ -322,6 +322,7 @@ class MapScreenViewModel @Inject  constructor(
                 // Get bookpoint data
                 val data = clickedFeature.getStringProperty("data")
                 val bookpoint = Gson().fromJson(data, BookpointUI::class.java)
+                val userBookpoint = _state.value.userUnapprovedBookpoints.contains(bookpoint)
 
                 if (geometry is Point) {
                     val markerLatLng = LatLng(geometry.latitude(), geometry.longitude())
@@ -454,7 +455,6 @@ class MapScreenViewModel @Inject  constructor(
         when(type) {
             "image/jpeg" -> {
                 val image = uriToMultipart(uri)
-                Log.d("DEBUG", "Image: $image")
                  _state.update { it.copy(imageToSend = image) }
             }
             else -> {
@@ -480,5 +480,23 @@ class MapScreenViewModel @Inject  constructor(
             filename = "upload.jpg",
             body = requestBody
         )
+    }
+
+    fun setBookpointToEdit(bookpointUI: BookpointUI?) {
+        _state.update { it.copy(bookpointToEdit = bookpointUI) }
+    }
+
+    fun editBookpoint(
+        id: String,
+        bookpoint: EditBookpointBody,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            val response = bookpointsRepository.editBookpoint(id = id, body = bookpoint)
+            when(response) {
+                is Result.Success -> onSuccess()
+                is Result.Error -> { _state.update { it.copy(errorMessage = response.error.message) }}
+            }
+        }
     }
 }

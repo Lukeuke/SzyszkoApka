@@ -1,6 +1,7 @@
 package com.szyszkodar.szyszkomapka.domain.remote
 
 import com.szyszkodar.szyszkomapka.data.remote.body.CreateBookpointBody
+import com.szyszkodar.szyszkomapka.data.remote.body.EditBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.body.IdentityBody
 import com.szyszkodar.szyszkomapka.data.remote.body.PasswordChangeBody
 import com.szyszkodar.szyszkomapka.data.remote.response.BookpointsResponse
@@ -14,6 +15,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -49,6 +51,12 @@ interface Api {
     @POST("book-points")
     suspend fun createBookpoint(
         @Body createBookpointBody: CreateBookpointBody
+    ): Response<Unit>
+
+    @PUT("book-points/{id}")
+    suspend fun editBookpoint(
+        @Path("id") id: String,
+        @Body editBookpointBody: EditBookpointBody
     ): Response<Unit>
 
     @GET("images/{id}")

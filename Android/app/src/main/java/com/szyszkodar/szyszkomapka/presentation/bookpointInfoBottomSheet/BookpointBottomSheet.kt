@@ -25,6 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
@@ -41,6 +43,7 @@ import com.szyszkodar.szyszkomapka.data.intentsHandling.GoogleMapsOpener
 import com.szyszkodar.szyszkomapka.data.uiClasses.BookpointUI
 import com.szyszkodar.szyszkomapka.presentation.bookpointInfoBottomSheet.components.SheetActionButton
 import com.szyszkodar.szyszkomapka.presentation.shared.HyperlinkedText
+import kotlinx.coroutines.launch
 import org.maplibre.android.geometry.LatLng
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,7 +53,9 @@ fun BookpointBottomSheet(
     currentMode: AppMode,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
+    showEditFormFunction: (BookpointUI) -> Unit,
     refreshMapFunction: () -> Unit = {},
+    userBookpoint: Boolean = false,
     bearerToken: String ?= null
 ) {
     val viewModel = hiltViewModel<BookpointInfoBottomSheetViewModel>()
@@ -58,6 +63,7 @@ fun BookpointBottomSheet(
 
     val context = LocalContext.current
     val bottomSheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
 
     ModalBottomSheet(
         onDismissRequest = {
@@ -127,6 +133,22 @@ fun BookpointBottomSheet(
                                 viewModel.approveBookpoint(bookpoint, bearerToken) {
                                     refreshMapFunction()
                                 }
+                            }
+                        }
+                    )
+                }
+
+                if (currentMode == AppMode.ADMIN || userBookpoint) {
+                    Spacer(Modifier.height(10.dp))
+
+                    SheetActionButton(
+                        name = "Edytuj",
+                        buttonIcon = Icons.Default.Create,
+                        onClick = {
+                            scope.launch {
+                                bottomSheetState.hide()
+                                onDismissRequest()
+                                showEditFormFunction(bookpoint)
                             }
                         }
                     )
