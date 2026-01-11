@@ -49,8 +49,10 @@ func RegisterImage(group *gin.RouterGroup, uow *repository.UnitOfWork) {
 	image := group.Group("/images")
 
 	image.GET("/:id", middlewares.UnAuthorizedCache(), handler.getImage)
+	// access: (book_point != approved & created_by == user_id) or admin
 	image.POST("/", handler.uploadImage)
-	image.DELETE("/:id", middlewares.AuthMiddleware(uow), handler.deleteImage)
+	// access: (book_point != approved & created_by == user_id) or admin
+	image.DELETE("/:id", handler.deleteImage)
 }
 
 func (h *ImageHandler) getImage(c *gin.Context) {
@@ -106,6 +108,31 @@ func (h *ImageHandler) uploadImage(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No file is received"})
+		return
+	}
+
+	userID, ok := c.Request.Context().Value("user_id").(string)
+
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user_id header not found"})
+		return
+	}
+
+	bookPoint, err := h.uow.BookPointRepo.GetByID(c, bookPointId)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No bookpoint was found for this image"})
+		return
+	}
+
+	isAdmin := helpers.IsAuthorized(c)
+	isOwner := bookPoint.CreatedBy == userID
+	notApproved := !bookPoint.Approved
+
+	if !(isAdmin || (notApproved && isOwner)) {
+		c.JSON(http.StatusForbidden, gin.H{
+			"error": "You don't have permission to attach this image",
+		})
 		return
 	}
 
@@ -199,6 +226,31 @@ func (h *ImageHandler) uploadImage(c *gin.Context) {
 
 func (h *ImageHandler) deleteImage(c *gin.Context) {
 	objectKey := c.Param("id")
+
+	userID, ok := c.Request.Context().Value("user_id").(string)
+
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user_id header not found"})
+		return
+	}
+
+	bookPoint, err := h.uow.BookPointRepo.GetByImage(c, objectKey)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No bookpoint was found for this image"})
+		return
+	}
+
+	isAdmin := helpers.IsAuthorized(c)
+	isOwner := bookPoint.CreatedBy == userID
+	notApproved := !bookPoint.Approved
+
+	if !(isAdmin || (notApproved && isOwner)) {
+		c.JSON(http.StatusForbidden, gin.H{
+			"error": "You don't have permission to delete this image",
+		})
+		return
+	}
 
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion(r2Region),

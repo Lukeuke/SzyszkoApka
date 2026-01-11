@@ -22,6 +22,7 @@ type BookPointRepository interface {
 	Remove(ctx context.Context, id uuid.UUID) error
 	Approve(ctx context.Context, id uuid.UUID) error
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.BookPoint, error)
+	GetByImage(ctx context.Context, id string) (*domain.BookPoint, error)
 	GetAll(ctx context.Context, dataQuery *dto.DataQuery) (dto.DataResult[domain.BookPoint], error)
 	ExistsByExternalKey(ctx context.Context, externalKey string) (bool, error)
 	AssignFileName(ctx context.Context, id uuid.UUID, fileName string) (bool, error)
@@ -97,6 +98,29 @@ func (r *supabaseBookPointRepository) GetByID(ctx context.Context, id uuid.UUID)
 	var results []domain.BookPoint
 	if err := json.Unmarshal(data, &results); err != nil {
 		return nil, fmt.Errorf("unmarshal GetByID response: %w", err)
+	}
+
+	if len(results) == 0 {
+		return nil, nil
+	}
+
+	return &results[0], nil
+}
+
+func (r *supabaseBookPointRepository) GetByImage(ctx context.Context, id string) (*domain.BookPoint, error) {
+	data, _, err := r.client.
+		From("book_points").
+		Select("*", "exact", false).
+		Contains("images", []string{id}).
+		Execute()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var results []domain.BookPoint
+	if err := json.Unmarshal(data, &results); err != nil {
+		return nil, fmt.Errorf("unmarshal GetByImage response: %w", err)
 	}
 
 	if len(results) == 0 {
