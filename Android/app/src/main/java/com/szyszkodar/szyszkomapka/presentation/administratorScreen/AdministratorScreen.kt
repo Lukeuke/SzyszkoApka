@@ -81,7 +81,9 @@ fun AdministratorScreen(
                 editBookpoint = viewModel::editBookpoint,
                 setImageToSendNull = viewModel::setImageToSendNull,
                 buttonsEnabled = !state.bookpointIsAdding,
-                saveImageAsMultipart = viewModel::saveImageAsMultipart
+                saveImageAsMultipart = viewModel::saveImageAsMultipart,
+                deleteImage = state.deleteImage,
+                onCheckedChange = viewModel::setDeleteImage
             )
             else AdministratorScreenContent(
                 onExitClick = onExitClick,

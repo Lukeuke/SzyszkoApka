@@ -72,4 +72,9 @@ interface Api {
         @Query("id") id: String,
         @Part file: MultipartBody.Part
     )
+
+    @DELETE("images/{id}")
+    suspend fun deleteImage(
+        @Path("id") id: String
+    )
 }

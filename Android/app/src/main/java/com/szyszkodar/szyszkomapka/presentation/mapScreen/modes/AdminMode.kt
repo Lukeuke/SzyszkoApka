@@ -231,7 +231,9 @@ fun AdminMode(
                     buttonsEnabled = !state.value.bookpointIsAdding,
                     editBookpoint = viewModel::editBookpoint,
                     setImageToSendNull = viewModel::setImageToSendNull,
-                    saveImageAsMultipart = viewModel::saveImageAsMultipart
+                    saveImageAsMultipart = viewModel::saveImageAsMultipart,
+                    deleteImage = state.value.deleteImage,
+                    onCheckedChange = viewModel::setDeleteImage
                 )
             }
         }

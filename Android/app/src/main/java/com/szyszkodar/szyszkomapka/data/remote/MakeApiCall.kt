@@ -18,6 +18,7 @@ class MakeApiCall(private val api: Api) {
             is ApiRequest.EditBookpoint -> api.editBookpoint(id = request.id, editBookpointBody = request.editBookpointBody)
             is ApiRequest.GetImage -> api.getImage(id = request.id)
             is ApiRequest.UploadImage -> api.sendImage(id = request.id, file = request.file, q = request.q)
+            is ApiRequest.DeleteImage -> api.deleteImage(id = request.id)
         } as T
     }
 }

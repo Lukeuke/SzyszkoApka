@@ -4,6 +4,7 @@ package com.szyszkodar.szyszkomapka.presentation.administratorScreen
 import android.app.Application
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -147,17 +148,54 @@ class AdministratorScreenViewModel @Inject constructor(
 
     fun editBookpoint(
         id: String,
+        image: String?,
         bookpoint: EditBookpointBody,
         onSuccess: () -> Unit
     ) {
         _state.update { it.copy(bookpointIsAdding = true) }
         viewModelScope.launch {
-            val response = bookpointsRepository.editBookpoint(id = id, body = bookpoint)
-            when(response) {
-                is Result.Success -> onSuccess()
+            if (_state.value.imageToSend == null && _state.value.deleteImage) {
+                image?.let {
+                    when (val deleteResponse = bookpointsRepository.deleteImage(image)) {
+                        is Result.Success -> {}
+                        is Result.Error -> _state.update {
+                            it.copy(errorMessage = deleteResponse.error.message)
+                        }
+                    }
+                }
+            }
+
+            when(val response = bookpointsRepository.editBookpoint(id = id, body = bookpoint)) {
+                is Result.Success -> {
+                    if (_state.value.imageToSend != null) {
+                        image?.let {
+                            when (val removeImageResponse = bookpointsRepository.deleteImage(image)) {
+                                is Result.Error -> _state.update {
+                                    it.copy(errorMessage = removeImageResponse.error.message)
+                                }
+                                is Result.Success -> {
+                                    val sendImageResponse = bookpointsRepository.uploadImage(
+                                        id = id,
+                                        file = _state.value.imageToSend!!
+                                    )
+
+                                    when(sendImageResponse) {
+                                        is Result.Error -> _state.update {
+                                            it.copy(errorMessage = sendImageResponse.error.message)
+                                        }
+                                        is Result.Success-> {
+                                            setImageToSendNull()
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                    onSuccess()
+                }
                 is Result.Error -> { _state.update { it.copy(errorMessage = response.error.message) }}
             }
-            _state.update { it.copy(bookpointIsAdding = false) }
         }
     }
 
@@ -173,6 +211,10 @@ class AdministratorScreenViewModel @Inject constructor(
                 return
             }
         }
+    }
+
+    fun setDeleteImage(delete: Boolean) {
+        _state.update { it.copy(deleteImage = delete) }
     }
 
     private fun setToastMessage(message: String) {

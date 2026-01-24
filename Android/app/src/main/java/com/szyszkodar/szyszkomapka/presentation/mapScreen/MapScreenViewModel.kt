@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PointF
 import android.net.Uri
+import android.util.Log
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -15,6 +16,7 @@ import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
+import com.szyszkodar.szyszkomapka.Const
 import com.szyszkodar.szyszkomapka.R
 import com.szyszkodar.szyszkomapka.data.SessionManager
 import com.szyszkodar.szyszkomapka.data.enums.AppMode
@@ -32,10 +34,14 @@ import com.szyszkodar.szyszkomapka.domain.remote.filterParams.FieldParam
 import com.szyszkodar.szyszkomapka.domain.remote.filterParams.OperatorParam
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.maplibre.android.camera.CameraPosition
 import org.maplibre.android.camera.CameraUpdateFactory
@@ -60,6 +66,7 @@ import org.maplibre.geojson.Feature
 import org.maplibre.geojson.FeatureCollection
 import org.maplibre.geojson.Point
 import javax.inject.Inject
+import kotlin.math.log
 
 @HiltViewModel
 class MapScreenViewModel @Inject  constructor(
@@ -75,6 +82,9 @@ class MapScreenViewModel @Inject  constructor(
         initialValue = MapScreenState(),
         started = SharingStarted.WhileSubscribed(5000)
     )
+
+    private val _event = MutableSharedFlow<Unit>()
+    val event = _event.asSharedFlow()
 
     init {
         viewModelScope.launch {
@@ -92,7 +102,38 @@ class MapScreenViewModel @Inject  constructor(
             localizationHandler.observeUserLocation().collect { newLocation ->
                 if (newLocation != null) {
                     _state.update { it.copy(userLocation = newLocation) }
+                    if (!_state.value.startupCentered) {
+                        _state.update { it.copy(startupCentered = true) }
+                        _event.emit(Unit)
+                    }
                 }
+            }
+        }
+        startUnapprovedBookpointsRefresh()
+    }
+
+    private fun startUnapprovedBookpointsRefresh() {
+        viewModelScope.launch {
+            while (isActive) {
+                if (_state.value.appMode == AppMode.ADMIN) {
+                    val unapprovedBookpoints = fetchBookpoints(
+                        query = GetBookpointsQuery(
+                            filters = listOf(
+                                BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, false)
+                            )
+                        )
+                    )
+
+                    unapprovedBookpoints?.let {
+                        _state.update {
+                            it.copy(
+                                unapprovedBookpoints = unapprovedBookpoints,
+                                userUnapprovedBookpoints = emptyList()
+                            )
+                        }
+                    }
+                }
+                delay(Const.UNAPPROVED_BOOKPOINTS_REFRESH_DELAY)
             }
         }
     }
@@ -152,16 +193,6 @@ class MapScreenViewModel @Inject  constructor(
     }
 
     fun updateMap(mapView: MapView){
-        if (_state.value.appMode == AppMode.ADMIN){
-            viewModelScope.launch {
-                val unapprovedBookpoints = fetchBookpoints(query = GetBookpointsQuery(filters = listOf(
-                    BookpointsFilter.generic(FieldParam.APPROVED, OperatorParam.EQ, false)
-                )))
-
-                unapprovedBookpoints?.let { _state.update { it.copy(unapprovedBookpoints = unapprovedBookpoints, userUnapprovedBookpoints = emptyList()) }}
-            }
-        }
-
         mapView.getMapAsync { map ->
             // Edit map style
             map.getStyle { style ->
@@ -450,6 +481,57 @@ class MapScreenViewModel @Inject  constructor(
         }
     }
 
+    fun editBookpoint(
+        id: String,
+        image: String?,
+        bookpoint: EditBookpointBody,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            if (_state.value.imageToSend == null && _state.value.deleteImage) {
+                image?.let {
+                    when (val deleteResponse = bookpointsRepository.deleteImage(image)) {
+                        is Result.Success -> {}
+                        is Result.Error -> _state.update {
+                            it.copy(errorMessage = deleteResponse.error.message)
+                        }
+                    }
+                }
+            }
+            when(val response = bookpointsRepository.editBookpoint(id = id, body = bookpoint)) {
+                is Result.Success -> {
+                    if (_state.value.imageToSend != null) {
+                        image?.let {
+                            when (val removeImageResponse = bookpointsRepository.deleteImage(image)) {
+                                is Result.Error -> _state.update {
+                                    it.copy(errorMessage = removeImageResponse.error.message)
+                                }
+                                is Result.Success -> {
+                                    val sendImageResponse = bookpointsRepository.uploadImage(
+                                        id = id,
+                                        file = _state.value.imageToSend!!
+                                    )
+
+                                    when(sendImageResponse) {
+                                        is Result.Error -> _state.update {
+                                            it.copy(errorMessage = sendImageResponse.error.message)
+                                        }
+                                        is Result.Success-> {
+                                            setImageToSendNull()
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                    onSuccess()
+                }
+                is Result.Error -> { _state.update { it.copy(errorMessage = response.error.message) }}
+            }
+        }
+    }
+
     fun saveImageAsMultipart(context: Context, uri: Uri) {
         val type = context.contentResolver.getType(uri)
         when(type) {
@@ -482,21 +564,11 @@ class MapScreenViewModel @Inject  constructor(
         )
     }
 
-    fun setBookpointToEdit(bookpointUI: BookpointUI?) {
-        _state.update { it.copy(bookpointToEdit = bookpointUI) }
+    fun setDeleteImage(delete: Boolean) {
+        _state.update { it.copy(deleteImage = delete) }
     }
 
-    fun editBookpoint(
-        id: String,
-        bookpoint: EditBookpointBody,
-        onSuccess: () -> Unit
-    ) {
-        viewModelScope.launch {
-            val response = bookpointsRepository.editBookpoint(id = id, body = bookpoint)
-            when(response) {
-                is Result.Success -> onSuccess()
-                is Result.Error -> { _state.update { it.copy(errorMessage = response.error.message) }}
-            }
-        }
+    fun setBookpointToEdit(bookpointUI: BookpointUI?) {
+        _state.update { it.copy(bookpointToEdit = bookpointUI) }
     }
 }

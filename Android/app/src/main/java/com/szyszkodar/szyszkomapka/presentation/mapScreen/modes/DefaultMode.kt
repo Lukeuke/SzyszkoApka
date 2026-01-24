@@ -226,7 +226,9 @@ fun DefaultMode(
                     bookpoint = it,
                     editBookpoint = viewModel::editBookpoint,
                     setImageToSendNull = viewModel::setImageToSendNull,
-                    saveImageAsMultipart = viewModel::saveImageAsMultipart
+                    saveImageAsMultipart = viewModel::saveImageAsMultipart,
+                    deleteImage = state.value.deleteImage,
+                    onCheckedChange = viewModel::setDeleteImage
                 )
             }
         }

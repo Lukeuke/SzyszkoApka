@@ -17,5 +17,7 @@ data class MapScreenState(
     val chosenBookpoint: BookpointUI? = null,
     val imageToSend: MultipartBody.Part? = null,
     val bookpointIsAdding: Boolean = false,
-    val bookpointToEdit: BookpointUI? = null
+    val bookpointToEdit: BookpointUI? = null,
+    val startupCentered: Boolean = false,
+    val deleteImage: Boolean = false
 )

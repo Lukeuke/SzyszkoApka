@@ -62,4 +62,9 @@ class BookpointsRepository @Inject constructor(
     ): Result<Unit, NetworkError> {
         return request(ApiRequest.UploadImage(id, q, file))
     }
+
+    suspend fun deleteImage(
+        id: String
+    ): Result<Unit, NetworkError> =
+        request(ApiRequest.DeleteImage(id))
 }

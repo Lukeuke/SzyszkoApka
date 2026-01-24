@@ -46,4 +46,8 @@ sealed interface ApiRequest {
         val q: Int,
         val file: MultipartBody.Part
     ): ApiRequest
+
+    data class DeleteImage(
+        val id: String
+    ): ApiRequest
 }

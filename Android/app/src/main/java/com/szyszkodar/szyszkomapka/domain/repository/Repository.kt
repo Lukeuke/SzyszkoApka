@@ -26,6 +26,7 @@ abstract class Repository(
             val result = callFunction()
             Result.Success(result)
         } catch(e: HttpException) {
+            Log.d("KOŃ", "returnRequestResult: ${e.message}")
             when(e.code()) {
                 404 -> Result.Error(NetworkError.IDENTITY_ERROR)
                 408 -> Result.Error(NetworkError.REQUEST_TIMEOUT)
@@ -34,9 +35,10 @@ abstract class Repository(
                 else -> Result.Error(NetworkError.UNKNOWN)
             }
         } catch(e: UnknownHostException) {
+            Log.d("KOŃ", "returnRequestResult: ${e.message}")
             Result.Error(NetworkError.NO_CONNECTION)
         } catch(e: Throwable) {
-            Log.d("KOŃ", "returnRequestResult: $e")
+            Log.d("KOŃ", "returnRequestResult: ${e.message}")
             Result.Error(NetworkError.UNKNOWN)
         }
     }

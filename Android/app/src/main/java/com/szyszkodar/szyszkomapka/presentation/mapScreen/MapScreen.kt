@@ -25,6 +25,7 @@ import com.szyszkodar.szyszkomapka.presentation.mapScreen.components.MapLibreVie
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.modes.AddBookpointMode
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.modes.AdminMode
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.modes.DefaultMode
+import com.szyszkodar.szyszkomapka.presentation.shared.icons._My_location
 import org.maplibre.android.maps.MapView
 
 @Composable
@@ -40,6 +41,19 @@ fun MapScreen(
 
     LaunchedEffect(state.value.userLocation) {
         mapViewRef.value?.let { viewModel.updateMap(it) }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.event.collect {
+            mapViewRef.value?.let { mapView ->
+                state.value.userLocation?.let { latLng ->
+                    viewModel.mapViewCameraPositionChange(
+                        mapView = mapView,
+                        targetLatLng = latLng
+                    )
+                }
+            }
+        }
     }
 
     Box(
@@ -108,7 +122,7 @@ fun MapScreen(
                         }
                     )
                 }
-                        AppMode.ADD_BOOKPOINT -> mapViewRef.value?.let {
+                AppMode.ADD_BOOKPOINT -> mapViewRef.value?.let {
                     AddBookpointMode(
                         paddingValues = paddingValues,
                         viewModel = viewModel,

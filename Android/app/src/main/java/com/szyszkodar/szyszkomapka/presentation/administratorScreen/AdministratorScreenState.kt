@@ -17,5 +17,6 @@ data class AdministratorScreenState(
     val editBookpointFormVisible: Boolean = false,
     val chosenBookpoint: BookpointUI? = null,
     val imageToSend: MultipartBody.Part? = null,
-    val bookpointIsAdding: Boolean = false
+    val bookpointIsAdding: Boolean = false,
+    val deleteImage: Boolean = false
 )

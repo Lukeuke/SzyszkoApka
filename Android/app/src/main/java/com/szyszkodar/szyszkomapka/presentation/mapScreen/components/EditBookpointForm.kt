@@ -28,6 +28,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -58,6 +59,7 @@ import androidx.compose.ui.unit.sp
 import com.szyszkodar.szyszkomapka.data.remote.body.EditBookpointBody
 import com.szyszkodar.szyszkomapka.data.remote.builders.EditBookpointBodyBuilder
 import com.szyszkodar.szyszkomapka.data.uiClasses.BookpointUI
+import com.szyszkodar.szyszkomapka.domain.remote.ApiRequest
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenState
 import com.szyszkodar.szyszkomapka.presentation.mapScreen.MapScreenViewModel
 import com.szyszkodar.szyszkomapka.presentation.shared.OutlinedText
@@ -68,10 +70,12 @@ import kotlinx.coroutines.launch
 fun EditBookpointForm(
     bookpoint: BookpointUI,
     exit: () -> Unit,
-    editBookpoint: (String, EditBookpointBody, () -> Unit) -> Unit,
+    editBookpoint: (String, String?, EditBookpointBody, () -> Unit) -> Unit,
     setImageToSendNull: () -> Unit,
     buttonsEnabled: Boolean,
+    deleteImage: Boolean,
     saveImageAsMultipart: (Context, Uri) -> Unit,
+    onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val builder = remember(bookpoint.id) {
@@ -294,7 +298,9 @@ fun EditBookpointForm(
             Spacer(Modifier.height(16.dp))
             var imageChosen by remember { mutableStateOf(false) }
             val launcher = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
-                uri?.let { saveImageAsMultipart(context, it) }
+                uri?.let {
+                    saveImageAsMultipart(context, it)
+                }
             }
             Button(
                 onClick = {
@@ -310,6 +316,16 @@ fun EditBookpointForm(
                 )
             }
 
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = deleteImage,
+                    onCheckedChange = onCheckedChange
+                )
+                Text("Usuń zdjęcie biblioteczki")
+            }
+
             Spacer(Modifier.height(20.dp))
 
             OutlinedButton(
@@ -319,6 +335,7 @@ fun EditBookpointForm(
                     }
                     editBookpoint(
                         bookpoint.id,
+                        bookpoint.images?.firstOrNull(),
                         builder.build()
                     ) {
                         Toast.makeText(context, "Edytowano biblioteczke", Toast.LENGTH_SHORT).show()
